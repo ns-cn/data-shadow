@@ -1,0 +1,14 @@
+{
+    "maven.terminal.favorites": [
+        {
+            "command": "clean compile -U",
+            "debug": false
+        },
+        {
+            "command": "clean compile -U",
+            "debug": false
+        }
+    ],
+    "maven.view": "hierarchical",
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

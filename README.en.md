@@ -1,36 +1,20 @@
 # DataShadow
 
-#### Description
-{**When you're done, you can delete the content in this README and update the file with details for others getting started with your repository**}
+#### Project Introduction
+DataShadow is a data comparison tool that can read structured data from various data sources (Excel, CSV, JSON, XML, Oracle/MySQL databases, etc.), perform data comparison, and generate comparison results.
 
-#### Software Architecture
-Software architecture description
+#### Technical Architecture
+- Development Language: Java 23
+- GUI Framework: JavaFX 21.0.2
+- Project Management: Maven
+- Unit Testing: JUnit 5
+- Main Dependencies:
+  - Apache POI: Excel file reading and writing
+  - FastJSON: JSON data processing
+  - Apache Commons CSV: CSV file processing
+  - MySQL/Oracle JDBC: Database connectivity
 
-#### Installation
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Instructions
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### Contribution
-
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
-
-
-#### Gitee Feature
-
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#### Installation Guide
+1. Ensure JDK 23 or higher is installed
+2. Clone the project locally
+3. Build the project using Maven:

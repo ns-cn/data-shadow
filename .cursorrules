@@ -1,0 +1,12 @@
+本项目使用java23编程语言，用JavaFX开发，使用maven管理依赖
+
+【开发规范】
+1. 项目使用java23编程语言
+2. 项目使用JavaFx开发GUI
+3. 包名为com.tangyujun.datashadow
+4. 项目使用maven管理依赖
+5. 项目使用JUnit进行单元测试
+6. 全程完善注释
+
+【核心功能】
+核心功能为通过读取各种数据来源（excel、csv、json、xml、Oracle/Mysql数据库等）的结构化数据，进行数据比对，并生成比对结果
