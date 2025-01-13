@@ -12,9 +12,12 @@ import com.tangyujun.datashadow.model.datasource.DataSourceFile;
 import com.tangyujun.datashadow.model.exception.DataAccessException;
 import com.tangyujun.datashadow.model.exception.DataSourceValidException;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * JSON数据源
  */
+@EqualsAndHashCode(callSuper = true)
 public class DataSourceJson extends DataSourceFile {
 
     /**

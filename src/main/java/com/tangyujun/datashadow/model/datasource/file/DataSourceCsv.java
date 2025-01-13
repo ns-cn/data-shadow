@@ -20,10 +20,29 @@ import java.util.Map;
 import com.tangyujun.datashadow.model.exception.DataAccessException;
 import com.tangyujun.datashadow.model.exception.DataSourceValidException;
 
+import lombok.EqualsAndHashCode;
+
+/**
+ * CSV数据源
+ * 支持读取CSV格式的文件
+ * 将CSV表格数据转换为结构化数据
+ * 支持自定义文件编码
+ */
+@EqualsAndHashCode(callSuper = true)
 public class DataSourceCsv extends DataSourceFile {
 
+    /**
+     * CSV文件的编码格式
+     * 如果未指定则默认使用UTF-8编码
+     */
     private String encoding;
 
+    /**
+     * 验证CSV文件路径是否正确
+     * 检查文件是否存在、可读、格式是否正确
+     * 
+     * @throws DataSourceValidException 当CSV文件路径格式错误或文件不可读时抛出
+     */
     @Override
     public void valid() throws DataSourceValidException {
         if (path == null || path.isBlank()) {
@@ -50,6 +69,14 @@ public class DataSourceCsv extends DataSourceFile {
         }
     }
 
+    /**
+     * 从CSV文件中获取数据
+     * 读取CSV文件的所有数据,第一行作为表头
+     * 支持自定义编码格式读取
+     * 
+     * @return 查询结果列表,每行数据以Map形式存储,key为列名,value为列值
+     * @throws DataAccessException 当CSV文件读取失败时抛出
+     */
     @Override
     public List<Map<String, Object>> getValues() throws DataAccessException {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -70,8 +97,9 @@ public class DataSourceCsv extends DataSourceFile {
 
     /**
      * 设置CSV文件编码
+     * 如果不设置则默认使用UTF-8编码
      * 
-     * @param encoding 编码
+     * @param encoding 编码格式,如UTF-8、GBK等
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;

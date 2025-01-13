@@ -1,5 +1,8 @@
 package com.tangyujun.datashadow.model;
 
+import java.io.Serializable;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +11,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class DataItem {
+@EqualsAndHashCode
+public class DataItem implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 数据项代码
@@ -21,7 +27,7 @@ public class DataItem {
     private boolean unique;
 
     /**
-     * 数据项名称（中文，可选）
+     * 数据项名称（中文，可选，默认空）
      */
     private String nick;
 

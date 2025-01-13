@@ -1,5 +1,6 @@
 package com.tangyujun.datashadow.model.datasource;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import com.tangyujun.datashadow.model.exception.DataAccessException;
 import com.tangyujun.datashadow.model.exception.DataSourceValidException;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +17,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class DataSource {
+@EqualsAndHashCode
+public abstract class DataSource implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 数据集的键值映射(key:数据项代码, value:数据项值)

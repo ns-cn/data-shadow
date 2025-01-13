@@ -7,6 +7,8 @@ import com.tangyujun.datashadow.model.datasource.DataSourceFile;
 import com.tangyujun.datashadow.model.exception.DataAccessException;
 import com.tangyujun.datashadow.model.exception.DataSourceValidException;
 
+import lombok.EqualsAndHashCode;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.io.FileInputStream;
@@ -18,8 +20,19 @@ import java.util.List;
 import java.util.Map;
 import java.io.IOException;
 
+/**
+ * Excel数据源
+ * 支持读取.xls和.xlsx格式的Excel文件
+ * 将Excel表格数据转换为结构化数据
+ */
+@EqualsAndHashCode(callSuper = true)
 public class DataSourceExcel extends DataSourceFile {
 
+    /**
+     * 验证Excel文件路径是否正确
+     * 
+     * @throws DataSourceValidException 当Excel文件路径格式错误或文件不可读时抛出
+     */
     @Override
     public void valid() throws DataSourceValidException {
         if (path == null || path.isBlank()) {
@@ -47,6 +60,13 @@ public class DataSourceExcel extends DataSourceFile {
         }
     }
 
+    /**
+     * 从Excel文件中获取数据
+     * 读取第一个工作表的数据,第一行作为表头
+     * 
+     * @return 查询结果列表,每行数据以Map形式存储,key为列名,value为列值
+     * @throws DataAccessException 当Excel文件读取失败时抛出
+     */
     @Override
     public List<Map<String, Object>> getValues() throws DataAccessException {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -87,6 +107,14 @@ public class DataSourceExcel extends DataSourceFile {
         return result;
     }
 
+    /**
+     * 获取单元格的值
+     * 根据单元格类型返回相应的Java对象
+     * 支持字符串、数字、日期、布尔值和公式类型
+     * 
+     * @param cell Excel单元格对象
+     * @return 单元格的值,类型可能为String、Double、Date或Boolean
+     */
     private Object getCellValue(Cell cell) {
         return switch (cell.getCellType()) {
             case STRING -> cell.getStringCellValue();

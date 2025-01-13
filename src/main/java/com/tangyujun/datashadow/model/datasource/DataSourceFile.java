@@ -1,9 +1,13 @@
 package com.tangyujun.datashadow.model.datasource;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * 文件数据源
  */
+@EqualsAndHashCode(callSuper = true)
 public abstract class DataSourceFile extends DataSource {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 文件路径

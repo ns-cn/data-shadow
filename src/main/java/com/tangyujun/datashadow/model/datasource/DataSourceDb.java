@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class DataSourceDb extends DataSource {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 数据库连接URL
