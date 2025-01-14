@@ -177,8 +177,9 @@ public class DataSourceMysql extends DataSource {
 
     /**
      * 获取MySQL数据源的列名
+     * 通过执行SQL语句并解析结果集的元数据来获取列名
      * 
-     * @return 列名列表
+     * @return 列名列表,包含查询结果中所有列的名称
      */
     @Override
     public List<String> getColumns() {
