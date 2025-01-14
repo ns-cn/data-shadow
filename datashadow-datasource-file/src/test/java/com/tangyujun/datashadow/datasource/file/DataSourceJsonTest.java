@@ -134,4 +134,26 @@ public class DataSourceJsonTest {
             // 预期的异常,测试通过
         }
     }
+
+    /**
+     * 测试获取列名
+     */
+    @Test
+    void testGetColumns() throws DataAccessException {
+        // 使用测试JSON文件
+        dataSource = new DataSourceJson();
+        dataSource.setPath(validJsonPath);
+
+        // 获取列名列表
+        List<String> columns = dataSource.getColumns();
+
+        // 验证列表不为空且包含预期的列名
+        assertNotNull(columns, "列名列表不应为空");
+        assertFalse(columns.isEmpty(), "列名列表不应为空");
+
+        // 验证是否包含测试文件中的列名
+        assertTrue(columns.contains("姓名"), "应包含'姓名'列");
+        assertTrue(columns.contains("年龄"), "应包含'年龄'列");
+        assertTrue(columns.contains("城市"), "应包含'城市'列");
+    }
 }

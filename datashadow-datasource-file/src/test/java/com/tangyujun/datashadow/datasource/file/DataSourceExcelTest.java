@@ -1,5 +1,6 @@
 package com.tangyujun.datashadow.datasource.file;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.tangyujun.datashadow.exception.DataAccessException;
@@ -18,6 +19,24 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class DataSourceExcelTest {
 
+    private DataSourceExcel excel;
+
+    /**
+     * 保持setUp方法调用，避免unsed警告
+     */
+    @SuppressWarnings("unused")
+    private void keep() {
+        setUp();
+    }
+
+    /**
+     * 初始化Excel对象
+     */
+    @BeforeEach
+    void setUp() {
+        excel = new DataSourceExcel();
+    }
+
     /**
      * 测试Excel文件路径验证功能
      * 验证:
@@ -29,8 +48,6 @@ class DataSourceExcelTest {
      */
     @Test
     void testValid() {
-        DataSourceExcel excel = new DataSourceExcel();
-
         // 测试文件不存在的情况
         excel.setPath("不存在的文件.xlsx");
         try {
@@ -91,7 +108,6 @@ class DataSourceExcelTest {
     @Test
     void testGetValuesXlsx() throws DataAccessException {
         // 测试.xlsx格式
-        DataSourceExcel excel = new DataSourceExcel();
         URL resource = getClass().getClassLoader().getResource("excel/test.xlsx");
         assertNotNull(resource, "xlsx测试文件不存在");
         File file = new File(resource.getFile());
@@ -120,7 +136,6 @@ class DataSourceExcelTest {
     @Test
     void testGetValuesXls() throws DataAccessException {
         // 测试.xls格式
-        DataSourceExcel excel = new DataSourceExcel();
         URL resource = getClass().getClassLoader().getResource("excel/test.xls");
         assertNotNull(resource, "xls测试文件不存在");
         File file = new File(resource.getFile());
@@ -146,7 +161,6 @@ class DataSourceExcelTest {
      */
     @Test
     void testGetValuesWithEmptyFile() throws DataAccessException {
-        DataSourceExcel excel = new DataSourceExcel();
         URL resource = getClass().getClassLoader().getResource("excel/empty.xlsx");
         assertNotNull(resource, "测试文件不存在");
         File file = new File(resource.getFile());
@@ -166,7 +180,6 @@ class DataSourceExcelTest {
      */
     @Test
     void testComplexExcelFormat() throws DataAccessException {
-        DataSourceExcel excel = new DataSourceExcel();
         URL resource = getClass().getClassLoader().getResource("excel/complex.xlsx");
         assertNotNull(resource, "测试文件不存在");
         File file = new File(resource.getFile());
@@ -190,5 +203,27 @@ class DataSourceExcelTest {
         // 测试公式
         Object formulaResult = firstRow.get("年终奖");
         assertTrue(formulaResult instanceof Double || formulaResult instanceof String);
+    }
+
+    /**
+     * 测试获取列名
+     */
+    @Test
+    void testGetColumns() throws DataAccessException {
+        // 获取测试文件路径
+        URL resource = getClass().getClassLoader().getResource("excel/test.xlsx");
+        assertNotNull(resource, "测试文件不存在");
+        File file = new File(resource.getFile());
+        excel.setPath(file.getAbsolutePath());
+
+        // 获取列名列表
+        List<String> columns = excel.getColumns();
+
+        // 验证列表不为空且包含预期的列名
+        assertNotNull(columns, "列名列表不应为空");
+        assertEquals(3, columns.size());
+        assertTrue(columns.contains("姓名"), "应包含'姓名'列");
+        assertTrue(columns.contains("年龄"), "应包含'年龄'列");
+        assertTrue(columns.contains("城市"), "应包含'城市'列");
     }
 }

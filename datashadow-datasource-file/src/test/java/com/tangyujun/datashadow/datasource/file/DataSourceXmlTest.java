@@ -128,4 +128,22 @@ class DataSourceXmlTest {
             assertTrue(e.getMessage().contains("读取XML文件失败"));
         }
     }
+
+    /**
+     * 测试获取列名
+     */
+    @Test
+    void testGetColumns() throws DataAccessException {
+        dataSourceXml.setPath(validXmlPath);
+        List<String> columns = dataSourceXml.getColumns();
+        // 验证列表不为空且包含预期的列名
+        assertNotNull(columns, "列名列表不应为空");
+        assertEquals(4, columns.size(), "应该包含4个列名");
+
+        // 验证是否包含所有预期的列名
+        assertTrue(columns.contains("id"), "应包含'id'列");
+        assertTrue(columns.contains("name"), "应包含'name'列");
+        assertTrue(columns.contains("age"), "应包含'age'列");
+        assertTrue(columns.contains("grade"), "应包含'grade'列");
+    }
 }

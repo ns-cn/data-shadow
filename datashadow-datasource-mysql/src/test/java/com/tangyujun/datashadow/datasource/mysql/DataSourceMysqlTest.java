@@ -180,4 +180,17 @@ class DataSourceMysqlTest {
             }
         });
     }
+
+    /**
+     * 测试获取列名
+     * 验证获取列名功能是否正常
+     */
+    @Test
+    void testGetColumns() throws DataAccessException {
+        dataSource.setSql("SELECT 1 as id, 'test' as name");
+        List<String> columns = dataSource.getColumns();
+        assertEquals(2, columns.size());
+        assertTrue(columns.contains("id"));
+        assertTrue(columns.contains("name"));
+    }
 }

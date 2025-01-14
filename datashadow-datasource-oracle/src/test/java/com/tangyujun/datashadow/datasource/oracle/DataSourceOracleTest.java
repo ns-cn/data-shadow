@@ -8,6 +8,8 @@ import com.tangyujun.datashadow.exception.DataSourceValidException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+
 /**
  * Oracle数据源测试类
  */
@@ -121,5 +123,17 @@ public class DataSourceOracleTest {
         } catch (DataAccessException e) {
             fail("查询执行不应抛出异常: " + e.getMessage());
         }
+    }
+
+    /**
+     * 测试获取列名
+     */
+    @Test
+    void testGetColumns() throws DataAccessException {
+        dataSource.setSql("SELECT 1 as id, 'test' as name FROM DUAL");
+        List<String> columns = dataSource.getColumns();
+        assertEquals(2, columns.size());
+        assertTrue(columns.contains("ID"));
+        assertTrue(columns.contains("NAME"));
     }
 }

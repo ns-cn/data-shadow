@@ -1,5 +1,6 @@
 package com.tangyujun.datashadow.datasource.file;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.tangyujun.datashadow.exception.DataAccessException;
@@ -18,6 +19,21 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class DataSourceCsvTest {
 
+    private DataSourceCsv csv;
+
+    /**
+     * 保持setUp方法调用，避免unsed警告
+     */
+    @SuppressWarnings("unused")
+    private void keep() {
+        setUp();
+    }
+
+    @BeforeEach
+    void setUp() {
+        csv = new DataSourceCsv();
+    }
+
     /**
      * 测试CSV文件路径验证功能
      * 验证:
@@ -27,8 +43,6 @@ class DataSourceCsvTest {
      */
     @Test
     void testValid() {
-        DataSourceCsv csv = new DataSourceCsv();
-
         // 测试文件不存在的情况
         csv.setPath("不存在的文件.csv");
         try {
@@ -73,7 +87,6 @@ class DataSourceCsvTest {
     @Test
     void testGetValues() throws DataAccessException {
         // 准备测试数据
-        DataSourceCsv csv = new DataSourceCsv();
         URL resource = getClass().getClassLoader().getResource("csv/test.csv");
         assertNotNull(resource, "测试文件不存在");
 
@@ -100,7 +113,6 @@ class DataSourceCsvTest {
      */
     @Test
     void testValidWithWrongExtension() {
-        DataSourceCsv csv = new DataSourceCsv();
         csv.setPath("test.txt");
         try {
             csv.valid();
@@ -118,7 +130,6 @@ class DataSourceCsvTest {
      */
     @Test
     void testGetValuesWithEmptyFile() throws DataAccessException {
-        DataSourceCsv csv = new DataSourceCsv();
         // 假设存在一个空的CSV文件
         URL resource = getClass().getClassLoader().getResource("csv/empty.csv");
         assertNotNull(resource, "测试文件不存在");
@@ -138,7 +149,6 @@ class DataSourceCsvTest {
      */
     @Test
     void testComplexCsvFormat() throws DataAccessException {
-        DataSourceCsv csv = new DataSourceCsv();
         URL resource = getClass().getClassLoader().getResource("csv/complex.csv");
         assertNotNull(resource, "测试文件不存在");
         File file = new File(resource.getFile());
@@ -151,5 +161,29 @@ class DataSourceCsvTest {
         Map<String, Object> firstRow = values.get(0);
         assertEquals("张三,李四", firstRow.get("复杂名称")); // 验证包含逗号的字段
         assertEquals("\"测试\"数据", firstRow.get("带引号字段")); // 验证包含引号的字段
+    }
+
+    /**
+     * 测试获取列名
+     */
+    @Test
+    void testGetColumns() throws DataAccessException {
+        // 使用测试CSV文件
+        URL resource = getClass().getClassLoader().getResource("csv/test.csv");
+        assertNotNull(resource, "测试文件不存在");
+        File file = new File(resource.getFile());
+        csv.setPath(file.getAbsolutePath());
+
+        // 获取列名列表
+        List<String> columns = csv.getColumns();
+
+        // 验证列表不为空且包含预期的列名
+        assertNotNull(columns, "列名列表不应为空");
+        assertFalse(columns.isEmpty(), "列名列表不应为空");
+
+        // 验证是否包含测试文件中的列名
+        assertTrue(columns.contains("姓名"), "应包含'姓名'列");
+        assertTrue(columns.contains("年龄"), "应包含'年龄'列");
+        assertTrue(columns.contains("城市"), "应包含'城市'列");
     }
 }
