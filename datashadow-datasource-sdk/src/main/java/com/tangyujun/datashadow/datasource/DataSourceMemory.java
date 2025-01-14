@@ -7,6 +7,11 @@ import java.util.Map;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 /**
  * 内存数据源
  * 用于存储和管理内存中的数据集
@@ -67,5 +72,25 @@ public class DataSourceMemory extends DataSource {
     @Override
     public String getDescription() {
         return "内存数据源";
+    }
+
+    /**
+     * 配置数据源的具体行为，例如打开对话框、选择文件、配置数据库链接信息等
+     * 
+     * @param primaryStage 主窗口
+     */
+    @Override
+    public void configure(Stage primaryStage) {
+        // 创建新的对话框窗口
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.WINDOW_MODAL); // 设置为模态窗口
+        dialog.initOwner(primaryStage); // 设置主窗口为父窗口
+
+        BorderPane dialogRoot = new BorderPane();
+        Scene dialogScene = new Scene(dialogRoot, 400, 300);
+
+        dialog.setTitle("内存数据源配置");
+        dialog.setScene(dialogScene);
+        dialog.show();
     }
 }

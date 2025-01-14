@@ -18,6 +18,7 @@
         <dependency>
             <groupId>com.tangyujun</groupId>
             <artifactId>datashadow-datasource-sdk</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- JavaFX依赖 -->

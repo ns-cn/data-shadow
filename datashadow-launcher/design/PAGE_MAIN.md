@@ -37,8 +37,7 @@
                 <button style="width: 100%; margin-bottom: 5px;">编辑选中项</button>
                 <button style="width: 100%; margin-bottom: 5px;">删除选中项</button>
                 <button style="width: 100%; margin-bottom: 5px;">上移</button>
-                <button style="width: 100%; margin-bottom: 5px;">下移</button>
-                <button style="width: 100%;">批量导入</button>
+                <button style="width: 100%;">下移</button>
             </div>
         </div>
     </div>
@@ -134,7 +133,6 @@
      * 编辑选中项：修改选中数据项的信息
      * 删除选中项：移除选中的数据项
      * 上移/下移：调整选中项的排序位置
-     * 批量导入：支持从文件导入多个数据项
 
 2. 数据源维护区域
    - 分为主数据源和影子数据源两部分
@@ -172,7 +170,6 @@
    - 移动操作时：
      * 选中单条数据时，上移/下移按钮根据位置自动启用/禁用
      * 选中多条数据时，移动按钮禁用
-   - 批量导入支持Excel等格式的数据项导入
 
 2. 数据源配置
    - 选择数据源类型后点击"配置数据源"进行详细配置

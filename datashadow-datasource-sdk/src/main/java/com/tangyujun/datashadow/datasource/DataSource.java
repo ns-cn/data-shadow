@@ -9,6 +9,8 @@ import java.util.Objects;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
+import javafx.stage.Stage;
+
 /**
  * 数据源抽象类
  * 定义了数据源的基本属性和方法
@@ -142,4 +144,11 @@ public abstract class DataSource implements Serializable {
     public int hashCode() {
         return Objects.hash(keyToCode, scriptProcessor);
     }
+
+    /**
+     * 配置数据源的具体行为，例如打开对话框、选择文件、配置数据库链接信息等
+     * 
+     * @param primaryStage 主窗口
+     */
+    public abstract void configure(Stage primaryStage);
 }
