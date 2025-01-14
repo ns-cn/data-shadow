@@ -174,4 +174,43 @@ public class DataSourceMysql extends DataSource {
             throw new DataAccessException("执行MySQL查询失败: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * 获取MySQL数据源的列名
+     * 
+     * @return 列名列表
+     */
+    @Override
+    public List<String> getColumns() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new DataAccessException("MySQL驱动加载失败", e);
+        }
+        try (var connection = DriverManager.getConnection(url, username, password);
+                var statement = connection.createStatement();
+                var resultSet = statement.executeQuery(sql)) {
+
+            var metaData = resultSet.getMetaData();
+            var columnCount = metaData.getColumnCount();
+            var columns = new ArrayList<String>();
+
+            for (int i = 1; i <= columnCount; i++) {
+                columns.add(metaData.getColumnLabel(i));
+            }
+            return columns;
+        } catch (SQLException e) {
+            throw new DataAccessException("获取MySQL列名失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 获取数据源描述
+     * 
+     * @return 数据源描述
+     */
+    @Override
+    public String getDescription() {
+        return url;
+    }
 }

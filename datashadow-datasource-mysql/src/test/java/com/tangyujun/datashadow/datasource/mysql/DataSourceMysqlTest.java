@@ -3,7 +3,6 @@ package com.tangyujun.datashadow.datasource.mysql;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.tangyujun.datashadow.datasource.mysql.DataSourceMysql;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 

@@ -174,4 +174,43 @@ public class DataSourceOracle extends DataSource {
         this.sql = sql;
     }
 
+    /**
+     * 获取Oracle数据源的列名
+     * 
+     * @return 列名列表
+     */
+    @Override
+    public List<String> getColumns() {
+        try {
+            Class.forName("oracle.jdbc.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            throw new DataAccessException("Oracle驱动加载失败", e);
+        }
+        try (var connection = DriverManager.getConnection(url, username, password);
+                var statement = connection.createStatement();
+                var resultSet = statement.executeQuery(sql)) {
+
+            var metaData = resultSet.getMetaData();
+            var columnCount = metaData.getColumnCount();
+            var columns = new ArrayList<String>();
+
+            for (int i = 1; i <= columnCount; i++) {
+                columns.add(metaData.getColumnLabel(i));
+            }
+            return columns;
+        } catch (SQLException e) {
+            throw new DataAccessException("获取Oracle列名失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 获取Oracle数据源的描述
+     * 
+     * @return 数据源描述
+     */
+    @Override
+    public String getDescription() {
+        return url;
+    }
+
 }
