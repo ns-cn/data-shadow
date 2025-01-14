@@ -14,11 +14,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
-
-import lombok.EqualsAndHashCode;
 
 /**
  * CSV数据源
@@ -26,7 +25,6 @@ import lombok.EqualsAndHashCode;
  * 将CSV表格数据转换为结构化数据
  * 支持自定义文件编码
  */
-@EqualsAndHashCode(callSuper = true)
 public class DataSourceCsv extends DataSourceFile {
 
     /**
@@ -101,5 +99,36 @@ public class DataSourceCsv extends DataSourceFile {
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * 重写equals方法
+     * 用于比较两个DataSourceCsv对象是否相等
+     * 如果两个对象的path和encoding属性都相等,则认为这两个对象相等
+     *
+     * @param o 要比较的对象
+     * @return 如果对象相等返回true,否则返回false
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+        DataSourceCsv that = (DataSourceCsv) o;
+        return Objects.equals(encoding, that.encoding);
+    }
+
+    /**
+     * 重写hashCode方法
+     * 根据对象的path和encoding属性生成哈希码
+     *
+     * @return 对象的哈希码
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), encoding);
     }
 }

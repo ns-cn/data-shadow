@@ -2,34 +2,43 @@ package com.tangyujun.datashadow.datasource.db;
 
 import com.tangyujun.datashadow.datasource.DataSource;
 
-import lombok.Getter;
-import lombok.Setter;
-
-/**
- * 数据库数据源
- */
-@Getter
-@Setter
 public abstract class DataSourceDb extends DataSource {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 数据库连接URL
-     */
     protected String url;
-
-    /**
-     * 数据库用户名
-     */
     protected String username;
-
-    /**
-     * 数据库密码
-     */
     protected String password;
-
-    /**
-     * 查询SQL
-     */
     protected String sql;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
 }

@@ -20,6 +20,14 @@ class DataSourceXmlTest {
     private DataSourceXml dataSourceXml;
     private String validXmlPath;
 
+    /**
+     * 保持setUp()方法的调用，防止unused编译警告
+     */
+    @SuppressWarnings("unused")
+    private void keep() {
+        setUp();
+    }
+
     @BeforeEach
     void setUp() {
         dataSourceXml = new DataSourceXml();

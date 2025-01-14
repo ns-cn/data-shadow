@@ -2,8 +2,9 @@
     "maven.view": "hierarchical",
     "maven.terminal.favorites": [
         {
-            "command": "clean compile",
+            "command": "clean package",
             "debug": false
         }
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

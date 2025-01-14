@@ -11,12 +11,9 @@ import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
-import lombok.EqualsAndHashCode;
-
 /**
  * JSON数据源
  */
-@EqualsAndHashCode(callSuper = true)
 public class DataSourceJson extends DataSourceFile {
 
     /**

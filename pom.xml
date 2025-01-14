@@ -29,8 +29,6 @@
         <commons.csv.version>1.10.0</commons.csv.version>
         <jackson.version>2.16.0</jackson.version>
         <jaxb.version>2.4.0-b180830.0359</jaxb.version>
-        <!-- 工具类 -->
-        <lombok.version>1.18.30</lombok.version>
         <!-- 测试相关 -->
         <junit.version>5.10.1</junit.version>
         <fastjson2.version>2.0.45</fastjson2.version>
@@ -108,14 +106,6 @@
                 <artifactId>javafx-fxml</artifactId>
                 <version>${javafx.version}</version>
             </dependency>
-
-            <!-- 工具类 -->
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -146,4 +136,17 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>aliyun-plugin</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

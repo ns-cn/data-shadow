@@ -20,12 +20,9 @@ import org.xml.sax.SAXException;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
-import lombok.EqualsAndHashCode;
-
 /**
  * XML数据源
  */
-@EqualsAndHashCode(callSuper = true)
 public class DataSourceXml extends DataSourceFile {
 
     /**

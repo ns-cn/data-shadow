@@ -6,8 +6,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
-import lombok.EqualsAndHashCode;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.io.FileInputStream;
@@ -24,7 +22,6 @@ import java.io.IOException;
  * 支持读取.xls和.xlsx格式的Excel文件
  * 将Excel表格数据转换为结构化数据
  */
-@EqualsAndHashCode(callSuper = true)
 public class DataSourceExcel extends DataSourceFile {
 
     /**
