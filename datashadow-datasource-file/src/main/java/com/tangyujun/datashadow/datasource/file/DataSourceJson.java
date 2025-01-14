@@ -2,6 +2,8 @@ package com.tangyujun.datashadow.datasource.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,4 +63,41 @@ public class DataSourceJson extends DataSourceFile {
         return result;
     }
 
+    /**
+     * 获取JSON文件的列名
+     * 读取JSON文件第一行作为列名
+     * 
+     * @return 列名列表,如果读取失败则返回空列表
+     */
+    @Override
+    public List<String> getColumns() {
+        try {
+            String jsonContent = new String(Files.readAllBytes(Paths.get(path)), "UTF-8");
+            List<Map<String, Object>> data = JSON.parseObject(jsonContent,
+                    new TypeReference<List<Map<String, Object>>>() {
+                    });
+            if (data != null && !data.isEmpty()) {
+                // 返回第一条数据的所有键作为列名
+                return new ArrayList<>(data.get(0).keySet());
+            }
+            return new ArrayList<>();
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 获取数据源的描述信息
+     * 用于在界面上显示数据源的基本信息
+     * 例如: JSON文件: D:/test.json
+     * 
+     * @return 数据源的描述信息字符串
+     */
+    @Override
+    public String getDescription() {
+        if (path == null || path.isBlank()) {
+            return "";
+        }
+        return "JSON文件: " + path;
+    }
 }

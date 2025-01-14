@@ -42,6 +42,31 @@ public abstract class DataSource implements Serializable {
     public abstract void valid() throws DataSourceValidException;
 
     /**
+     * 获取数据集
+     * 子类需要实现具体的数据获取逻辑
+     * 
+     * @return 包含数据的List，每个Map代表一行数据，key为字段名，value为字段值
+     * @throws DataAccessException 当数据访问出错时抛出此异常
+     */
+    public abstract List<Map<String, Object>> getValues() throws DataAccessException;
+
+    /**
+     * 获取数据集的列名
+     * 
+     * @return 列名列表
+     */
+    public abstract List<String> getColumns();
+
+    /**
+     * 获取已配置数据源的简单描述
+     * 用于在界面上显示数据源的基本信息
+     * 例如: mysql:127.0.0.1:3306/test 或 D:/test.xlsx
+     * 
+     * @return 数据源的简单描述字符串
+     */
+    public abstract String getDescription();
+
+    /**
      * 添加数据集的键值映射
      * 用于建立数据源字段与统一数据项代码的对应关系
      * 
@@ -54,15 +79,6 @@ public abstract class DataSource implements Serializable {
         }
         keyToCode.put(key, code);
     }
-
-    /**
-     * 获取数据集
-     * 子类需要实现具体的数据获取逻辑
-     * 
-     * @return 包含数据的List，每个Map代表一行数据，key为字段名，value为字段值
-     * @throws DataAccessException 当数据访问出错时抛出此异常
-     */
-    public abstract List<Map<String, Object>> getValues() throws DataAccessException;
 
     /**
      * 获取数据集的键值映射

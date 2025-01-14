@@ -13,7 +13,8 @@
         <module>datashadow-launcher</module>
         <module>datashadow-datasource-sdk</module>
         <module>datashadow-datasource-file</module>
-        <module>datashadow-datasource-db</module>
+        <module>datashadow-datasource-mysql</module>
+        <module>datashadow-datasource-oracle</module>
     </modules>
 
     <properties>

@@ -1,5 +1,6 @@
 package com.tangyujun.datashadow.datasource;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,5 +42,30 @@ public class DataSourceMemory extends DataSource {
     @Override
     public List<Map<String, Object>> getValues() throws DataAccessException {
         return data;
+    }
+
+    /**
+     * 获取数据集的列名
+     * 
+     * @return 列名列表
+     */
+    @Override
+    public List<String> getColumns() {
+        if (data == null || data.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(data.get(0).keySet());
+    }
+
+    /**
+     * 获取已配置数据源的简单描述
+     * 用于在界面上显示数据源的基本信息
+     * 例如: mysql:127.0.0.1:3306/test 或 D:/test.xlsx
+     * 
+     * @return 数据源的简单描述字符串
+     */
+    @Override
+    public String getDescription() {
+        return "内存数据源";
     }
 }

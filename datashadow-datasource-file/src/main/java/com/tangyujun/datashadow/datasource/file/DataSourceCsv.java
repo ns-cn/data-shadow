@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
@@ -130,5 +133,38 @@ public class DataSourceCsv extends DataSourceFile {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), encoding);
+    }
+
+    /**
+     * 获取CSV文件的列名
+     * 
+     * @return 列名列表
+     */
+    @Override
+    public List<String> getColumns() {
+        try (Reader reader = Files.newBufferedReader(Paths.get(path),
+                encoding == null ? StandardCharsets.UTF_8 : Charset.forName(encoding))) {
+            CSVParser parser = CSVFormat.DEFAULT.parse(reader);
+            CSVRecord firstRecord = parser.iterator().next();
+            return StreamSupport.stream(firstRecord.spliterator(), false)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 获取数据源的描述信息
+     * 用于在界面上显示数据源的基本信息
+     * 例如: CSV文件: D:/test.csv(UTF-8)
+     * 
+     * @return 数据源的描述信息字符串
+     */
+    @Override
+    public String getDescription() {
+        if (path == null || path.isBlank()) {
+            return "";
+        }
+        return "CSV文件: " + path + "(" + encoding + ")";
     }
 }

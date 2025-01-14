@@ -67,14 +67,22 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.tangyujun.datashadow.DataShadowLauncher</mainClass>
+                    <options>
+                        <option>--add-modules</option>
+                        <option>javafx.controls,javafx.fxml</option>
+                        <option>--enable-preview</option>
+                    </options>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.1.0</version>
                 <configuration>
                     <mainClass>com.tangyujun.datashadow.DataShadowLauncher</mainClass>
+                    <arguments>
+                        <argument>--enable-preview</argument>
+                    </arguments>
                 </configuration>
             </plugin>
             <plugin>
