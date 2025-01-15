@@ -1,32 +1,57 @@
 # DataShadow
 
-#### Project Introduction
-DataShadow is a data comparison tool that can read structured data from various data sources, perform data comparison, and generate comparison results.
+DataShadow is a JavaFX-based data comparison tool that supports structured data reading, comparison and result display from multiple data sources. It is mainly used for data migration, data validation, data consistency checking and other scenarios.
 
-#### Project Structure
-- datashadow-launcher: Launch module, containing GUI interface and main program entry
-- datashadow-datasource-sdk: Data source SDK module, defining data source interface specifications
-- datashadow-datasource-db: Database data source module, supporting MySQL/Oracle and other databases
-- datashadow-datasource-file: File data source module, supporting Excel/CSV/JSON/XML and other file formats
+## Main Features
 
-#### Technical Architecture
-- Development Language: Java 23
-- GUI Framework: JavaFX 21.0.2
-- Project Management: Maven
-- Unit Testing: JUnit 5
+- 🔌 Plugin Architecture
+  - Develop data source plugins based on SDK 
+  - Support dynamic loading of data sources
+  - Provide standard interface specifications
+
+- 📊 Multiple Data Source Support
+  - Database: MySQL, Oracle etc.
+  - Files: Excel, CSV, JSON, XML
+  - Memory Data: Support direct input comparison
+
+- 🔧 Flexible Configuration
+  - Field Mapping: Support mapping between different data sources
+  - Data Conversion: Built-in type conversion and formatting
+  - Custom Comparators: Customizable comparison rules
+  - JavaScript Scripts: Support using JS to write custom data item comparison logic
+
+- 📈 Intuitive Result Display
+  - Difference highlighting
+  - Multiple export formats
+  - Detailed comparison reports
+
+## Project Progress
+
+✅ Completed:
+- Basic framework and JavaFX interface
+- Data item management (CRUD, sorting, comparators)
+- Memory data source (JSON/XML/CSV import, preview)
+- Plugin loading mechanism
+
+⏳ In Development:
+- Database data source (MySQL/Oracle)
+- File data source (Excel/CSV/JSON/XML)
+- Data comparison functionality
+- Result export functionality
+
+## Screenshots
+
+![Homepage](screenshots/homepage.png)
+![Plugin Management](screenshots/plugins_demo.png)
+
+## Tech Stack
+
+- Java 23
+- JavaFX 21.0.2
+- Maven
+- JUnit 5
 - Main Dependencies:
-  - Apache POI: Excel file reading and writing
-  - FastJSON: JSON data processing
-  - Apache Commons CSV: CSV file processing
-  - MySQL/Oracle JDBC: Database connectivity
-
-#### Core Features
-- Support for reading data from multiple data sources
-- Data source configuration and availability validation
-- Data field mapping and conversion
-- Data comparison and result generation
-
-#### Installation Guide
-1. Ensure JDK 23 or higher is installed
-2. Clone the project locally
-3. Build the project using Maven:
+  - Apache POI
+  - FastJSON
+  - Apache Commons CSV
+  - MySQL/Oracle JDBC
