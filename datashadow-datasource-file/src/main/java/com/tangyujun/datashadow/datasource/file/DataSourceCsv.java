@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
+import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
@@ -32,6 +34,16 @@ import javafx.stage.Window;
  * 支持自定义文件编码
  */
 public class DataSourceCsv extends DataSourceFile {
+
+    /**
+     * 注册CSV数据源生成器
+     * 
+     * @return 数据源生成器
+     */
+    @DataSourceRegistry(friendlyName = "CSV")
+    public static DataSourceGenerator generator() {
+        return () -> new DataSourceCsv();
+    }
 
     /**
      * CSV文件的编码格式

@@ -9,6 +9,8 @@ import java.util.Map;
 
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
+import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
@@ -112,6 +114,16 @@ public class DataSourceMysql extends DataSource {
      */
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    /**
+     * 注册MySQL数据源生成器
+     * 
+     * @return 数据源生成器
+     */
+    @DataSourceRegistry(friendlyName = "MySQL")
+    public static DataSourceGenerator generator() {
+        return () -> new DataSourceMysql();
     }
 
     /**

@@ -11,6 +11,8 @@ import java.util.Map;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
+import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
@@ -20,6 +22,16 @@ import javafx.stage.Window;
  * JSON数据源
  */
 public class DataSourceJson extends DataSourceFile {
+
+    /**
+     * 注册JSON数据源生成器
+     * 
+     * @return 数据源生成器
+     */
+    @DataSourceRegistry(friendlyName = "JSON")
+    public static DataSourceGenerator generator() {
+        return () -> new DataSourceJson();
+    }
 
     /**
      * 验证JSON文件路径是否正确
