@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.io.StringReader;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
@@ -184,7 +184,7 @@ public class DataSourceMemory extends DataSource {
                     if (recordNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element record = (Element) recordNode;
                         NodeList fields = record.getChildNodes();
-                        Map<String, Object> row = new HashMap<>();
+                        Map<String, Object> row = new LinkedHashMap<>();
 
                         for (int j = 0; j < fields.getLength(); j++) {
                             Node fieldNode = fields.item(j);
@@ -201,8 +201,14 @@ public class DataSourceMemory extends DataSource {
                 }
             }
             case "JSON" -> {
-                result = JSON.parseArray(content, new TypeReference<Map<String, Object>>() {
-                }.getType());
+                List<Map<String, Object>> tempResult = JSON.parseArray(content,
+                        new TypeReference<LinkedHashMap<String, Object>>() {
+                        }.getType());
+                // 确保使用LinkedHashMap保持顺序
+                for (Map<String, Object> map : tempResult) {
+                    LinkedHashMap<String, Object> orderedMap = new LinkedHashMap<>(map);
+                    result.add(orderedMap);
+                }
             }
             case "CSV" -> {
                 String[] lines = content.split("\n");
@@ -216,7 +222,7 @@ public class DataSourceMemory extends DataSource {
                         String line = lines[i].trim();
                         if (!line.isEmpty()) {
                             String[] values = line.split(",");
-                            Map<String, Object> row = new HashMap<>();
+                            Map<String, Object> row = new LinkedHashMap<>();
                             for (int j = 0; j < headers.length && j < values.length; j++) {
                                 row.put(headers[j], values[j].trim());
                             }
