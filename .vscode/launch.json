@@ -15,7 +15,8 @@
             "name": "DataShadowLauncher",
             "request": "launch",
             "mainClass": "com.tangyujun.datashadow.DataShadowLauncher",
-            "projectName": "datashadow-launcher"
+            "projectName": "datashadow-launcher",
+            "vmArgs": "--module-path \"D:/sdk/javafx-sdk-21.0.5/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }

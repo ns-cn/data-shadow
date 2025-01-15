@@ -10,6 +10,7 @@ import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 /**
  * 数据源抽象类
@@ -150,5 +151,5 @@ public abstract class DataSource implements Serializable {
      * 
      * @param primaryStage 主窗口
      */
-    public abstract void configure(Stage primaryStage);
+    public abstract void configure(Window primaryStage);
 }

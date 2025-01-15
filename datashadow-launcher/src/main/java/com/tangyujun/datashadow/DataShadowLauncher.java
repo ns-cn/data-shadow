@@ -3,6 +3,8 @@ package com.tangyujun.datashadow;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import com.tangyujun.datashadow.core.DataSourceLoader;
 import com.tangyujun.datashadow.ui.MainLayout;
 
 /**
@@ -12,6 +14,9 @@ public class DataShadowLauncher extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // 加载数据源
+        DataSourceLoader loader = new DataSourceLoader();
+        loader.load();
         // 创建主布局
         MainLayout mainLayout = new MainLayout();
 

@@ -15,6 +15,7 @@
 
     <dependencies>
         <!-- 项目依赖 -->
+        <!-- datashadow-datasource-sdk: 数据源SDK模块,提供数据源接口定义和基础实现 -->
         <dependency>
             <groupId>com.tangyujun</groupId>
             <artifactId>datashadow-datasource-sdk</artifactId>
@@ -22,26 +23,31 @@
         </dependency>
 
         <!-- JavaFX依赖 -->
+        <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
         </dependency>
+        <!-- javafx-fxml: JavaFX FXML支持,用于UI布局 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
         </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Windows平台支持 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
             <classifier>win</classifier>
         </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Linux平台支持 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
             <classifier>linux</classifier>
         </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Mac平台支持 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
@@ -50,18 +56,42 @@
         </dependency>
 
         <!-- 测试依赖 -->
+        <!-- junit-jupiter: JUnit5测试框架 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+        </dependency>
+
+        <!-- reflections: Java反射工具库,用于扫描和加载数据源 -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
+        </dependency>
+
+        <!-- slf4j-api: 日志门面接口 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.12</version>
+        </dependency>
+
+        <!-- logback-classic: SLF4J的日志实现 -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.3</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- maven-compiler-plugin: Java编译插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+            <!-- javafx-maven-plugin: JavaFX应用打包和运行插件 -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -75,6 +105,7 @@
                     </options>
                 </configuration>
             </plugin>
+            <!-- exec-maven-plugin: Maven执行插件,用于运行Java应用 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -86,6 +117,7 @@
                     </arguments>
                 </configuration>
             </plugin>
+            <!-- maven-jar-plugin: JAR打包插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
