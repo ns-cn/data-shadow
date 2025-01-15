@@ -26,7 +26,6 @@ public class ResultSection extends VBox {
         VBox.setVgrow(resultTable, Priority.ALWAYS);
 
         // 添加示例列
-        @SuppressWarnings("unchecked")
         List<TableColumn<Object, String>> columns = List.of(
                 createColumn("用户ID", "userId", 100),
                 createColumn("用户名称", "userName", 150),

@@ -156,7 +156,7 @@ public class DataItemSection extends VBox {
         buttons[4].setOnAction(_ -> handleMoveDown());
 
         // 设置按钮禁用状态的监听
-        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+        table.getSelectionModel().selectedItemProperty().addListener((_, _, newSelection) -> {
             boolean hasSelection = newSelection != null;
             boolean singleSelection = table.getSelectionModel().getSelectedItems().size() == 1;
             int selectedIndex = table.getSelectionModel().getSelectedIndex();

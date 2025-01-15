@@ -9,14 +9,45 @@ import javafx.scene.layout.VBox;
 
 /**
  * 数据项编辑对话框
+ * 用于新增或编辑数据项信息
+ * 包含以下字段:
+ * - 是否唯一: 标识该数据项是否作为唯一标识
+ * - 名称: 数据项的代码,必填且必须符合命名规范
+ * - 别名: 数据项的显示名称,选填
+ * - 自定义比较器: JavaScript代码,用于自定义数据项的比较逻辑
+ * - 备注: 数据项的补充说明信息
  */
 public class DataItemDialog extends Dialog<DataItem> {
+    /**
+     * 数据项代码输入框
+     */
     private final TextField codeField = new TextField();
+
+    /**
+     * 数据项别名输入框
+     */
     private final TextField nickField = new TextField();
+
+    /**
+     * 是否作为唯一标识的复选框
+     */
     private final CheckBox uniqueCheckBox = new CheckBox();
+
+    /**
+     * 自定义比较器代码输入区域
+     */
     private final TextArea comparatorArea = new TextArea();
+
+    /**
+     * 备注信息输入区域
+     */
     private final TextArea remarkArea = new TextArea();
 
+    /**
+     * 构造函数
+     * 
+     * @param item 待编辑的数据项,为null时表示新增模式
+     */
     public DataItemDialog(DataItem item) {
         // 设置对话框标题
         setTitle(item == null ? "新增数据项" : "编辑数据项");
@@ -88,6 +119,15 @@ public class DataItemDialog extends Dialog<DataItem> {
         getDialogPane().setContent(content);
     }
 
+    /**
+     * 验证输入数据的有效性
+     * 验证规则:
+     * 1. 名称不能为空
+     * 2. 名称必须以字母开头
+     * 3. 名称只能包含字母、数字和下划线
+     * 
+     * @return 验证通过返回true,否则返回false
+     */
     private boolean validateInput() {
         String code = codeField.getText().trim();
         if (code.isEmpty()) {
@@ -101,6 +141,11 @@ public class DataItemDialog extends Dialog<DataItem> {
         return true;
     }
 
+    /**
+     * 显示错误提示对话框
+     * 
+     * @param message 错误信息
+     */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("输入错误");
@@ -109,13 +154,42 @@ public class DataItemDialog extends Dialog<DataItem> {
         alert.showAndWait();
     }
 
+    /**
+     * 从对话框输入创建数据项
+     * 处理流程:
+     * 1. 创建新的数据项对象
+     * 2. 设置是否唯一标识
+     * 3. 获取并处理各输入字段的值
+     * 4. 设置必填字段(code)
+     * 5. 设置可选字段(nick,comparator,remark)
+     * 
+     * @return 新创建的数据项对象
+     */
     private DataItem createDataItem() {
         DataItem item = new DataItem();
+
+        // 设置基本属性
         item.setUnique(uniqueCheckBox.isSelected());
-        item.setCode(codeField.getText().trim());
-        item.setNick(nickField.getText().trim());
-        item.setComparator(comparatorArea.getText().trim());
-        item.setRemark(remarkArea.getText().trim());
+
+        // 获取输入值并进行空值处理
+        String code = codeField.getText();
+        String nick = nickField.getText();
+        String comparator = comparatorArea.getText();
+        String remark = remarkArea.getText();
+
+        // 设置必填字段，确保不为null
+        item.setCode(code != null ? code.trim() : "");
+
+        // 设置选填字段，null值也是允许的
+        if (nick != null && !nick.trim().isEmpty()) {
+            item.setNick(nick.trim());
+        }
+        if (comparator != null && !comparator.trim().isEmpty()) {
+            item.setComparator(comparator.trim());
+        }
+        if (remark != null && !remark.trim().isEmpty()) {
+            item.setRemark(remark.trim());
+        }
         return item;
     }
 }

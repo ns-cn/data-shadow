@@ -5,50 +5,132 @@ package com.tangyujun.datashadow.dataitem;
  * 用于定义数据源中的数据项属性
  */
 public class DataItem {
+    /**
+     * 数据项编码,作为数据项的唯一标识
+     */
     private String code;
+
+    /**
+     * 是否唯一,用于标识该数据项是否可以作为数据源的唯一标识
+     */
     private boolean unique;
+
+    /**
+     * 数据项昵称,用于显示友好名称
+     */
     private String nick;
+
+    /**
+     * 数据项备注说明
+     */
     private String remark;
+
+    /**
+     * 比较器,用于定义数据项的比较规则
+     */
     private String comparator;
 
-    // Getters and Setters
+    /**
+     * 获取数据项编码
+     * 
+     * @return 数据项编码
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     * 设置数据项编码
+     * 
+     * @param code 数据项编码
+     */
     public void setCode(String code) {
         this.code = code;
     }
 
+    /**
+     * 判断数据项是否唯一
+     * 
+     * @return 是否唯一
+     */
     public boolean isUnique() {
         return unique;
     }
 
+    /**
+     * 设置数据项是否唯一
+     * 
+     * @param unique 是否唯一
+     */
     public void setUnique(boolean unique) {
         this.unique = unique;
     }
 
+    /**
+     * 获取数据项昵称
+     * 
+     * @return 数据项昵称
+     */
     public String getNick() {
         return nick;
     }
 
+    /**
+     * 设置数据项昵称
+     * 
+     * @param nick 数据项昵称
+     */
     public void setNick(String nick) {
         this.nick = nick;
     }
 
+    /**
+     * 获取数据项备注
+     * 
+     * @return 数据项备注
+     */
     public String getRemark() {
         return remark;
     }
 
+    /**
+     * 设置数据项备注
+     * 
+     * @param remark 数据项备注
+     */
     public void setRemark(String remark) {
         this.remark = remark;
     }
 
+    /**
+     * 获取数据项比较器
+     * 
+     * @return 数据项比较器
+     */
     public String getComparator() {
         return comparator;
     }
 
+    /**
+     * 设置数据项比较器
+     * 
+     * @param comparator 数据项比较器
+     */
     public void setComparator(String comparator) {
         this.comparator = comparator;
+    }
+
+    /**
+     * 获取数据项显示名称
+     * 如果设置了昵称则返回"编码(昵称)"格式
+     * 否则直接返回编码
+     * 
+     * @return 数据项显示名称
+     */
+    public String getDisplayName() {
+        if (this.nick != null && !this.nick.isEmpty()) {
+            return String.format("%s(%s)", this.code, this.nick);
+        }
+        return this.code;
     }
 }

@@ -5,6 +5,7 @@ import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallbackAdapter;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.ui.dialog.DataSourceMappingDialog;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.Insets;
@@ -46,7 +47,7 @@ public class DataSourceSection extends VBox {
         HBox controls = new HBox(5);
         ComboBox<String> typeSelect = new ComboBox<>();
         // 从DataFactory获取所有已注册的数据源
-        typeSelect.getItems().addAll(dataFactory.getDataSources().keySet());
+        typeSelect.getItems().addAll(dataFactory.getDataSources().keySet().stream().sorted().toList());
         typeSelect.setPrefWidth(200);
 
         Button configButton = new Button("配置数据源");
@@ -58,7 +59,7 @@ public class DataSourceSection extends VBox {
         mappingButton.setDisable(true);
 
         // 数据源选择事件处理
-        typeSelect.setOnAction(e -> {
+        typeSelect.setOnAction(_ -> {
             String selectedType = typeSelect.getValue();
             if (selectedType != null) {
                 DataSourceGenerator generator = dataFactory.getDataSources().get(selectedType);
@@ -80,7 +81,7 @@ public class DataSourceSection extends VBox {
         });
 
         // 配置按钮事件处理
-        configButton.setOnAction(e -> {
+        configButton.setOnAction(_ -> {
             String selectedType = typeSelect.getValue();
             if (selectedType != null) {
                 DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
@@ -94,6 +95,16 @@ public class DataSourceSection extends VBox {
                     }
                 };
                 dataSource.configure(getScene().getWindow(), callback);
+            }
+        });
+
+        // 字段映射按钮事件处理
+        mappingButton.setOnAction(_ -> {
+            DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
+                    : dataFactory.getShadowDataSource();
+            if (dataSource != null) {
+                DataSourceMappingDialog dialog = new DataSourceMappingDialog(getScene().getWindow(), dataSource);
+                dialog.showAndWait();
             }
         });
 

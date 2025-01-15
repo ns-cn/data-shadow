@@ -1,6 +1,6 @@
 package com.tangyujun.datashadow.core;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
@@ -39,7 +39,7 @@ public class DataFactory {
     /**
      * 已注册的所有数据源列表
      */
-    private final Map<String, DataSourceGenerator> dataSources = new HashMap<>();
+    private final Map<String, DataSourceGenerator> dataSources = new LinkedHashMap<>();
 
     /**
      * 私有构造函数,防止外部实例化

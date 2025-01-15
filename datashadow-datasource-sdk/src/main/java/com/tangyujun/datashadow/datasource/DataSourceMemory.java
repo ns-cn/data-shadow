@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
+import java.util.regex.Pattern;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
@@ -52,6 +53,7 @@ import javafx.stage.Window;
  * 2. 提供数据预览和编辑功能
  * 3. 数据格式校验和错误提示
  * 4. 支持数据回显和重新编辑
+ * 5. 支持自动数据类型推断
  * 
  * @author tangyujun
  * @since 1.0.0
@@ -153,6 +155,59 @@ public class DataSourceMemory extends DataSource {
     @Override
     public String getDescription() {
         return String.format("内存数据源 [%s]", dataType == null ? "未配置" : dataType);
+    }
+
+    /**
+     * 自动推断数据类型
+     * 根据输入内容的特征判断数据类型
+     * 
+     * @param content 输入的数据内容
+     * @return 推断出的数据类型（JSON、XML、CSV）
+     */
+    private String inferDataType(String content) {
+        content = content.trim();
+
+        // 检查是否为JSON格式
+        if ((content.startsWith("[") && content.endsWith("]")) ||
+                (content.startsWith("{") && content.endsWith("}"))) {
+            try {
+                JSON.parse(content);
+                return "JSON";
+            } catch (Exception ignored) {
+            }
+        }
+
+        // 检查是否为XML格式
+        if (content.startsWith("<?xml") || content.startsWith("<")) {
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                builder.parse(new InputSource(new StringReader(content)));
+                return "XML";
+            } catch (Exception ignored) {
+            }
+        }
+
+        // 检查是否为CSV格式
+        // CSV格式特征：每行都有相同数量的逗号，且不包含XML/JSON特征
+        String[] lines = content.split("\n");
+        if (lines.length > 0) {
+            int commaCount = lines[0].split(",").length - 1;
+            boolean isCSV = true;
+            for (String line : lines) {
+                if (line.trim().isEmpty())
+                    continue;
+                if (line.split(",").length - 1 != commaCount) {
+                    isCSV = false;
+                    break;
+                }
+            }
+            if (isCSV)
+                return "CSV";
+        }
+
+        // 默认返回JSON
+        return "JSON";
     }
 
     /**
@@ -280,6 +335,14 @@ public class DataSourceMemory extends DataSource {
         if (originData != null) {
             dataInput.setText(originData);
         }
+
+        // 监听文本变化，自动推断数据类型
+        dataInput.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.trim().isEmpty()) {
+                String inferredType = inferDataType(newValue);
+                dataTypeCombo.setValue(inferredType);
+            }
+        });
 
         // 创建预览表格
         TableView<Map<String, Object>> previewTable = new TableView<>();
