@@ -149,11 +149,11 @@ public class DataItemSection extends VBox {
         };
 
         // 添加按钮事件处理
-        buttons[0].setOnAction(e -> handleAdd());
-        buttons[1].setOnAction(e -> handleEdit());
-        buttons[2].setOnAction(e -> handleDelete());
-        buttons[3].setOnAction(e -> handleMoveUp());
-        buttons[4].setOnAction(e -> handleMoveDown());
+        buttons[0].setOnAction(_ -> handleAdd());
+        buttons[1].setOnAction(_ -> handleEdit());
+        buttons[2].setOnAction(_ -> handleDelete());
+        buttons[3].setOnAction(_ -> handleMoveUp());
+        buttons[4].setOnAction(_ -> handleMoveDown());
 
         // 设置按钮禁用状态的监听
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {

@@ -8,8 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.tangyujun.datashadow.datasource.DataSource;
+import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
+import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
+
+import javafx.stage.Window;
 
 /**
  * Oracle数据源
@@ -17,6 +22,16 @@ import com.tangyujun.datashadow.exception.DataSourceValidException;
  * 继承自DataSource抽象类
  */
 public class DataSourceOracle extends DataSource {
+
+    /**
+     * 生成Oracle数据源
+     * 
+     * @return Oracle数据源
+     */
+    @DataSourceRegistry(friendlyName = "Oracle")
+    public static DataSourceGenerator generator() {
+        return () -> new DataSourceOracle();
+    }
 
     /**
      * 数据库连接URL
@@ -211,6 +226,18 @@ public class DataSourceOracle extends DataSource {
     @Override
     public String getDescription() {
         return url;
+    }
+
+    /**
+     * 配置Oracle数据源
+     * 
+     * @param primaryStage 主窗口
+     * @param callback     配置完成后的回调函数
+     */
+    @Override
+    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configure'");
     }
 
 }

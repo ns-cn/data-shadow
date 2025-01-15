@@ -2,6 +2,8 @@ package com.tangyujun.datashadow.ui;
 
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.datasource.DataSource;
+import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
+import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallbackAdapter;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -83,17 +85,15 @@ public class DataSourceSection extends VBox {
             if (selectedType != null) {
                 DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
                         : dataFactory.getShadowDataSource();
-
-                Runnable configureFinished = () -> {
-                    // 更新状态显示
-                    status.setText(dataSource.getDescription());
-                    mappingButton.setDisable(false);
+                DataSourceConfigurationCallback callback = new DataSourceConfigurationCallbackAdapter() {
+                    @Override
+                    public void onConfigureFinished() {
+                        // 更新状态显示
+                        status.setText(dataSource.getDescription());
+                        mappingButton.setDisable(false);
+                    }
                 };
-                dataSource.configure(getScene().getWindow(), configureFinished);
-
-                // 更新状态显示
-                status.setText(dataSource.getDescription());
-                mappingButton.setDisable(false);
+                dataSource.configure(getScene().getWindow(), callback);
             }
         });
 

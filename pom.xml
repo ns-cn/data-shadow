@@ -12,9 +12,9 @@
     <modules>
         <module>datashadow-launcher</module>
         <module>datashadow-datasource-sdk</module>
-        <!-- <module>datashadow-datasource-file</module> -->
-        <!-- <module>datashadow-datasource-mysql</module> -->
-        <!-- <module>datashadow-datasource-oracle</module> -->
+        <module>datashadow-datasource-file</module>
+        <module>datashadow-datasource-mysql</module>
+        <module>datashadow-datasource-oracle</module>
     </modules>
 
     <properties>
@@ -112,6 +112,24 @@
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-graphics</artifactId>
                 <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+                <classifier>win</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+                <classifier>linux</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+                <classifier>mac</classifier>
             </dependency>
         </dependencies>
     </dependencyManagement>

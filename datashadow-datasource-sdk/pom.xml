@@ -20,36 +20,33 @@
     </properties>
     <dependencies>
         <!-- JavaFX依赖 -->
+        <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <scope>provided</scope>
         </dependency>
+        <!-- javafx-fxml: JavaFX FXML支持,用于UI布局 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <scope>provided</scope>
         </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Windows平台支持 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>${javafx.version}</version>
             <classifier>win</classifier>
-            <scope>provided</scope>
         </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Linux平台支持 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>${javafx.version}</version>
             <classifier>linux</classifier>
-            <scope>provided</scope>
         </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Mac平台支持 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>${javafx.version}</version>
             <classifier>mac</classifier>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Excel文件处理 -->

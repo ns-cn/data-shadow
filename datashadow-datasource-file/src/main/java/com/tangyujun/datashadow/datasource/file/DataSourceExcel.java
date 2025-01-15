@@ -5,8 +5,11 @@ import java.io.File;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
+
+import javafx.stage.Window;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
@@ -217,5 +220,17 @@ public class DataSourceExcel extends DataSourceFile {
      */
     public void setSheetName(String sheetName) {
         this.sheetName = sheetName;
+    }
+
+    /**
+     * 配置Excel文件数据源
+     * 
+     * @param primaryStage 主窗口
+     * @param callback     配置完成后的回调函数
+     */
+    @Override
+    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configure'");
     }
 }

@@ -19,40 +19,6 @@
         <dependency>
             <groupId>com.tangyujun</groupId>
             <artifactId>datashadow-datasource-sdk</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- JavaFX依赖 -->
-        <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-        </dependency>
-        <!-- javafx-fxml: JavaFX FXML支持,用于UI布局 -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-        </dependency>
-        <!-- javafx-graphics: JavaFX图形库,Windows平台支持 -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>${javafx.version}</version>
-            <classifier>win</classifier>
-        </dependency>
-        <!-- javafx-graphics: JavaFX图形库,Linux平台支持 -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>${javafx.version}</version>
-            <classifier>linux</classifier>
-        </dependency>
-        <!-- javafx-graphics: JavaFX图形库,Mac平台支持 -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-graphics</artifactId>
-            <version>${javafx.version}</version>
-            <classifier>mac</classifier>
         </dependency>
 
         <!-- 测试依赖 -->

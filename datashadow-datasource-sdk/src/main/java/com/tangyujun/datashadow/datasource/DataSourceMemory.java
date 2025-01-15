@@ -1,6 +1,5 @@
 package com.tangyujun.datashadow.datasource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +7,6 @@ import java.io.StringReader;
 import java.util.HashMap;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
@@ -23,7 +21,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -32,21 +29,15 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import javafx.stage.Window;
 
 /**
@@ -55,22 +46,34 @@ import javafx.stage.Window;
  * 主要用于临时数据的存储和处理
  * 支持XML、JSON、CSV三种格式的数据导入
  * 数据导入后将以List<Map<String, Object>>的形式存储在内存中
+ * 
+ * 主要功能:
+ * 1. 支持XML、JSON、CSV三种格式数据的导入和解析
+ * 2. 提供数据预览和编辑功能
+ * 3. 数据格式校验和错误提示
+ * 4. 支持数据回显和重新编辑
+ * 
+ * @author tangyujun
+ * @since 1.0.0
  */
 public class DataSourceMemory extends DataSource {
 
     /**
      * 原始数据（纯文本，用于数据回显）
+     * 保存用户输入的原始文本内容，便于后续编辑时回显
      */
     private String originData;
 
     /**
      * 数据类型（JSON、XML、CSV）
+     * 记录当前数据源使用的数据格式类型
      */
     private String dataType;
 
     /**
      * 数据源注册
      * 用于生成DataSourceMemory实例
+     * 通过@DataSourceRegistry注解标记为可用数据源
      * 
      * @return DataSourceMemory实例
      */
@@ -89,6 +92,11 @@ public class DataSourceMemory extends DataSource {
      * {"name": "张三", "age": 18, "gender": "男"},
      * {"name": "李四", "age": 20, "gender": "女"}
      * ]
+     * 
+     * 重要说明:
+     * 1. 所有数据均以字符串形式存储
+     * 2. Map中的key即为数据列名
+     * 3. 每行数据的字段数量可以不同
      */
     private List<Map<String, Object>> data;
 
@@ -121,6 +129,10 @@ public class DataSourceMemory extends DataSource {
      * 通过获取数据集中第一行数据的所有键名来获取列名
      * 如果数据集为空或为null，返回空列表
      * 
+     * 注意:
+     * 1. 仅使用第一行数据的字段作为列名
+     * 2. 如果数据为空返回空列表而不是null
+     * 
      * @return 列名列表，如果数据为空则返回空列表
      */
     @Override
@@ -136,7 +148,7 @@ public class DataSourceMemory extends DataSource {
      * 用于在界面上显示数据源的基本信息
      * 由于是内存数据源，直接返回固定描述
      * 
-     * @return 数据源的简单描述字符串
+     * @return 数据源的简单描述字符串，格式为"内存数据源 [数据类型]"
      */
     @Override
     public String getDescription() {
@@ -145,10 +157,17 @@ public class DataSourceMemory extends DataSource {
 
     /**
      * 解析数据并返回解析结果
+     * 支持XML、JSON、CSV三种格式的数据解析
+     * 
+     * 解析规则:
+     * 1. XML格式要求必须有root节点，每个record节点表示一行数据
+     * 2. JSON格式必须是对象数组
+     * 3. CSV格式第一行必须是列名
      * 
      * @param content 数据内容
      * @param type    数据类型
      * @return 解析后的数据列表
+     * @throws Exception 当解析失败时抛出相应异常
      */
     private List<Map<String, Object>> parseData(String content, String type) throws Exception {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -214,16 +233,24 @@ public class DataSourceMemory extends DataSource {
      * 配置数据源的具体行为
      * 打开一个对话框让用户输入数据
      * 支持XML、JSON、CSV三种格式的数据输入
+     * 
+     * 界面功能:
+     * 1. 数据类型选择下拉框
+     * 2. 数据输入文本域
+     * 3. 数据预览表格
+     * 4. 预览/编辑切换按钮
+     * 5. 确定/取消按钮
+     * 
      * 数据格式说明：
      * XML格式：<root><record><field1>value1</field1><field2>value2</field2></record></root>
      * JSON格式：[{"field1":"value1","field2":"value2"}]
      * CSV格式：field1,field2\nvalue1,value2
      * 
-     * @param primaryStage      主窗口，用于设置对话框的父窗口
-     * @param configureFinished 配置完成后的回调函数
+     * @param primaryStage 主窗口，用于设置对话框的父窗口
+     * @param callback     配置完成后的回调函数
      */
     @Override
-    public void configure(Window primaryStage, Runnable configureFinished) {
+    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
         // 创建新的对话框窗口
         Stage dialog = new Stage();
         dialog.initModality(Modality.WINDOW_MODAL);
@@ -253,7 +280,7 @@ public class DataSourceMemory extends DataSource {
 
         // 创建预览/编辑切换按钮
         Button toggleButton = new Button("预览");
-        toggleButton.setOnAction(e -> {
+        toggleButton.setOnAction(_ -> {
             try {
                 if (toggleButton.getText().equals("预览")) {
                     // 解析数据
@@ -336,22 +363,22 @@ public class DataSourceMemory extends DataSource {
         dialogRoot.setBottom(buttonBox);
 
         // 确定按钮事件处理
-        confirmBtn.setOnAction(e -> {
+        confirmBtn.setOnAction(_ -> {
             try {
-                String content = dataInput.getText();
-                String type = dataTypeCombo.getValue();
+                String inputContent = dataInput.getText();
+                String selectedType = dataTypeCombo.getValue();
 
-                if (content == null || content.trim().isEmpty()) {
+                if (inputContent == null || inputContent.trim().isEmpty()) {
                     throw new IllegalArgumentException("请输入数据内容");
                 }
 
                 // 保存原始数据和数据类型
-                this.originData = content;
-                this.dataType = type;
+                this.originData = inputContent;
+                this.dataType = selectedType;
 
                 // 解析数据
-                this.data = parseData(content, type);
-                configureFinished.run();
+                this.data = parseData(inputContent, selectedType);
+                callback.onConfigureFinished();
                 dialog.close();
             } catch (Exception ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -363,7 +390,10 @@ public class DataSourceMemory extends DataSource {
         });
 
         // 取消按钮事件处理
-        cancelBtn.setOnAction(e -> dialog.close());
+        cancelBtn.setOnAction(_ -> {
+            callback.onConfigureCancelled();
+            dialog.close();
+        });
         Scene dialogScene = new Scene(dialogRoot, 500, 400);
         dialog.setScene(dialogScene);
         dialog.show();

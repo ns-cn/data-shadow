@@ -10,8 +10,11 @@ import java.util.Map;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
+import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
+
+import javafx.stage.Window;
 
 /**
  * JSON数据源
@@ -99,5 +102,17 @@ public class DataSourceJson extends DataSourceFile {
             return "";
         }
         return "JSON文件: " + path;
+    }
+
+    /**
+     * 配置JSON文件数据源
+     * 
+     * @param primaryStage 主窗口
+     * @param callback     配置完成后的回调函数
+     */
+    @Override
+    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'configure'");
     }
 }
