@@ -12,6 +12,8 @@ import com.tangyujun.datashadow.ui.dialog.DataItemDialog;
 import javafx.collections.ObservableList;
 import java.util.Optional;
 import com.tangyujun.datashadow.core.DataFactory;
+import javafx.scene.Cursor;
+import javafx.scene.layout.Region;
 
 /**
  * 数据项维护区域
@@ -34,6 +36,23 @@ public class DataItemSection extends VBox {
      */
     private final ObservableList<DataItem> items;
 
+    private double dragStartY;
+    private double initialHeight;
+    /**
+     * 最小高度，包含:
+     * - 标题栏高度 (约30px)
+     * - 表格至少显示5行 (约150px)
+     * - 内边距和边框 (30px)
+     * - 分隔条高度 (5px)
+     */
+    private static final double MIN_HEIGHT = 250;
+
+    /**
+     * 最大高度，避免占据太多空间
+     * 应该至少能显示10行数据
+     */
+    private static final double MAX_HEIGHT = 600;
+
     /**
      * 构造函数
      * 初始化数据项维护区域的界面布局和控件
@@ -42,6 +61,11 @@ public class DataItemSection extends VBox {
         super(5);
         setPadding(new Insets(10));
         setStyle("-fx-border-color: #ddd; -fx-border-radius: 5;");
+
+        // 设置初始高度和限制
+        setPrefHeight(350);
+        setMinHeight(MIN_HEIGHT);
+        setMaxHeight(MAX_HEIGHT);
 
         // 获取 DataFactory 中的数据项列表
         this.items = DataFactory.getInstance().getDataItems();
@@ -52,7 +76,10 @@ public class DataItemSection extends VBox {
 
         // 创建表格
         table = createTable();
+        // 设置表格填充属性
+        VBox.setVgrow(table, Priority.ALWAYS);
         HBox.setHgrow(table, Priority.ALWAYS);
+        table.setMaxWidth(Double.MAX_VALUE); // 允许表格扩展到最大宽度
 
         // 创建按钮区域
         buttonBox = createButtonBox();
@@ -60,12 +87,17 @@ public class DataItemSection extends VBox {
         // 创建水平布局容器
         HBox content = new HBox(10);
         content.setFillHeight(true);
+        VBox.setVgrow(content, Priority.ALWAYS); // 让内容区域在垂直方向填充
         content.getChildren().addAll(table, buttonBox);
 
         getChildren().addAll(title, content);
 
         // 设置表格数据源
         table.setItems(items);
+
+        // 添加可拖动的分隔条
+        Region dragHandle = createDragHandle();
+        getChildren().add(dragHandle);
     }
 
     /**
@@ -76,6 +108,15 @@ public class DataItemSection extends VBox {
     private TableView<DataItem> createTable() {
         TableView<DataItem> tableView = new TableView<>();
         tableView.setStyle("-fx-border-color: #ddd;");
+
+        // 设置表格自动调整大小
+        tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        tableView.setMinWidth(0);
+
+        // 设置表格填充属性
+        VBox.setVgrow(tableView, Priority.ALWAYS);
+        tableView.setMaxWidth(Double.MAX_VALUE);
+        tableView.setMaxHeight(Double.MAX_VALUE);
 
         // 设置表格选择模式为多选
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -98,14 +139,17 @@ public class DataItemSection extends VBox {
                 }
             }
         });
+        uniqueColumn.setSortable(false);
 
         TableColumn<DataItem, String> nameColumn = new TableColumn<>("名称");
         nameColumn.setPrefWidth(150);
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
+        nameColumn.setSortable(false);
 
         TableColumn<DataItem, String> nickColumn = new TableColumn<>("别名");
         nickColumn.setPrefWidth(150);
         nickColumn.setCellValueFactory(new PropertyValueFactory<>("nick"));
+        nickColumn.setSortable(false);
 
         TableColumn<DataItem, String> comparatorColumn = new TableColumn<>("自定义比较器");
         comparatorColumn.setPrefWidth(100);
@@ -113,10 +157,12 @@ public class DataItemSection extends VBox {
             String comparator = cellData.getValue().getComparator();
             return new SimpleStringProperty(comparator != null && !comparator.isEmpty() ? "已设置" : "未设置");
         });
+        comparatorColumn.setSortable(false);
 
         TableColumn<DataItem, String> remarkColumn = new TableColumn<>("备注");
         remarkColumn.setPrefWidth(200);
         remarkColumn.setCellValueFactory(new PropertyValueFactory<>("remark"));
+        remarkColumn.setSortable(false);
 
         // 设置所有列居中对齐
         List.of(uniqueColumn, nameColumn, nickColumn, comparatorColumn, remarkColumn)
@@ -269,5 +315,65 @@ public class DataItemSection extends VBox {
             table.getSelectionModel().select(selectedItem);
             table.requestFocus();
         }
+    }
+
+    /**
+     * 创建可拖动的分隔条
+     * 
+     * @return 分隔条控件
+     */
+    private Region createDragHandle() {
+        Region dragHandle = new Region();
+        dragHandle.setPrefHeight(5);
+        dragHandle.setStyle("-fx-background-color: transparent;" +
+                "-fx-border-width: 1 0 0 0;" +
+                "-fx-border-color: #ddd;");
+        dragHandle.setCursor(Cursor.V_RESIZE);
+
+        // 鼠标按下时记录初始位置和高度
+        dragHandle.setOnMousePressed(event -> {
+            dragStartY = event.getSceneY();
+            initialHeight = getPrefHeight();
+            event.consume();
+        });
+
+        // 鼠标拖动时调整高度
+        dragHandle.setOnMouseDragged(event -> {
+            double dragDelta = event.getSceneY() - dragStartY;
+            double newHeight = initialHeight + dragDelta;
+
+            // 获取父容器高度（如果有）
+            double parentHeight = getParent() != null ? getParent().getLayoutBounds().getHeight() : 1000;
+            // 计算最大可用高度（预留数据源区域的空间）
+            double maxAvailableHeight = parentHeight * 0.7; // 最多占用70%的空间
+            double actualMaxHeight = Math.min(MAX_HEIGHT, maxAvailableHeight);
+
+            // 限制高度在最小值和最大可用高度之间
+            newHeight = Math.max(MIN_HEIGHT, Math.min(actualMaxHeight, newHeight));
+
+            // 设置新高度
+            setPrefHeight(newHeight);
+
+            // 请求布局更新
+            requestLayout();
+
+            event.consume();
+        });
+
+        // 鼠标进入时显示提示
+        dragHandle.setOnMouseEntered(event -> {
+            dragHandle.setStyle("-fx-background-color: #f0f0f0;" +
+                    "-fx-border-width: 1 0 0 0;" +
+                    "-fx-border-color: #ddd;");
+        });
+
+        // 鼠标离开时恢复样式
+        dragHandle.setOnMouseExited(event -> {
+            dragHandle.setStyle("-fx-background-color: transparent;" +
+                    "-fx-border-width: 1 0 0 0;" +
+                    "-fx-border-color: #ddd;");
+        });
+
+        return dragHandle;
     }
 }
