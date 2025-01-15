@@ -25,6 +25,7 @@
         <dependency>
             <groupId>com.tangyujun</groupId>
             <artifactId>datashadow-datasource-sdk</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Oracle数据库驱动 -->
