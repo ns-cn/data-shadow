@@ -83,7 +83,13 @@ public class DataSourceSection extends VBox {
             if (selectedType != null) {
                 DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
                         : dataFactory.getShadowDataSource();
-                dataSource.configure(getScene().getWindow());
+
+                Runnable configureFinished = () -> {
+                    // 更新状态显示
+                    status.setText(dataSource.getDescription());
+                    mappingButton.setDisable(false);
+                };
+                dataSource.configure(getScene().getWindow(), configureFinished);
 
                 // 更新状态显示
                 status.setText(dataSource.getDescription());

@@ -140,7 +140,7 @@ public class DataSourceMemory extends DataSource {
      */
     @Override
     public String getDescription() {
-        return "内存数据源";
+        return String.format("内存数据源 [%s]", dataType == null ? "未配置" : dataType);
     }
 
     /**
@@ -219,10 +219,11 @@ public class DataSourceMemory extends DataSource {
      * JSON格式：[{"field1":"value1","field2":"value2"}]
      * CSV格式：field1,field2\nvalue1,value2
      * 
-     * @param primaryStage 主窗口，用于设置对话框的父窗口
+     * @param primaryStage      主窗口，用于设置对话框的父窗口
+     * @param configureFinished 配置完成后的回调函数
      */
     @Override
-    public void configure(Window primaryStage) {
+    public void configure(Window primaryStage, Runnable configureFinished) {
         // 创建新的对话框窗口
         Stage dialog = new Stage();
         dialog.initModality(Modality.WINDOW_MODAL);
@@ -350,6 +351,7 @@ public class DataSourceMemory extends DataSource {
 
                 // 解析数据
                 this.data = parseData(content, type);
+                configureFinished.run();
                 dialog.close();
             } catch (Exception ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
