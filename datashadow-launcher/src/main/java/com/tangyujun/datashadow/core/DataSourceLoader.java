@@ -142,7 +142,7 @@ public class DataSourceLoader {
         }
 
         // 创建自定义的类加载器
-        URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader());
+        URLClassLoader classLoader = new URLClassLoader(urls.toArray(URL[]::new), this.getClass().getClassLoader());
         Thread.currentThread().setContextClassLoader(classLoader);
 
         log.debug("Created URLClassLoader with URLs:");

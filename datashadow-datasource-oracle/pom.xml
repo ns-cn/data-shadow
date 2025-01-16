@@ -40,6 +40,25 @@
             <artifactId>junit-jupiter</artifactId>
         </dependency>
 
+        <!-- JavaFX依赖 -->
+        <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- javafx-fxml: JavaFX FXML支持,用于UI布局 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Windows平台支持 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -77,12 +77,13 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 自定义比较器
         form.add(new Label("自定义比较器:"), 0, 3);
         comparatorArea.setPrefRowCount(6);
-        comparatorArea.setPromptText("// 请输入自定义比较器代码\n" +
-                "// 参数: value1, value2 - 待比较的两个值\n" +
-                "// 返回: true - 相等, false - 不相等\n" +
-                "function compare(value1, value2) {\n" +
-                "    return value1 === value2;\n" +
-                "}");
+        comparatorArea.setPromptText("""
+                // \u8bf7\u8f93\u5165\u81ea\u5b9a\u4e49\u6bd4\u8f83\u5668\u4ee3\u7801
+                // \u53c2\u6570: value1, value2 - \u5f85\u6bd4\u8f83\u7684\u4e24\u4e2a\u503c
+                // \u8fd4\u56de: true - \u76f8\u7b49, false - \u4e0d\u76f8\u7b49
+                function compare(value1, value2) {
+                    return value1 === value2;
+                }""");
         form.add(comparatorArea, 1, 3);
 
         // 备注
