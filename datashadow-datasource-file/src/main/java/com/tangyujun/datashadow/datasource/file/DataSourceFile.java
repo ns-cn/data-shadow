@@ -109,7 +109,7 @@ public abstract class DataSourceFile extends DataSource {
         Button cancelButton = new Button("取消");
 
         // 设置文件选择按钮事件
-        chooseButton.setOnAction(_ -> {
+        chooseButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("选择数据源文件");
             File file = fileChooser.showOpenDialog(dialog);
@@ -119,7 +119,7 @@ public abstract class DataSourceFile extends DataSource {
         });
 
         // 设置确认按钮事件
-        confirmButton.setOnAction(_ -> {
+        confirmButton.setOnAction(event -> {
             this.path = pathField.getText();
             dialog.close();
             if (callback != null) {
@@ -128,7 +128,7 @@ public abstract class DataSourceFile extends DataSource {
         });
 
         // 设置取消按钮事件
-        cancelButton.setOnAction(_ -> dialog.close());
+        cancelButton.setOnAction(event -> dialog.close());
 
         // 布局组件
         grid.add(pathLabel, 0, 0);

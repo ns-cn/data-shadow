@@ -341,7 +341,7 @@ public class DataSourceMemory extends DataSource {
         }
 
         // 监听文本变化，自动推断数据类型
-        dataInput.textProperty().addListener((_, _, newValue) -> {
+        dataInput.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !newValue.trim().isEmpty()) {
                 String inferredType = inferDataType(newValue);
                 dataTypeCombo.setValue(inferredType);
@@ -353,7 +353,7 @@ public class DataSourceMemory extends DataSource {
 
         // 创建预览/编辑切换按钮
         Button toggleButton = new Button("预览");
-        toggleButton.setOnAction(_ -> {
+        toggleButton.setOnAction(event -> {
             try {
                 if (toggleButton.getText().equals("预览")) {
                     // 解析数据
@@ -436,7 +436,7 @@ public class DataSourceMemory extends DataSource {
         dialogRoot.setBottom(buttonBox);
 
         // 确定按钮事件处理
-        confirmBtn.setOnAction(_ -> {
+        confirmBtn.setOnAction(event -> {
             try {
                 String inputContent = dataInput.getText();
                 String selectedType = dataTypeCombo.getValue();
@@ -463,7 +463,7 @@ public class DataSourceMemory extends DataSource {
         });
 
         // 取消按钮事件处理
-        cancelBtn.setOnAction(_ -> {
+        cancelBtn.setOnAction(event -> {
             callback.onConfigureCancelled();
             dialog.close();
         });

@@ -46,7 +46,7 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 
 ## Tech Stack
 
-- Java 23
+- Java 21
 - JavaFX 21.0.2
 - Maven
 - JUnit 5

@@ -59,7 +59,7 @@ public class DataSourceSection extends VBox {
         mappingButton.setDisable(true);
 
         // 数据源选择事件处理
-        typeSelect.setOnAction(_ -> {
+        typeSelect.setOnAction(event -> {
             String selectedType = typeSelect.getValue();
             if (selectedType != null) {
                 DataSourceGenerator generator = dataFactory.getDataSources().get(selectedType);
@@ -81,7 +81,7 @@ public class DataSourceSection extends VBox {
         });
 
         // 配置按钮事件处理
-        configButton.setOnAction(_ -> {
+        configButton.setOnAction(event -> {
             String selectedType = typeSelect.getValue();
             if (selectedType != null) {
                 DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
@@ -99,7 +99,7 @@ public class DataSourceSection extends VBox {
         });
 
         // 字段映射按钮事件处理
-        mappingButton.setOnAction(_ -> {
+        mappingButton.setOnAction(event -> {
             DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
                     : dataFactory.getShadowDataSource();
             if (dataSource != null) {

@@ -127,9 +127,9 @@ public class DataSourceMappingDialog extends Stage {
         tipLabel.setWrapText(true);
         tipLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
 
-        autoMapButton.setOnAction(_ -> handleAutoMap());
-        rebuildButton.setOnAction(_ -> handleRebuild());
-        clearButton.setOnAction(_ -> handleClearMappings());
+        autoMapButton.setOnAction(event -> handleAutoMap());
+        rebuildButton.setOnAction(event -> handleRebuild());
+        clearButton.setOnAction(event -> handleClearMappings());
 
         buttonBox.getChildren().addAll(autoMapButton, rebuildButton, clearButton, tipLabel);
         return buttonBox;
@@ -153,7 +153,7 @@ public class DataSourceMappingDialog extends Stage {
         // 数据源字段列
         TableColumn<DataItem, String> mappingColumn = new TableColumn<>("数据源字段");
         mappingColumn.setPrefWidth(300);
-        mappingColumn.setCellFactory(_ -> new TableCell<>() {
+        mappingColumn.setCellFactory(column -> new TableCell<>() {
             private final ComboBox<String> comboBox = new ComboBox<>();
 
             {
@@ -163,7 +163,7 @@ public class DataSourceMappingDialog extends Stage {
                 options.addAll(sourceColumns);
                 comboBox.setItems(FXCollections.observableArrayList(options));
                 comboBox.setMaxWidth(Double.MAX_VALUE);
-                comboBox.valueProperty().addListener((_, _, newVal) -> {
+                comboBox.valueProperty().addListener((observable, oldValue, newVal) -> {
                     if (getTableRow() != null && getTableRow().getItem() != null) {
                         if (newVal != null && !newVal.isEmpty()) {
                             mappings.put(getTableRow().getItem(), newVal);
@@ -209,8 +209,8 @@ public class DataSourceMappingDialog extends Stage {
         Button confirmButton = new Button("确定");
         confirmButton.setStyle("-fx-background-color: #1890ff; -fx-text-fill: white;");
 
-        cancelButton.setOnAction(_ -> close());
-        confirmButton.setOnAction(_ -> {
+        cancelButton.setOnAction(event -> close());
+        confirmButton.setOnAction(event -> {
             // 将映射结果回写到数据源
             dataSource.clearMappings(); // 先清除所有映射
             mappings.forEach((dataItem, sourceField) -> {

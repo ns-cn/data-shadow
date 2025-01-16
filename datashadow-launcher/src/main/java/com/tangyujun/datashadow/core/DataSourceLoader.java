@@ -110,7 +110,7 @@ public class DataSourceLoader {
         }
 
         // 获取目录下所有jar文件
-        File[] jarFiles = file.listFiles((_, name) -> name.toLowerCase().endsWith(".jar"));
+        File[] jarFiles = file.listFiles((dir, name) -> name.toLowerCase().endsWith(".jar"));
         if (jarFiles == null || jarFiles.length == 0) {
             log.warn("No jar files found in directory: {}", path);
             return;
@@ -171,7 +171,7 @@ public class DataSourceLoader {
                         org.reflections.scanners.Scanners.TypesAnnotated,
                         org.reflections.scanners.Scanners.MethodsAnnotated,
                         org.reflections.scanners.Scanners.Resources)
-                .filterInputsBy(_ -> {
+                .filterInputsBy(input -> {
                     // 确保扫描jar包内的所有类
                     return true;
                 }));

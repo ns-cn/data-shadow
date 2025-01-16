@@ -125,7 +125,7 @@ public class DataItemSection extends VBox {
         TableColumn<DataItem, Boolean> uniqueColumn = new TableColumn<>("是否唯一");
         uniqueColumn.setPrefWidth(80);
         uniqueColumn.setCellValueFactory(new PropertyValueFactory<>("unique"));
-        uniqueColumn.setCellFactory(_ -> new TableCell<DataItem, Boolean>() {
+        uniqueColumn.setCellFactory(column -> new TableCell<DataItem, Boolean>() {
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
@@ -195,14 +195,14 @@ public class DataItemSection extends VBox {
         };
 
         // 添加按钮事件处理
-        buttons[0].setOnAction(_ -> handleAdd());
-        buttons[1].setOnAction(_ -> handleEdit());
-        buttons[2].setOnAction(_ -> handleDelete());
-        buttons[3].setOnAction(_ -> handleMoveUp());
-        buttons[4].setOnAction(_ -> handleMoveDown());
+        buttons[0].setOnAction(event -> handleAdd());
+        buttons[1].setOnAction(event -> handleEdit());
+        buttons[2].setOnAction(event -> handleDelete());
+        buttons[3].setOnAction(event -> handleMoveUp());
+        buttons[4].setOnAction(event -> handleMoveDown());
 
         // 设置按钮禁用状态的监听
-        table.getSelectionModel().selectedItemProperty().addListener((_, _, newSelection) -> {
+        table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newSelection) -> {
             boolean hasSelection = newSelection != null;
             boolean singleSelection = table.getSelectionModel().getSelectedItems().size() == 1;
             int selectedIndex = table.getSelectionModel().getSelectedIndex();
@@ -361,14 +361,14 @@ public class DataItemSection extends VBox {
         });
 
         // 鼠标进入时显示提示
-        dragHandle.setOnMouseEntered(_ -> {
+        dragHandle.setOnMouseEntered(event -> {
             dragHandle.setStyle("-fx-background-color: #f0f0f0;" +
                     "-fx-border-width: 1 0 0 0;" +
                     "-fx-border-color: #ddd;");
         });
 
         // 鼠标离开时恢复样式
-        dragHandle.setOnMouseExited(_ -> {
+        dragHandle.setOnMouseExited(event -> {
             dragHandle.setStyle("-fx-background-color: transparent;" +
                     "-fx-border-width: 1 0 0 0;" +
                     "-fx-border-color: #ddd;");

@@ -1,7 +1,7 @@
-本项目使用java23编程语言，用JavaFX开发，使用maven管理依赖
+本项目使用java21编程语言，用JavaFX开发，使用maven管理依赖
 
 【开发规范】
-1. 项目使用java23编程语言
+1. 项目使用java21编程语言
 2. 项目使用JavaFx开发GUI
 3. 包名为com.tangyujun.datashadow
 4. 项目使用maven管理依赖

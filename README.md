@@ -45,7 +45,7 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 ![插件管理](screenshots/plugins_demo.png)
 ## 技术栈
 
-- Java 23
+- Java 21
 - JavaFX 21.0.2 
 - Maven
 - JUnit 5
