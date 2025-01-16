@@ -121,15 +121,17 @@ public class DataSourceMappingDialog extends Stage {
 
         Button autoMapButton = new Button("自动映射");
         Button rebuildButton = new Button("重建映射");
+        Button clearButton = new Button("清空映射");
 
-        Label tipLabel = new Label("注：自动映射将根据字段名称相似度追加映射关系，重建映射将根据数据源字段创建新的数据项");
+        Label tipLabel = new Label("注：自动映射将根据字段名称相似度追加映射关系，重建映射将根据数据源字段创建新的数据项，清空映射将清除所有已建立的映射关系");
         tipLabel.setWrapText(true);
         tipLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
 
         autoMapButton.setOnAction(_ -> handleAutoMap());
         rebuildButton.setOnAction(_ -> handleRebuild());
+        clearButton.setOnAction(_ -> handleClearMappings());
 
-        buttonBox.getChildren().addAll(autoMapButton, rebuildButton, tipLabel);
+        buttonBox.getChildren().addAll(autoMapButton, rebuildButton, clearButton, tipLabel);
         return buttonBox;
     }
 
@@ -325,6 +327,38 @@ public class DataSourceMappingDialog extends Stage {
             alert.setTitle("提示");
             alert.setHeaderText(null);
             alert.setContentText("重建映射完成");
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * 处理清空映射按钮点击事件
+     * 清除所有已建立的字段映射关系
+     */
+    private void handleClearMappings() {
+        // 显示确认对话框
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("确认清空映射");
+        confirmDialog.setHeaderText(null);
+        confirmDialog.setContentText("确定要清空所有字段映射关系吗？");
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // 清空映射关系
+            mappings.clear();
+
+            // 刷新表格显示
+            @SuppressWarnings("unchecked")
+            TableView<DataItem> table = (TableView<DataItem>) getScene().lookup(".table-view");
+            if (table != null) {
+                table.refresh();
+            }
+
+            // 显示完成提示
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("提示");
+            alert.setHeaderText(null);
+            alert.setContentText("映射关系已清空");
             alert.showAndWait();
         }
     }

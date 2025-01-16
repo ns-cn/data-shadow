@@ -19,13 +19,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
-
-import javafx.stage.Window;
 
 /**
  * CSV数据源
@@ -180,18 +177,6 @@ public class DataSourceCsv extends DataSourceFile {
         if (path == null || path.isBlank()) {
             return "";
         }
-        return "CSV文件: " + path + "(" + encoding + ")";
-    }
-
-    /**
-     * 配置CSV文件数据源
-     * 
-     * @param primaryStage 主窗口
-     * @param callback     配置完成后的回调函数
-     */
-    @Override
-    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'configure'");
+        return encoding == null ? "CSV文件: " + path : "CSV文件: " + path + "(" + encoding + ")";
     }
 }

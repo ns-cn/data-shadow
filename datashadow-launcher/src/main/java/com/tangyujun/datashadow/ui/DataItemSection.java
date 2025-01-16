@@ -361,14 +361,14 @@ public class DataItemSection extends VBox {
         });
 
         // 鼠标进入时显示提示
-        dragHandle.setOnMouseEntered(event -> {
+        dragHandle.setOnMouseEntered(_ -> {
             dragHandle.setStyle("-fx-background-color: #f0f0f0;" +
                     "-fx-border-width: 1 0 0 0;" +
                     "-fx-border-color: #ddd;");
         });
 
         // 鼠标离开时恢复样式
-        dragHandle.setOnMouseExited(event -> {
+        dragHandle.setOnMouseExited(_ -> {
             dragHandle.setStyle("-fx-background-color: transparent;" +
                     "-fx-border-width: 1 0 0 0;" +
                     "-fx-border-color: #ddd;");

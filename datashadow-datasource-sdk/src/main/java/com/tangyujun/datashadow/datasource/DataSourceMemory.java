@@ -1,11 +1,11 @@
 package com.tangyujun.datashadow.datasource;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
-import java.util.regex.Pattern;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
@@ -34,11 +34,15 @@ import javafx.beans.property.SimpleStringProperty;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import javafx.stage.Window;
 
 /**
@@ -184,7 +188,7 @@ public class DataSourceMemory extends DataSource {
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 builder.parse(new InputSource(new StringReader(content)));
                 return "XML";
-            } catch (Exception ignored) {
+            } catch (IOException | ParserConfigurationException | SAXException ignored) {
             }
         }
 
@@ -337,7 +341,7 @@ public class DataSourceMemory extends DataSource {
         }
 
         // 监听文本变化，自动推断数据类型
-        dataInput.textProperty().addListener((observable, oldValue, newValue) -> {
+        dataInput.textProperty().addListener((_, _, newValue) -> {
             if (newValue != null && !newValue.trim().isEmpty()) {
                 String inferredType = inferDataType(newValue);
                 dataTypeCombo.setValue(inferredType);
@@ -366,7 +370,7 @@ public class DataSourceMemory extends DataSource {
                         for (String key : previewData.get(0).keySet()) {
                             TableColumn<Map<String, Object>, String> column = new TableColumn<>(key);
                             column.setCellValueFactory(
-                                    data -> new SimpleStringProperty(String.valueOf(data.getValue().get(key))));
+                                    d -> new SimpleStringProperty(String.valueOf(d.getValue().get(key))));
                             previewTable.getColumns().add(column);
                         }
                     }

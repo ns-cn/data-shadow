@@ -17,13 +17,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
-
-import javafx.stage.Window;
 
 /**
  * XML数据源
@@ -222,17 +219,5 @@ public class DataSourceXml extends DataSourceFile {
             return "";
         }
         return "XML文件: " + path;
-    }
-
-    /**
-     * 配置XML文件数据源
-     * 
-     * @param primaryStage 主窗口
-     * @param callback     配置完成后的回调函数
-     */
-    @Override
-    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'configure'");
     }
 }
