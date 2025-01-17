@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.datasource.DataSource;
@@ -39,6 +42,8 @@ import javafx.stage.Window;
  * 继承自DataSource抽象类
  */
 public class DataSourceOracle extends DataSource {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceOracle.class);
 
     /**
      * 生成Oracle数据源
@@ -522,6 +527,7 @@ public class DataSourceOracle extends DataSource {
             this.setUseSid((Boolean) map.get("useSid"));
             this.setMappings((Map<String, String>) map.get("mappings"));
         } catch (Exception e) {
+            logger.error("解析数据源配置时发生错误: " + e.getMessage());
         }
     }
 }

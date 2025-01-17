@@ -483,6 +483,7 @@ public class DataSourceMysql extends DataSource {
             this.setSql((String) map.get("sql"));
             this.setMappings((Map<String, String>) map.get("mappings"));
         } catch (Exception e) {
+            logger.error("解析数据源配置时发生错误: " + e.getMessage());
         }
     }
 }

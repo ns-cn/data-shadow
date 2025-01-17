@@ -138,10 +138,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                             setStyle("");
                         } else if (item.contains("❌")) {
                             setText(item);
-                            setStyle("-fx-text-fill: red;");
+                            setStyle("-fx-text-fill: red; -fx-alignment: center;");
                         } else {
                             setText(item);
-                            setStyle("");
+                            setStyle("-fx-alignment: center;");
                         }
                     }
                 });
@@ -265,12 +265,15 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                     Object primaryValue = mappedPrimaryRow.get(item.getCode());
                     Object shadowValue = shadowRow != null ? shadowRow.get(item.getCode()) : null;
 
+                    String primaryStr = primaryValue != null ? primaryValue.toString() : "";
+                    String shadowStr = shadowValue != null ? shadowValue.toString() : "";
+
                     if (shadowRow == null) {
-                        result.put(item.getCode(), formatDifference(primaryValue, ""));
-                    } else if (!Objects.equals(primaryValue, shadowValue)) {
-                        result.put(item.getCode(), formatDifference(primaryValue, shadowValue));
+                        result.put(item.getCode(), formatDifference(primaryStr, ""));
+                    } else if (!primaryStr.equals(shadowStr)) {
+                        result.put(item.getCode(), formatDifference(primaryStr, shadowStr));
                     } else {
-                        result.put(item.getCode(), primaryValue != null ? primaryValue.toString() : "");
+                        result.put(item.getCode(), primaryStr);
                     }
                 }
 
@@ -282,7 +285,8 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 CompareResult result = new CompareResult();
                 for (DataItem item : dataItems) {
                     Object shadowValue = shadowRow.get(item.getCode());
-                    result.put(item.getCode(), formatDifference("", shadowValue));
+                    String shadowStr = shadowValue != null ? shadowValue.toString() : "";
+                    result.put(item.getCode(), formatDifference("", shadowStr));
                 }
                 results.add(result);
             }
@@ -394,9 +398,9 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     @SuppressWarnings("unused")
     private void setCellStyle(TableCell<Object, String> cell, boolean isDifferent) {
         if (isDifferent) {
-            cell.setStyle("-fx-text-fill: red;");
+            cell.setStyle("-fx-text-fill: red; -fx-alignment: center;");
         } else {
-            cell.setStyle("");
+            cell.setStyle("-fx-alignment: center;");
         }
     }
 

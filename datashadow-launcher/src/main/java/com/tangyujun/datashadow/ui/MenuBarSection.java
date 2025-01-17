@@ -37,6 +37,21 @@ public class MenuBarSection extends VBox {
         // 将菜单项添加到文件菜单
         fileMenu.getItems().add(exitItem);
 
+        // 创建对比方案菜单
+        Menu comparisonSchemeMenu = new Menu("对比方案");
+
+        MenuItem importMenuItem = new MenuItem("导入方案");
+        importMenuItem.setOnAction(event -> {
+            ComparisonSchemeManager.importScheme(menuBar.getScene().getWindow());
+        });
+
+        MenuItem exportMenuItem = new MenuItem("导出方案");
+        exportMenuItem.setOnAction(event -> {
+            ComparisonSchemeManager.exportScheme(menuBar.getScene().getWindow());
+        });
+
+        comparisonSchemeMenu.getItems().addAll(importMenuItem, exportMenuItem);
+
         // 创建帮助菜单
         Menu helpMenu = new Menu("帮助");
 
@@ -52,7 +67,7 @@ public class MenuBarSection extends VBox {
         helpMenu.getItems().addAll(qaItem, new SeparatorMenuItem(), aboutItem);
 
         // 将菜单添加到菜单栏
-        menuBar.getMenus().addAll(fileMenu, helpMenu);
+        menuBar.getMenus().addAll(fileMenu, comparisonSchemeMenu, helpMenu);
 
         // 将菜单栏添加到VBox容器
         getChildren().add(menuBar);

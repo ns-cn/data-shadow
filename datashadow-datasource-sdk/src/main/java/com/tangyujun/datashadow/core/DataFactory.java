@@ -88,6 +88,24 @@ public class DataFactory {
     }
 
     /**
+     * 清空数据项
+     */
+    public void clearDataItems() {
+        dataItems.clear();
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+    }
+
+    /**
+     * 添加数据项列表
+     * 
+     * @param items 要添加的数据项列表
+     */
+    public void addDataItems(List<DataItem> items) {
+        dataItems.addAll(items);
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+    }
+
+    /**
      * 添加数据项
      * 
      * @param item 要添加的数据项

@@ -6,12 +6,19 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.cell.PropertyValueFactory;
+
 import java.util.List;
+
 import com.tangyujun.datashadow.dataitem.DataItem;
 import com.tangyujun.datashadow.ui.dialog.DataItemDialog;
+
 import javafx.collections.ObservableList;
+
 import java.util.Optional;
+
 import com.tangyujun.datashadow.core.DataFactory;
+import com.tangyujun.datashadow.core.DataItemChangeListener;
+
 import javafx.scene.Cursor;
 import javafx.scene.layout.Region;
 
@@ -19,7 +26,7 @@ import javafx.scene.layout.Region;
  * 数据项维护区域
  * 用于展示和管理数据项列表,包含数据项的增删改查和排序功能
  */
-public class DataItemSection extends VBox {
+public class DataItemSection extends VBox implements DataItemChangeListener {
 
     /**
      * 数据项表格控件
@@ -98,6 +105,9 @@ public class DataItemSection extends VBox {
         // 添加可拖动的分隔条
         Region dragHandle = createDragHandle();
         getChildren().add(dragHandle);
+
+        // 注册监听器
+        DataFactory.getInstance().addDataItemChangeListener(this);
     }
 
     /**
@@ -377,5 +387,25 @@ public class DataItemSection extends VBox {
         });
 
         return dragHandle;
+    }
+
+    @Override
+    public void onDataItemChanged() {
+        table.refresh();
+    }
+
+    @Override
+    public void onDataItemCreated(DataItem item) {
+        table.refresh();
+    }
+
+    @Override
+    public void onDataItemUpdated(int index, DataItem oldItem, DataItem newItem) {
+        table.refresh();
+    }
+
+    @Override
+    public void onDataItemDeleted(int index, DataItem item) {
+        table.refresh();
     }
 }

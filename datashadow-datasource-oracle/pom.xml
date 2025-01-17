@@ -40,6 +40,13 @@
             <artifactId>junit-jupiter</artifactId>
         </dependency>
 
+        <!-- slf4j-api: 日志门面接口 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- JavaFX依赖 -->
         <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
         <dependency>

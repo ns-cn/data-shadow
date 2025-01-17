@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
@@ -64,6 +65,7 @@ public abstract class DataSource implements Serializable {
      * @return 包含数据的List，每个Map代表一行数据，key为字段名，value为字段值
      * @throws DataAccessException 当数据访问出错时抛出此异常
      */
+    @JSONField(serialize = false)
     public abstract List<Map<String, Object>> getValues() throws DataAccessException;
 
     /**
@@ -77,6 +79,7 @@ public abstract class DataSource implements Serializable {
      * 
      * @return 列名列表
      */
+    @JSONField(serialize = false)
     public abstract List<String> getColumns();
 
     /**
@@ -91,6 +94,7 @@ public abstract class DataSource implements Serializable {
      * 
      * @return 数据源的简单描述字符串
      */
+    @JSONField(serialize = false)
     public abstract String getDescription();
 
     /**
