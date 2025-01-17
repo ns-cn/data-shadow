@@ -16,7 +16,9 @@ import java.util.List;
 public class DataSourceOracleTest {
 
     private DataSourceOracle dataSource;
-    private static final String TEST_URL = "jdbc:oracle:thin:@127.0.0.1:1521/XE";
+    private static final String TEST_HOST = "127.0.0.1";
+    private static final int TEST_PORT = 1521;
+    private static final String TEST_SERVICE = "XE";
     private static final String TEST_USERNAME = "dbo";
     private static final String TEST_PASSWORD = "caecaodb";
 
@@ -31,7 +33,9 @@ public class DataSourceOracleTest {
     @BeforeEach
     void setUp() {
         dataSource = new DataSourceOracle();
-        dataSource.setUrl(TEST_URL);
+        dataSource.setHost(TEST_HOST);
+        dataSource.setPort(TEST_PORT);
+        dataSource.setService(TEST_SERVICE);
         dataSource.setUsername(TEST_USERNAME);
         dataSource.setPassword(TEST_PASSWORD);
     }
@@ -50,12 +54,14 @@ public class DataSourceOracleTest {
                 "Should throw DataSourceValidException when connection info is empty");
         assertNotNull(exception.getMessage(), "异常信息不应为空");
 
-        invalidDataSource.setUrl("jdbc:oracle:thin:@invalid:1521/XE");
+        invalidDataSource.setHost("invalid");
+        invalidDataSource.setPort(1521);
+        invalidDataSource.setService("XE");
         invalidDataSource.setUsername(TEST_USERNAME);
         invalidDataSource.setPassword(TEST_PASSWORD);
         exception = assertThrows(DataSourceValidException.class,
                 invalidDataSource::valid,
-                "Should throw DataSourceValidException when database URL is invalid");
+                "Should throw DataSourceValidException when database host is invalid");
         assertNotNull(exception.getMessage(), "异常信息不应为空");
     }
 
@@ -135,5 +141,22 @@ public class DataSourceOracleTest {
         assertEquals(2, columns.size());
         assertTrue(columns.contains("ID"));
         assertTrue(columns.contains("NAME"));
+    }
+
+    /**
+     * 测试URL构建
+     */
+    @Test
+    void testBuildUrl() {
+        assertEquals(
+                "jdbc:oracle:thin:@127.0.0.1:1521/XE",
+                dataSource.buildUrl(),
+                "Service name URL should be correct");
+
+        dataSource.setUseSid(true);
+        assertEquals(
+                "jdbc:oracle:thin:@127.0.0.1:1521:XE",
+                dataSource.buildUrl(),
+                "SID URL should be correct");
     }
 }
