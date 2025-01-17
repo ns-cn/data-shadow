@@ -2,6 +2,22 @@
 
 <div style="width: 100%; padding: 20px; background: #f5f5f5;">
 <div style="border: 1px solid #ddd; padding: 10px; background: white;">
+    <!-- 菜单栏 -->
+    <div style="border-bottom: 1px solid #eee; padding: 5px; margin-bottom: 10px;">
+        <div style="display: flex; gap: 20px;">
+            <div style="cursor: pointer;">文件
+                <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
+                    <div style="padding: 5px;">退出</div>
+                </div>
+            </div>
+            <div style="cursor: pointer;">帮助
+                <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
+                    <div style="padding: 5px;">Q&A</div>
+                    <div style="padding: 5px;">关于</div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 数据项维护区域 -->
     <div style="border-bottom: 1px solid #eee; padding: 10px; margin-bottom: 10px;">
         <div style="font-weight: bold; margin-bottom: 5px;">数据项维护</div>
@@ -114,7 +130,14 @@
 
 ## 界面说明
 
-1. 数据项维护区域
+1. 菜单栏
+   - 文件菜单
+     * 退出：退出应用程序
+   - 帮助菜单
+     * Q&A：显示常见问题解答
+     * 关于：显示应用程序版本信息和开发者信息
+
+2. 数据项维护区域
    - 左侧表格展示已配置的数据项列表，包含以下字段：
      * ID：数据项的唯一标识符（code）
      * 名称：数据项的显示名称
@@ -129,13 +152,13 @@
      * 删除选中项：移除选中的数据项
      * 上移/下移：调整选中项的排序位置
 
-2. 数据源维护区域
+3. 数据源维护区域
    - 分为主数据源和影子数据源两部分
    - 每个数据源可以选择类型（MySQL/Oracle/Excel/CSV等）
    - 提供数据源配置和字段映射功能
    - 配置完成后显示数据源连接状态
 
-3. 对比功能与结果展示区
+4. 对比功能与结果展示区
    - 顶部提供对比功能按钮和选项：
      * 执行对比按钮
      * 仅显示差异项选项
@@ -149,7 +172,14 @@
 
 ## 交互说明
 
-1. 数据项维护
+1. 菜单栏
+   - 点击"文件"显示下拉菜单
+     * 点击"退出"关闭应用程序
+   - 点击"帮助"显示下拉菜单
+     * 点击"Q&A"显示常见问题解答对话框
+     * 点击"关于"显示关于对话框
+
+2. 数据项维护
    - 可以通过复选框选择一个或多个数据项
    - 选中数据项后右侧对应按钮才可用
    - 编辑和排序操作仅支持单选
@@ -165,12 +195,12 @@
      * 选中单条数据时，上移/下移按钮根据位置自动启用/禁用
      * 选中多条数据时，移动按钮禁用
 
-2. 数据源配置
+3. 数据源配置
    - 选择数据源类型后点击"配置数据源"进行详细配置
    - 配置完成后自动验证连接
    - 点击"字段映射"可以设置数据源字段与数据项的对应关系
 
-3. 对比功能与结果
+4. 对比功能与结果
    - 两个数据源配置完成后才能执行对比
    - 对比过程中显示进度条
    - 可以随时暂停/继续对比过程

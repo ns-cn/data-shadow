@@ -9,13 +9,20 @@ import javafx.geometry.Insets;
  */
 public class MainLayout extends VBox {
 
+    private final MenuBarSection menuBarSection;
     private final DataItemSection dataItemSection;
     private final DataSourceSection dataSourceSection;
     private final CompareSection compareSection;
 
     public MainLayout() {
-        super(10);
-        setPadding(new Insets(10));
+        super(0); // 将间距改为0，因为菜单栏不需要间距
+
+        // 初始化菜单栏
+        menuBarSection = new MenuBarSection();
+
+        // 创建内容区域容器
+        VBox contentBox = new VBox(10);
+        contentBox.setPadding(new Insets(10));
 
         // 初始化各个区域
         dataItemSection = new DataItemSection();
@@ -25,10 +32,13 @@ public class MainLayout extends VBox {
         // 设置对比区域自动填充剩余空间
         VBox.setVgrow(compareSection, Priority.ALWAYS);
 
-        // 添加所有区域到主布局
-        getChildren().addAll(
+        // 将功能区域添加到内容容器
+        contentBox.getChildren().addAll(
                 dataItemSection,
                 dataSourceSection,
                 compareSection);
+
+        // 添加所有区域到主布局
+        getChildren().addAll(menuBarSection, contentBox);
     }
 }
