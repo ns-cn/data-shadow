@@ -4,6 +4,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -19,10 +20,23 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
+import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
+
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 
 /**
  * CSV数据源
@@ -178,5 +192,159 @@ public class DataSourceCsv extends DataSourceFile {
             return "";
         }
         return encoding == null ? "CSV文件: " + path : "CSV文件: " + path + "(" + encoding + ")";
+    }
+
+    /**
+     * 导出为JSON，包含dataType和originData和父类的字段
+     * 例如：{"path":"/path/to/file.csv","encoding":"UTF-8","mappings":{}}
+     */
+    @Override
+    public String exportSource() {
+        return JSON.toJSONString(this);
+    }
+
+    /**
+     * 导入为JSON，包含dataType和originData和父类的字段
+     * 例如：{"path":"/path/to/file.csv","encoding":"UTF-8","mappings":{}}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void importSource(String exportValueString) {
+        // 解析JSON
+        Map<String, Object> map = JSON.parseObject(exportValueString, new TypeReference<Map<String, Object>>() {
+        });
+        if (map == null) {
+            return;
+        }
+        // 解析数据
+        try {
+            this.setPath((String) map.get("path"));
+            this.setEncoding((String) map.get("encoding"));
+            this.setMappings((Map<String, String>) map.get("mappings"));
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * 配置CSV数据源
+     * 提供文件选择和编码设置功能
+     * 
+     * @param primaryStage 主窗口
+     * @param callback     配置完成后的回调函数
+     */
+    @Override
+    public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
+        // 创建配置对话框
+        Stage dialog = new Stage();
+        dialog.initOwner(primaryStage);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.setTitle("配置CSV数据源");
+
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
+
+        // 文件路径选择区域
+        HBox pathBox = new HBox(10);
+        pathBox.setAlignment(Pos.CENTER_LEFT);
+        TextField pathField = new TextField();
+        pathField.setEditable(false);
+        pathField.setPrefWidth(300);
+        if (path != null) {
+            pathField.setText(path);
+        }
+        Button browseButton = new Button("浏览");
+        pathBox.getChildren().addAll(new Label("文件路径:"), pathField, browseButton);
+
+        // 编码选择区域
+        HBox encodingBox = new HBox(10);
+        encodingBox.setAlignment(Pos.CENTER_LEFT);
+        ComboBox<String> encodingCombo = new ComboBox<>();
+        encodingCombo.getItems().addAll(
+                "UTF-8",
+                "GBK",
+                "GB2312",
+                "ISO-8859-1",
+                "UTF-16",
+                "UTF-16BE",
+                "UTF-16LE");
+        // 设置默认编码
+        encodingCombo.setValue(encoding != null ? encoding : "UTF-8");
+        encodingBox.getChildren().addAll(new Label("文件编码:"), encodingCombo);
+
+        // 按钮区域
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        Button confirmButton = new Button("确定");
+        Button cancelButton = new Button("取消");
+        buttonBox.getChildren().addAll(confirmButton, cancelButton);
+
+        // 将所有组件添加到根容器
+        root.getChildren().addAll(pathBox, encodingBox, buttonBox);
+
+        // 设置浏览按钮事件
+        browseButton.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("选择CSV文件");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+            // 如果已有路径，则设置初始目录
+            if (path != null && !path.isBlank()) {
+                File currentFile = new File(path);
+                if (currentFile.getParentFile() != null) {
+                    fileChooser.setInitialDirectory(currentFile.getParentFile());
+                }
+            }
+            File selectedFile = fileChooser.showOpenDialog(dialog);
+            if (selectedFile != null) {
+                pathField.setText(selectedFile.getAbsolutePath());
+            }
+        });
+
+        // 设置确定按钮事件
+        confirmButton.setOnAction(event -> {
+            String selectedPath = pathField.getText();
+            String selectedEncoding = encodingCombo.getValue();
+
+            if (selectedPath == null || selectedPath.isBlank()) {
+                showError("请选择CSV文件");
+                return;
+            }
+
+            // 更新数据源配置
+            setPath(selectedPath);
+            setEncoding(selectedEncoding);
+
+            try {
+                // 验证配置
+                valid();
+                // 通知配置完成
+                callback.onConfigureFinished();
+                dialog.close();
+            } catch (DataSourceValidException e) {
+                showError("配置验证失败: " + e.getMessage());
+            }
+        });
+
+        // 设置取消按钮事件
+        cancelButton.setOnAction(event -> {
+            callback.onConfigureCancelled();
+            dialog.close();
+        });
+
+        // 显示对话框
+        Scene scene = new Scene(root);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    /**
+     * 显示错误提示对话框
+     */
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("错误");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

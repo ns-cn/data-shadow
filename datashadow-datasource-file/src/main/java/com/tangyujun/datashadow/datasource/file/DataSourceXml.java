@@ -17,6 +17,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
@@ -219,5 +221,35 @@ public class DataSourceXml extends DataSourceFile {
             return "";
         }
         return "XML文件: " + path;
+    }
+
+    /**
+     * 导出为JSON，包含dataType和originData和父类的字段
+     * 例如：{"path":"/path/to/file.xml","mappings":{}}
+     */
+    @Override
+    public String exportSource() {
+        return JSON.toJSONString(this);
+    }
+
+    /**
+     * 导入为JSON，包含dataType和originData和父类的字段
+     * 例如：{"path":"/path/to/file.xml","mappings":{}}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void importSource(String exportValueString) {
+        // 解析JSON
+        Map<String, Object> map = JSON.parseObject(exportValueString, new TypeReference<Map<String, Object>>() {
+        });
+        if (map == null) {
+            return;
+        }
+        // 解析数据
+        try {
+            this.setPath((String) map.get("path"));
+            this.setMappings((Map<String, String>) map.get("mappings"));
+        } catch (Exception e) {
+        }
     }
 }

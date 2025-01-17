@@ -230,7 +230,6 @@ public class DataSourceMemory extends DataSource {
      */
     private List<Map<String, Object>> parseData(String content, String type) throws Exception {
         List<Map<String, Object>> result = new ArrayList<>();
-
         switch (type) {
             case "XML" -> {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -470,5 +469,37 @@ public class DataSourceMemory extends DataSource {
         Scene dialogScene = new Scene(dialogRoot, 500, 400);
         dialog.setScene(dialogScene);
         dialog.show();
+    }
+
+    /**
+     * 导出为JSON，包含dataType和originData和父类的字段
+     * 例如：{"dataType":"JSON","originData":"[{"id":1,"name":"John"},{"id":2,"name":"Jane"}]","mappings":{}}
+     */
+    @Override
+    public String exportSource() {
+        return JSON.toJSONString(this);
+    }
+
+    /**
+     * 导入为JSON，包含dataType和originData和父类的字段
+     * 例如：{"dataType":"JSON","originData":"[{"id":1,"name":"John"},{"id":2,"name":"Jane"}]","mappings":{}}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void importSource(String exportValueString) {
+        // 解析JSON
+        Map<String, Object> map = JSON.parseObject(exportValueString, new TypeReference<Map<String, Object>>() {
+        });
+        if (map == null) {
+            return;
+        }
+        // 解析数据
+        try {
+            this.dataType = (String) map.get("dataType");
+            this.originData = (String) map.get("originData");
+            this.setMappings((Map<String, String>) map.get("mappings"));
+            this.data = parseData(originData, dataType);
+        } catch (Exception e) {
+        }
     }
 }

@@ -14,7 +14,7 @@ import javafx.stage.Window;
 /**
  * 数据源抽象类
  * 定义了数据源的基本属性和方法
- * 包括数据项映射、数据处理脚本、数据源验证和数据获取等功能
+ * 包括数据项映射、数据源验证和数据获取等功能
  * 
  * 数据源是程序中最基本的数据来源,可以是文件(Excel、CSV等)或数据库(MySQL、Oracle等)
  * 每个具体的数据源实现类都需要实现该抽象类定义的基本功能
@@ -39,15 +39,6 @@ public abstract class DataSource implements Serializable {
     private Map<String, String> mappings;
 
     /**
-     * 数据处理脚本（JS）
-     * 用于在数据获取后进行自定义处理
-     * 
-     * 脚本可以对获取的数据进行转换、过滤、计算等操作
-     * 在数据比对之前执行,确保数据符合比对要求
-     */
-    private String scriptProcessor;
-
-    /**
      * 验证数据源是否有效
      * 子类需要实现具体的验证逻辑
      * 
@@ -69,7 +60,6 @@ public abstract class DataSource implements Serializable {
      * 1. 从数据源读取原始数据
      * 2. 将数据转换为统一的Map格式
      * 3. 处理可能的数据类型转换
-     * 4. 执行数据处理脚本(如果存在)
      * 
      * @return 包含数据的List，每个Map代表一行数据，key为字段名，value为字段值
      * @throws DataAccessException 当数据访问出错时抛出此异常
@@ -102,6 +92,47 @@ public abstract class DataSource implements Serializable {
      * @return 数据源的简单描述字符串
      */
     public abstract String getDescription();
+
+    /**
+     * 配置数据源的具体行为，例如打开对话框、选择文件、配置数据库链接信息等
+     * 
+     * 实现类需要:
+     * 1. 提供合适的配置界面
+     * 2. 收集必要的配置信息
+     * 3. 验证配置的有效性
+     * 4. 通过回调通知配置结果
+     * 
+     * @param primaryStage 主窗口,用于显示配置界面
+     * @param callback     配置完成后的回调函数,用于通知配置结果
+     */
+    public abstract void configure(Window primaryStage, DataSourceConfigurationCallback callback);
+
+    /**
+     * 将数据源对象序列化为字符串
+     * 用于序列化数据源配置信息,实现配置的导入导出功能
+     * 
+     * 实现类需要:
+     * 1. 将所有必要的配置信息序列化为字符串格式
+     * 2. 确保所有配置信息可以通过importSource方法还原
+     * 3. 处理可能的特殊字符和编码问题
+     * 
+     * @return 包含数据源配置信息的字符串
+     */
+    public abstract String exportSource();
+
+    /**
+     * 将字符串反序列化为数据源对象
+     * 用于反序列化数据源配置信息,实现配置的导入功能
+     * 
+     * 实现类需要:
+     * 1. 解析字符串,提取配置信息
+     * 2. 验证格式的正确性
+     * 3. 使用解析的配置信息重新配置数据源
+     * 4. 处理可能的版本兼容性问题
+     * 
+     * @param exportValueString 包含数据源配置信息的字符串
+     */
+    public abstract void importSource(String exportValueString);
 
     /**
      * 添加字段映射关系
@@ -148,39 +179,10 @@ public abstract class DataSource implements Serializable {
     }
 
     /**
-     * 获取数据处理脚本
-     * 
-     * 脚本用于在数据获取后进行处理
-     * 可以实现:
-     * - 数据清洗
-     * - 格式转换
-     * - 数据计算
-     * - 自定义处理逻辑
-     * 
-     * @return 数据处理脚本
-     */
-    public String getScriptProcessor() {
-        return scriptProcessor;
-    }
-
-    /**
-     * 设置数据处理脚本
-     * 
-     * 设置新的处理脚本会替换现有脚本
-     * 脚本应该是合法的JavaScript代码
-     * 
-     * @param scriptProcessor 数据处理脚本
-     */
-    public void setScriptProcessor(String scriptProcessor) {
-        this.scriptProcessor = scriptProcessor;
-    }
-
-    /**
      * 判断两个数据源对象是否相等
      * 
      * 比较内容包括:
      * 1. 字段映射关系
-     * 2. 数据处理脚本
      * 
      * 注意:不同类型的数据源即使配置相同也被视为不相等
      * 
@@ -194,8 +196,7 @@ public abstract class DataSource implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         DataSource that = (DataSource) o;
-        return Objects.equals(mappings, that.mappings) &&
-                Objects.equals(scriptProcessor, that.scriptProcessor);
+        return Objects.equals(mappings, that.mappings);
     }
 
     /**
@@ -203,7 +204,6 @@ public abstract class DataSource implements Serializable {
      * 
      * 哈希码计算基于:
      * 1. 字段映射关系
-     * 2. 数据处理脚本
      * 
      * 用于:
      * - Map中的键
@@ -214,22 +214,8 @@ public abstract class DataSource implements Serializable {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(mappings, scriptProcessor);
+        return Objects.hash(mappings);
     }
-
-    /**
-     * 配置数据源的具体行为，例如打开对话框、选择文件、配置数据库链接信息等
-     * 
-     * 实现类需要:
-     * 1. 提供合适的配置界面
-     * 2. 收集必要的配置信息
-     * 3. 验证配置的有效性
-     * 4. 通过回调通知配置结果
-     * 
-     * @param primaryStage 主窗口,用于显示配置界面
-     * @param callback     配置完成后的回调函数,用于通知配置结果
-     */
-    public abstract void configure(Window primaryStage, DataSourceConfigurationCallback callback);
 
     /**
      * 获取数据源字段与数据项的映射关系

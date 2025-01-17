@@ -67,11 +67,10 @@ public class DataSourceSection extends VBox {
                     DataSource dataSource = generator.generate();
                     // 设置到DataFactory
                     if (isPrimary) {
-                        dataFactory.setPrimaryDataSource(dataSource);
+                        dataFactory.setPrimaryDataSource(selectedType, dataSource);
                     } else {
-                        dataFactory.setShadowDataSource(dataSource);
+                        dataFactory.setShadowDataSource(selectedType, dataSource);
                     }
-
                     // 更新状态显示
                     status.setText(dataSource.getDescription());
                     configButton.setDisable(false);

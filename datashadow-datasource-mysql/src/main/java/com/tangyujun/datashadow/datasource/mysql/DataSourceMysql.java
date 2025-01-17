@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
@@ -445,5 +447,42 @@ public class DataSourceMysql extends DataSource {
         Scene scene = new Scene(mainLayout);
         stage.setScene(scene);
         stage.showAndWait();
+    }
+
+    /**
+     * 导出为JSON，包含dataType和originData和父类的字段
+     * 例如：{"host":"localhost","port":3306,"database":"database","username":"root","password":"******","sql":"SELECT
+     * * FROM table","mappings":{}}
+     */
+    @Override
+    public String exportSource() {
+        return JSON.toJSONString(this);
+    }
+
+    /**
+     * 导入为JSON，包含dataType和originData和父类的字段
+     * 例如：{"host":"localhost","port":3306,"database":"database","username":"root","password":"******","sql":"SELECT
+     * * FROM table","mappings":{}}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void importSource(String exportValueString) {
+        // 解析JSON
+        Map<String, Object> map = JSON.parseObject(exportValueString, new TypeReference<Map<String, Object>>() {
+        });
+        if (map == null) {
+            return;
+        }
+        // 解析数据
+        try {
+            this.setHost((String) map.get("host"));
+            this.setPort((Integer) map.get("port"));
+            this.setDatabase((String) map.get("database"));
+            this.setUsername((String) map.get("username"));
+            this.setPassword((String) map.get("password"));
+            this.setSql((String) map.get("sql"));
+            this.setMappings((Map<String, String>) map.get("mappings"));
+        } catch (Exception e) {
+        }
     }
 }

@@ -10,6 +10,12 @@
                     <div style="padding: 5px;">退出</div>
                 </div>
             </div>
+            <div style="cursor: pointer;">对比方案
+                <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
+                    <div style="padding: 5px;">导入方案</div>
+                    <div style="padding: 5px;">导出方案</div>
+                </div>
+            </div>
             <div style="cursor: pointer;">帮助
                 <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
                     <div style="padding: 5px;">Q&A</div>
@@ -96,10 +102,17 @@
     <!-- 对比功能和结果展示区 -->
     <div style="padding: 10px;">
         <div style="font-weight: bold; margin-bottom: 5px;">对比功能与结果</div>
-        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-            <button style="padding: 5px 20px;">执行对比</button>
-            <label><input type="checkbox"> 仅显示差异项</label>
-            <label><input type="checkbox"> 优先显示数据项别名</label>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px; justify-content: space-between;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button style="padding: 5px 20px;">执行对比</button>
+                <label><input type="checkbox"> 仅显示差异项</label>
+                <label><input type="checkbox"> 优先显示数据项别名</label>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button>导出CSV</button>
+                <button>导出Excel</button>
+                <button>导出JSON</button>
+            </div>
         </div>
         <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; text-align: center;">
             <tr style="background: #f8f8f8;">
@@ -133,6 +146,9 @@
 1. 菜单栏
    - 文件菜单
      * 退出：退出应用程序
+   - 对比方案菜单
+     * 导入方案：从.shadow文件导入已保存的对比方案（包含数据项配置、数据源配置和映射关系）
+     * 导出方案：将当前对比方案导出为.shadow文件，以便后续复用
    - 帮助菜单
      * Q&A：显示常见问题解答
      * 关于：显示应用程序版本信息和开发者信息
@@ -163,6 +179,10 @@
      * 执行对比按钮
      * 仅显示差异项选项
      * 优先显示数据项别名选项
+     * 导出按钮组：
+       - 导出CSV：将当前结果导出为CSV文件
+       - 导出Excel：将当前结果导出为Excel文件
+       - 导出JSON：将当前结果导出为JSON文件
    - 下方表格实时展示对比结果：
      * 每行展示一条数据的所有数据项
      * 相同值直接显示
@@ -175,6 +195,31 @@
 1. 菜单栏
    - 点击"文件"显示下拉菜单
      * 点击"退出"关闭应用程序
+   - 点击"对比方案"显示下拉菜单
+     * 点击"导入方案"：
+       - 打开文件选择对话框，仅显示.shadow文件
+       - 选择文件后，解码Base64字符串得到JSON字符串
+       - JSON包含以下内容：
+         + dataItems：数据项列表
+         + primaryDataSourceName：主数据源类型名称
+         + primaryDataSource：主数据源导出的配置字符串
+         + shadowDataSourceName：影子数据源类型名称
+         + shadowDataSource：影子数据源导出的配置字符串
+       - 导入流程：
+         + 清空当前所有配置
+         + 导入数据项列表
+         + 根据数据源名称生成对应的数据源实例
+         + 使用importSource方法导入数据源配置
+     * 点击"导出方案"：
+       - 打开文件保存对话框，默认扩展名为.shadow
+       - 收集当前配置信息：
+         + 从DataFactory获取数据项列表
+         + 获取主数据源名称和实例
+         + 获取影子数据源名称和实例
+         + 调用数据源的exportSource方法获取序列化后的配置
+       - 将配置信息组装为JSON
+       - 将JSON转换为Base64编码
+       - 保存为.shadow文件
    - 点击"帮助"显示下拉菜单
      * 点击"Q&A"显示常见问题解答对话框
      * 点击"关于"显示关于对话框
@@ -204,10 +249,23 @@
    - 两个数据源配置完成后才能执行对比
    - 对比过程中显示进度条
    - 可以随时暂停/继续对比过程
-   - 支持导入导出对比方案复用
+   - 对比方案管理：
+     * 通过菜单栏的"对比方案"进行导入导出
+     * 导出的方案为.shadow格式文件，内容为Base64编码的JSON字符串
+     * JSON包含：
+       - 数据项配置列表
+       - 主数据源类型名称和配置
+       - 影子数据源类型名称和配置
+     * 导入方案时会替换当前所有配置，包括：
+       - 清空并重新导入数据项
+       - 重新生成并配置主数据源
+       - 重新生成并配置影子数据源
    - 结果表格支持：
      * 按列排序
      * 差异项筛选
      * 差异值红色标记
-     * 导出到Excel
+     * 导出功能：
+       - 点击对应的导出按钮，弹出文件保存对话框
+       - 选择保存位置后导出对应格式的文件
+       - 导出时保持当前显示状态（包括筛选和排序）
      * 可切换显示数据项名称或别名（通过"优先显示数据项别名"选项控制）

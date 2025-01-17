@@ -29,9 +29,19 @@ public class DataFactory {
     private final ObservableList<DataItem> dataItems = FXCollections.observableArrayList();
 
     /**
+     * 主数据源名称
+     */
+    private String primaryDataSourceName;
+
+    /**
      * 主数据源
      */
     private DataSource primaryDataSource;
+
+    /**
+     * 影子数据源名称
+     */
+    private String shadowDataSourceName;
 
     /**
      * 影子数据源
@@ -130,12 +140,30 @@ public class DataFactory {
     }
 
     /**
+     * 获取主数据源名称
+     * 
+     * @return 主数据源名称
+     */
+    public String getPrimaryDataSourceName() {
+        return primaryDataSourceName;
+    }
+
+    /**
      * 获取主数据源
      * 
      * @return 主数据源
      */
     public DataSource getPrimaryDataSource() {
         return primaryDataSource;
+    }
+
+    /**
+     * 获取影子数据源名称
+     * 
+     * @return 影子数据源名称
+     */
+    public String getShadowDataSourceName() {
+        return shadowDataSourceName;
     }
 
     /**
@@ -150,21 +178,27 @@ public class DataFactory {
     /**
      * 设置主数据源
      * 
+     * @param sourceName        数据源名称
      * @param primaryDataSource 主数据源
      */
-    public void setPrimaryDataSource(DataSource primaryDataSource) {
+    public void setPrimaryDataSource(String sourceName, DataSource primaryDataSource) {
+        this.primaryDataSourceName = sourceName;
         this.primaryDataSource = primaryDataSource;
-        dataSourceChangeListeners.forEach(listener -> listener.onDataSourceChanged(true));
+        dataSourceChangeListeners
+                .forEach(listener -> listener.onDataSourceChanged(true, sourceName, primaryDataSource));
     }
 
     /**
      * 设置影子数据源
      * 
+     * @param sourceName       数据源名称
      * @param shadowDataSource 影子数据源
      */
-    public void setShadowDataSource(DataSource shadowDataSource) {
+    public void setShadowDataSource(String sourceName, DataSource shadowDataSource) {
+        this.shadowDataSourceName = sourceName;
         this.shadowDataSource = shadowDataSource;
-        dataSourceChangeListeners.forEach(listener -> listener.onDataSourceChanged(false));
+        dataSourceChangeListeners
+                .forEach(listener -> listener.onDataSourceChanged(false, sourceName, shadowDataSource));
     }
 
     /**

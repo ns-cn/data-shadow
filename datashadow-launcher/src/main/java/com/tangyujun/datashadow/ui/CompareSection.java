@@ -22,6 +22,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.stage.FileChooser;
+import java.io.File;
 
 /**
  * 对比功能与结果展示区
@@ -35,6 +37,9 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private final Button compareButton;
     private final CheckBox showDiffOnly;
     private final CheckBox preferNickname;
+    private final Button exportCsvButton;
+    private final Button exportExcelButton;
+    private final Button exportJsonButton;
 
     /**
      * 构造函数
@@ -53,16 +58,32 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         toolBox.setAlignment(Pos.CENTER_LEFT);
         toolBox.setPadding(new Insets(0, 0, 10, 0));
 
+        // 创建左侧功能区
+        HBox leftBox = new HBox(10);
+        leftBox.setAlignment(Pos.CENTER_LEFT);
+
         compareButton = new Button("执行对比");
         compareButton.setPrefWidth(100);
 
         showDiffOnly = new CheckBox("仅显示差异项");
         preferNickname = new CheckBox("优先显示数据项别名");
 
-        toolBox.getChildren().addAll(
-                compareButton,
-                showDiffOnly,
-                preferNickname);
+        leftBox.getChildren().addAll(compareButton, showDiffOnly, preferNickname);
+
+        // 创建右侧导出按钮区
+        HBox rightBox = new HBox(5);
+        rightBox.setAlignment(Pos.CENTER_RIGHT);
+
+        exportCsvButton = new Button("导出CSV");
+        exportExcelButton = new Button("导出Excel");
+        exportJsonButton = new Button("导出JSON");
+
+        rightBox.getChildren().addAll(exportCsvButton, exportExcelButton, exportJsonButton);
+
+        // 使用HBox.setHgrow使左侧区域占据剩余空间
+        HBox.setHgrow(leftBox, Priority.ALWAYS);
+
+        toolBox.getChildren().addAll(leftBox, rightBox);
 
         // 创建结果表格
         resultTable = new TableView<>();
@@ -76,6 +97,9 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         compareButton.setOnAction(event -> startCompare());
         showDiffOnly.setOnAction(event -> filterDiffItems());
         preferNickname.setOnAction(event -> updateColumnHeaders());
+        exportCsvButton.setOnAction(event -> exportToCsv());
+        exportExcelButton.setOnAction(event -> exportToExcel());
+        exportJsonButton.setOnAction(event -> exportToJson());
 
         // 注册为数据项变化监听器
         DataFactory.getInstance().addDataItemChangeListener(this);
@@ -330,7 +354,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /**
      * 比对结果数据类
      */
-    private static class CompareResult extends HashMap<String, String> {
+    public static class CompareResult extends HashMap<String, String> {
         // 使用 HashMap 存储每个数据项的对比结果
         // key 为数据项的 code，value 为显示的文本
     }
@@ -398,5 +422,56 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     public void onDataItemDeleted(int index, DataItem item) {
         log.info("数据项发生变更,重新加载表格列");
         updateColumns(DataFactory.getInstance().getDataItems());
+    }
+
+    /**
+     * 导出为CSV文件
+     */
+    @SuppressWarnings("LoggerStringConcat")
+    private void exportToCsv() {
+        File file = showSaveFileDialog("CSV Files", "*.csv");
+        if (file != null) {
+            // TODO: 实现CSV导出逻辑
+            log.info("导出CSV文件到: " + file.getAbsolutePath());
+        }
+    }
+
+    /**
+     * 导出为Excel文件
+     */
+    @SuppressWarnings("LoggerStringConcat")
+    private void exportToExcel() {
+        File file = showSaveFileDialog("Excel Files", "*.xlsx");
+        if (file != null) {
+            // TODO: 实现Excel导出逻辑
+            log.info("导出Excel文件到: " + file.getAbsolutePath());
+        }
+    }
+
+    /**
+     * 导出为JSON文件
+     */
+    @SuppressWarnings("LoggerStringConcat")
+    private void exportToJson() {
+        File file = showSaveFileDialog("JSON Files", "*.json");
+        if (file != null) {
+            // TODO: 实现JSON导出逻辑
+            log.info("导出JSON文件到: " + file.getAbsolutePath());
+        }
+    }
+
+    /**
+     * 显示文件保存对话框
+     * 
+     * @param description 文件类型描述
+     * @param extension   文件扩展名
+     * @return 选择的文件，如果取消则返回null
+     */
+    private File showSaveFileDialog(String description, String extension) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("保存文件");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(description, extension));
+        return fileChooser.showSaveDialog(getScene().getWindow());
     }
 }

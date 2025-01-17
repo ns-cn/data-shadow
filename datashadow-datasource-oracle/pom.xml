@@ -59,6 +59,12 @@
             <artifactId>javafx-graphics</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- JSON处理 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
