@@ -29,15 +29,19 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 
 ✅ Completed:
 - Basic framework and JavaFX interface
-- Data item management (CRUD, sorting, comparators)
-- Memory data source (JSON/XML/CSV import, preview)
 - Plugin loading mechanism
+- Data source SDK interface design
+- Basic UI layout and navigation
 
 ⏳ In Development:
+- Data item management (CRUD, sorting, comparators)
+- Memory data source (JSON/XML/CSV import, preview)
 - Database data source (MySQL/Oracle)
 - File data source (Excel/CSV/JSON/XML)
 - Data comparison functionality
 - Result export functionality
+- Field mapping configuration
+- Comparison result visualization
 
 ## Screenshots
 
