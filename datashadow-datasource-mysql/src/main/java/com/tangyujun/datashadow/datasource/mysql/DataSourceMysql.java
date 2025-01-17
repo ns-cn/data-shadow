@@ -15,6 +15,8 @@ import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
 import javafx.stage.Window;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MySQL数据源
@@ -23,11 +25,22 @@ import javafx.stage.Window;
  */
 public class DataSourceMysql extends DataSource {
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceMysql.class);
 
     /**
-     * 数据库连接URL
+     * 数据库主机地址
      */
-    protected String url;
+    protected String host;
+
+    /**
+     * 数据库端口
+     */
+    protected int port = 3306;
+
+    /**
+     * 数据库名称
+     */
+    protected String database;
 
     /**
      * 数据库用户名
@@ -45,21 +58,68 @@ public class DataSourceMysql extends DataSource {
     protected String sql;
 
     /**
-     * 获取数据库连接URL
+     * 获取数据库主机地址
      * 
-     * @return 数据库连接URL
+     * @return 数据库主机地址
      */
-    public String getUrl() {
-        return url;
+    public String getHost() {
+        return host;
     }
 
     /**
-     * 设置数据库连接URL
+     * 设置数据库主机地址
      * 
-     * @param url 数据库连接URL
+     * @param host 数据库主机地址
      */
-    public void setUrl(String url) {
-        this.url = url;
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    /**
+     * 获取数据库端口
+     * 
+     * @return 数据库端口
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * 设置数据库端口
+     * 
+     * @param port 数据库端口
+     */
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    /**
+     * 获取数据库名称
+     * 
+     * @return 数据库名称
+     */
+    public String getDatabase() {
+        return database;
+    }
+
+    /**
+     * 设置数据库名称
+     * 
+     * @param database 数据库名称
+     */
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
+    /**
+     * 构建数据库连接URL
+     * 
+     * @return 数据库连接URL
+     */
+    protected String buildUrl() {
+        return String.format(
+                "jdbc:mysql://%s:%d/%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai",
+                host, port, database);
     }
 
     /**
@@ -133,19 +193,22 @@ public class DataSourceMysql extends DataSource {
      */
     @Override
     public void valid() throws DataSourceValidException {
-        if (this.url == null || this.url.isBlank() || this.username == null
-                || this.username.isBlank() || this.password == null) {
+        if (this.host == null || this.host.isBlank() ||
+                this.database == null || this.database.isBlank() ||
+                this.username == null || this.username.isBlank() ||
+                this.password == null) {
             throw new DataSourceValidException("MySQL连接验证失败: 连接信息不完整", null);
         }
         try {
-            System.out.println("正在验证MySQL连接...");
-            System.out.println("URL: " + url);
-            System.out.println("用户名: " + username);
+            logger.info("正在验证MySQL连接...");
+            String url = buildUrl();
+            logger.info("URL: {}", url);
+            logger.info("用户名: {}", username);
             Class.forName("com.mysql.cj.jdbc.Driver");
             try (var connection = DriverManager.getConnection(url, username, password)) {
-                System.out.println("MySQL连接验证成功！");
-                System.out.println("连接信息: " + connection.getMetaData().getURL() + ", 用户名: "
-                        + connection.getMetaData().getUserName());
+                logger.info("MySQL连接验证成功！");
+                logger.info("连接信息: {}, 用户名: {}", connection.getMetaData().getURL(),
+                        connection.getMetaData().getUserName());
             }
         } catch (ClassNotFoundException e) {
             throw new DataSourceValidException("MySQL驱动加载失败: " + e.getMessage(), e);
@@ -168,6 +231,7 @@ public class DataSourceMysql extends DataSource {
         } catch (ClassNotFoundException e) {
             throw new DataAccessException("MySQL驱动加载失败", e);
         }
+        String url = buildUrl();
         try (var connection = DriverManager.getConnection(url, username, password);
                 var statement = connection.createStatement();
                 var resultSet = statement.executeQuery(sql)) {
@@ -204,6 +268,7 @@ public class DataSourceMysql extends DataSource {
         } catch (ClassNotFoundException e) {
             throw new DataAccessException("MySQL驱动加载失败", e);
         }
+        String url = buildUrl();
         try (var connection = DriverManager.getConnection(url, username, password);
                 var statement = connection.createStatement();
                 var resultSet = statement.executeQuery(sql)) {
@@ -228,7 +293,7 @@ public class DataSourceMysql extends DataSource {
      */
     @Override
     public String getDescription() {
-        return url;
+        return String.format("%s:%d/%s", host, port, database);
     }
 
     /**

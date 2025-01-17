@@ -24,9 +24,19 @@ class DataSourceMysqlTest {
     private DataSourceMysql dataSource;
 
     /**
-     * 测试数据库连接URL
+     * 测试数据库主机地址
      */
-    private static final String URL = "jdbc:mysql://sql.wsfdb.cn:3306/tangyujunshadow?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai";
+    private static final String HOST = "sql.wsfdb.cn";
+
+    /**
+     * 测试数据库端口
+     */
+    private static final int PORT = 3306;
+
+    /**
+     * 测试数据库名称
+     */
+    private static final String DATABASE = "tangyujunshadow";
 
     /**
      * 测试数据库用户名
@@ -53,7 +63,9 @@ class DataSourceMysqlTest {
     @BeforeEach
     void setUp() {
         dataSource = new DataSourceMysql();
-        dataSource.setUrl(URL);
+        dataSource.setHost(HOST);
+        dataSource.setPort(PORT);
+        dataSource.setDatabase(DATABASE);
         dataSource.setUsername(USERNAME);
         dataSource.setPassword(PASSWORD);
     }
@@ -63,7 +75,7 @@ class DataSourceMysqlTest {
      * 验证以下场景:
      * 1. 正确的连接信息
      * 2. 错误的主机地址
-     * 3. 空URL
+     * 3. 空主机
      * 4. 错误的用户名密码
      */
     @Test
@@ -71,8 +83,8 @@ class DataSourceMysqlTest {
         // 测试有效连接
         assertDoesNotThrow(() -> dataSource.valid(), "MySQL connection validation should succeed");
 
-        // 测试无效URL
-        dataSource.setUrl("jdbc:mysql://invalid-host:3306/db");
+        // 测试无效主机
+        dataSource.setHost("invalid-host");
         try {
             dataSource.valid();
             fail("Should throw DataSourceValidException");
@@ -80,8 +92,8 @@ class DataSourceMysqlTest {
             // 预期的异常,测试通过
         }
 
-        // 测试空URL
-        dataSource.setUrl("");
+        // 测试空主机
+        dataSource.setHost("");
         try {
             dataSource.valid();
             fail("Should throw DataSourceValidException");
@@ -89,8 +101,8 @@ class DataSourceMysqlTest {
             // 预期的异常,测试通过
         }
 
-        // 重置URL并测试错误的凭据
-        dataSource.setUrl(URL);
+        // 重置主机并测试错误的凭据
+        dataSource.setHost(HOST);
         dataSource.setUsername("wrong");
         dataSource.setPassword("wrong");
         try {
@@ -169,13 +181,12 @@ class DataSourceMysqlTest {
      */
     @Test
     void testDirectConnection() {
-        String url = "jdbc:mysql://sql.wsfdb.cn:3306/tangyujunshadow?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai";
-        String username = "tangyujunshadow";
-        String password = "shadow";
-
         assertDoesNotThrow(() -> {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            try (var connection = DriverManager.getConnection(url, username, password)) {
+            String url = String.format(
+                    "jdbc:mysql://%s:%d/%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai",
+                    HOST, PORT, DATABASE);
+            try (var connection = DriverManager.getConnection(url, USERNAME, PASSWORD)) {
                 assertNotNull(connection.getMetaData().getDatabaseProductVersion());
             }
         });

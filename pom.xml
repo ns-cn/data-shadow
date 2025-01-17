@@ -34,6 +34,9 @@
         <!-- 测试相关 -->
         <junit.version>5.10.1</junit.version>
         <fastjson2.version>2.0.45</fastjson2.version>
+        <!-- 日志相关 -->
+        <slf4j.version>2.0.12</slf4j.version>
+        <logback.version>1.5.3</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -130,6 +133,18 @@
                 <artifactId>javafx-graphics</artifactId>
                 <version>${javafx.version}</version>
                 <classifier>mac</classifier>
+            </dependency>
+
+            <!-- 日志相关 -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
