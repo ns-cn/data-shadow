@@ -69,9 +69,10 @@ public class DataSourceOracle extends DataSource {
             System.out.println("URL: " + url);
             System.out.println("用户名: " + username);
             Class.forName("oracle.jdbc.OracleDriver");
-            try (@SuppressWarnings("unused")
-            var connection = DriverManager.getConnection(url, username, password)) {
+            try (var connection = DriverManager.getConnection(url, username, password)) {
                 System.out.println("Oracle连接验证成功！");
+                System.out.println("连接信息: " + connection.getMetaData().getURL() + ", 用户名: "
+                        + connection.getMetaData().getUserName());
             }
         } catch (ClassNotFoundException e) {
             throw new DataSourceValidException("Oracle驱动加载失败: " + e.getMessage(), e);
