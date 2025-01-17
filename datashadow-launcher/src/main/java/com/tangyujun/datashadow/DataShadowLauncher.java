@@ -69,13 +69,13 @@ public class DataShadowLauncher extends Application {
             URL pluginsUrl = DataShadowLauncher.class.getClassLoader().getResource("plugins");
             if (pluginsUrl == null) {
                 log.error("Plugins directory not found in resources");
-                return;
+            } else {
+                String pluginsPath = pluginsUrl.getFile();
+                log.info("Loading plugins directory: {}", pluginsPath);
+                // 确保路径正确解码（处理空格和特殊字符）
+                pluginsPath = URLDecoder.decode(pluginsPath, StandardCharsets.UTF_8);
+                loader.loadCustom(pluginsPath);
             }
-            String pluginsPath = pluginsUrl.getFile();
-            log.info("Loading plugins directory: {}", pluginsPath);
-            // 确保路径正确解码（处理空格和特殊字符）
-            pluginsPath = URLDecoder.decode(pluginsPath, StandardCharsets.UTF_8);
-            loader.loadCustom(pluginsPath);
             // 启动应用程序
             launch(args);
         } catch (IOException e) {

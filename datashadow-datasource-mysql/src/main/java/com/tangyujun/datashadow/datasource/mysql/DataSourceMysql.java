@@ -14,6 +14,15 @@ import com.tangyujun.datashadow.datasource.DataSourceRegistry;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.exception.DataSourceValidException;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -298,13 +307,144 @@ public class DataSourceMysql extends DataSource {
 
     /**
      * 配置MySQL数据源
+     * 根据原型设计创建配置界面
      * 
      * @param primaryStage 主窗口
      * @param callback     配置完成后的回调函数
      */
     @Override
     public void configure(Window primaryStage, DataSourceConfigurationCallback callback) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'configure'");
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(primaryStage);
+        stage.setTitle("MySQL数据源配置");
+
+        // 创建主布局容器
+        VBox mainLayout = new VBox(10);
+        mainLayout.setPadding(new Insets(20));
+
+        // 数据库连接配置区域
+        VBox connectionConfig = new VBox(10);
+        Label connectionLabel = new Label("数据库连接配置");
+        connectionLabel.setStyle("-fx-font-weight: bold");
+
+        // 主机和端口
+        HBox hostPortBox = new HBox(10);
+        Label hostLabel = new Label("主机地址:");
+        TextField hostField = new TextField(host);
+        hostField.setPromptText("localhost");
+        Label portLabel = new Label("端口:");
+        TextField portField = new TextField(String.valueOf(port));
+        portField.setPromptText("3306");
+        portField.setPrefWidth(100);
+        hostPortBox.getChildren().addAll(hostLabel, hostField, portLabel, portField);
+
+        // 数据库名
+        HBox databaseBox = new HBox(10);
+        Label databaseLabel = new Label("数据库名:");
+        TextField databaseField = new TextField(database);
+        databaseField.setPromptText("database");
+        databaseBox.getChildren().addAll(databaseLabel, databaseField);
+
+        // 用户名
+        HBox usernameBox = new HBox(10);
+        Label usernameLabel = new Label("用户名:");
+        TextField usernameField = new TextField(username);
+        usernameField.setPromptText("root");
+        usernameBox.getChildren().addAll(usernameLabel, usernameField);
+
+        // 密码
+        HBox passwordBox = new HBox(10);
+        Label passwordLabel = new Label("密码:");
+        PasswordField passwordField = new PasswordField();
+        if (password != null) {
+            passwordField.setText(password);
+        }
+        passwordField.setPromptText("******");
+        passwordBox.getChildren().addAll(passwordLabel, passwordField);
+
+        connectionConfig.getChildren().addAll(connectionLabel, hostPortBox, databaseBox, usernameBox, passwordBox);
+
+        // SQL查询配置区域
+        VBox sqlConfig = new VBox(10);
+        Label sqlLabel = new Label("SQL查询配置");
+        sqlLabel.setStyle("-fx-font-weight: bold");
+        TextArea sqlArea = new TextArea(sql);
+        sqlArea.setPromptText("SELECT * FROM table");
+        sqlArea.setPrefRowCount(5);
+        sqlConfig.getChildren().addAll(sqlLabel, sqlArea);
+
+        // 按钮区域
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        Button testButton = new Button("测试连接");
+        Button confirmButton = new Button("确定");
+        Button cancelButton = new Button("取消");
+
+        // 测试连接按钮事件
+        testButton.setOnAction(event -> {
+            try {
+                DataSourceMysql testDs = new DataSourceMysql();
+                testDs.setHost(hostField.getText());
+                testDs.setPort(Integer.parseInt(portField.getText()));
+                testDs.setDatabase(databaseField.getText());
+                testDs.setUsername(usernameField.getText());
+                testDs.setPassword(passwordField.getText());
+                testDs.valid();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("连接测试");
+                alert.setHeaderText(null);
+                alert.setContentText("连接测试成功！");
+                alert.showAndWait();
+            } catch (DataSourceValidException | NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("连接测试");
+                alert.setHeaderText(null);
+                alert.setContentText("连接测试失败：" + e.getMessage());
+                alert.showAndWait();
+            }
+        });
+
+        // 确定按钮事件
+        confirmButton.setOnAction(event -> {
+            try {
+                setHost(hostField.getText());
+                setPort(Integer.parseInt(portField.getText()));
+                setDatabase(databaseField.getText());
+                setUsername(usernameField.getText());
+                setPassword(passwordField.getText());
+                setSql(sqlArea.getText());
+
+                if (callback != null) {
+                    callback.onConfigureFinished();
+                }
+                stage.close();
+            } catch (NumberFormatException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("配置错误");
+                alert.setHeaderText(null);
+                alert.setContentText("端口号必须是数字");
+                alert.showAndWait();
+            }
+        });
+
+        // 取消按钮事件
+        cancelButton.setOnAction(event -> stage.close());
+
+        buttonBox.getChildren().addAll(testButton, confirmButton, cancelButton);
+
+        // 将所有组件添加到主布局
+        mainLayout.getChildren().addAll(connectionConfig, sqlConfig, buttonBox);
+
+        // 设置统一的标签宽度
+        hostLabel.setPrefWidth(100);
+        portLabel.setPrefWidth(80);
+        databaseLabel.setPrefWidth(100);
+        usernameLabel.setPrefWidth(100);
+        passwordLabel.setPrefWidth(100);
+
+        Scene scene = new Scene(mainLayout);
+        stage.setScene(scene);
+        stage.showAndWait();
     }
 }

@@ -47,6 +47,27 @@
                 <artifactId>datashadow-datasource-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            
+            <!-- 数据源file -->
+            <dependency>
+                <groupId>com.tangyujun</groupId>
+                <artifactId>datashadow-datasource-file</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 数据源mysql -->
+            <dependency>
+                <groupId>com.tangyujun</groupId>
+                <artifactId>datashadow-datasource-mysql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 数据源oracle -->
+            <dependency>
+                <groupId>com.tangyujun</groupId>
+                <artifactId>datashadow-datasource-oracle</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- 数据库相关 -->
             <dependency>
