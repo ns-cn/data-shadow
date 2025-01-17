@@ -243,7 +243,9 @@ public class DataItemSection extends VBox {
     private void handleAdd() {
         DataItemDialog dialog = new DataItemDialog(null);
         Optional<DataItem> result = dialog.showAndWait();
-        result.ifPresent(item -> items.add(item));
+        result.ifPresent(item -> {
+            DataFactory.getInstance().addDataItem(item);
+        });
     }
 
     /**
@@ -257,7 +259,7 @@ public class DataItemSection extends VBox {
             Optional<DataItem> result = dialog.showAndWait();
             result.ifPresent(item -> {
                 int index = items.indexOf(selectedItem);
-                items.set(index, item);
+                DataFactory.getInstance().updateDataItem(index, item);
             });
         }
     }
@@ -276,7 +278,7 @@ public class DataItemSection extends VBox {
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                items.removeAll(selectedItems);
+                selectedItems.forEach(item -> DataFactory.getInstance().removeDataItem(item));
             }
         }
     }

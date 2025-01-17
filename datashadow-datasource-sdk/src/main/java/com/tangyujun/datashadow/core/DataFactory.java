@@ -1,6 +1,8 @@
 package com.tangyujun.datashadow.core;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
@@ -42,6 +44,16 @@ public class DataFactory {
     private final Map<String, DataSourceGenerator> dataSources = new LinkedHashMap<>();
 
     /**
+     * 数据项变化监听器列表
+     */
+    private final List<DataItemChangeListener> dataItemChangeListeners = new ArrayList<>();
+
+    /**
+     * 数据源变化监听器列表
+     */
+    private final List<DataSourceChangeListener> dataSourceChangeListeners = new ArrayList<>();
+
+    /**
      * 私有构造函数,防止外部实例化
      */
     private DataFactory() {
@@ -66,9 +78,41 @@ public class DataFactory {
     }
 
     /**
+     * 添加数据项
+     * 
+     * @param item 要添加的数据项
+     */
+    public void addDataItem(DataItem item) {
+        dataItems.add(item);
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+    }
+
+    /**
+     * 移除数据项
+     * 
+     * @param item 要移除的数据项
+     */
+    public void removeDataItem(DataItem item) {
+        dataItems.remove(item);
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+    }
+
+    /**
+     * 更新数据项
+     * 
+     * @param index 要更新的数据项的索引
+     * @param item  要更新的数据项
+     */
+    public void updateDataItem(int index, DataItem item) {
+        dataItems.set(index, item);
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+    }
+
+    /**
      * 注册一个新的数据源
      * 
-     * @param dataSource 要注册的数据源
+     * @param friendlyName 数据源友好名称
+     * @param generator    数据源生成器
      */
     public void registerDataSource(String friendlyName, DataSourceGenerator generator) {
         dataSources.put(friendlyName, generator);
@@ -108,6 +152,7 @@ public class DataFactory {
      */
     public void setPrimaryDataSource(DataSource primaryDataSource) {
         this.primaryDataSource = primaryDataSource;
+        dataSourceChangeListeners.forEach(listener -> listener.onDataSourceChanged(true));
     }
 
     /**
@@ -117,6 +162,7 @@ public class DataFactory {
      */
     public void setShadowDataSource(DataSource shadowDataSource) {
         this.shadowDataSource = shadowDataSource;
+        dataSourceChangeListeners.forEach(listener -> listener.onDataSourceChanged(false));
     }
 
     /**
@@ -126,5 +172,41 @@ public class DataFactory {
      */
     public Map<String, DataSourceGenerator> getDataSources() {
         return dataSources;
+    }
+
+    /**
+     * 添加数据项变化监听器
+     * 
+     * @param listener 数据项变化监听器
+     */
+    public void addDataItemChangeListener(DataItemChangeListener listener) {
+        dataItemChangeListeners.add(listener);
+    }
+
+    /**
+     * 添加数据源变化监听器
+     * 
+     * @param listener 数据源变化监听器
+     */
+    public void addDataSourceChangeListener(DataSourceChangeListener listener) {
+        dataSourceChangeListeners.add(listener);
+    }
+
+    /**
+     * 移除数据项变化监听器
+     * 
+     * @param listener 数据项变化监听器
+     */
+    public void removeDataItemChangeListener(DataItemChangeListener listener) {
+        dataItemChangeListeners.remove(listener);
+    }
+
+    /**
+     * 移除数据源变化监听器
+     * 
+     * @param listener 数据源变化监听器
+     */
+    public void removeDataSourceChangeListener(DataSourceChangeListener listener) {
+        dataSourceChangeListeners.remove(listener);
     }
 }

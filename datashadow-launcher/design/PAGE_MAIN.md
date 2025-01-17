@@ -77,19 +77,16 @@
             </div>
         </div>
     </div>
-    <!-- 对比功能区 -->
-    <div style="border-bottom: 1px solid #eee; padding: 10px; margin-bottom: 10px;">
-        <div style="font-weight: bold; margin-bottom: 5px;">对比功能</div>
-        <div style="display: flex; gap: 10px; align-items: center;">
+    <!-- 对比功能和结果展示区 -->
+    <div style="padding: 10px;">
+        <div style="font-weight: bold; margin-bottom: 5px;">对比功能与结果</div>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
             <button style="padding: 5px 20px;">执行对比</button>
             <label><input type="checkbox"> 仅显示差异项</label>
+            <label><input type="checkbox"> 优先显示数据项别名</label>
             <button>导入对比方案</button>
             <button>导出对比方案</button>
         </div>
-    </div>
-    <!-- 对比结果展示区 -->
-    <div style="padding: 10px;">
-        <div style="font-weight: bold; margin-bottom: 5px;">对比结果</div>
         <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; text-align: center;">
             <tr style="background: #f8f8f8;">
                 <th style="padding: 5px; text-align: center;">用户ID</th>
@@ -140,18 +137,18 @@
    - 提供数据源配置和字段映射功能
    - 配置完成后显示数据源连接状态
 
-3. 对比功能区
-   - 提供执行对比的主要功能按钮
-   - 可以设置是否只显示差异项
-   - 支持导入导出对比方案
-   - 可以随时暂停和继续对比过程
-
-4. 对比结果展示区
-   - 使用表格形式展示对比结果
-   - 每行展示一条数据的所有数据项
-   - 数据项值相同时直接显示值
-   - 数据项值不同时用红色高亮显示，并用❌分隔主数据源和影子数据源的值
-   - 支持结果过滤和排序
+3. 对比功能与结果展示区
+   - 顶部提供对比功能按钮和选项：
+     * 执行对比按钮
+     * 仅显示差异项选项
+     * 优先显示数据项别名选项
+     * 导入/导出对比方案功能
+   - 下方表格实时展示对比结果：
+     * 每行展示一条数据的所有数据项
+     * 相同值直接显示
+     * 不同值用红色高亮并用❌分隔显示
+     * 支持按列排序和结果过滤
+     * 可导出对比结果
 
 ## 交互说明
 
@@ -176,14 +173,14 @@
    - 配置完成后自动验证连接
    - 点击"字段映射"可以设置数据源字段与数据项的对应关系
 
-3. 对比功能
-   - 两个数据源都配置完成后才能执行对比
+3. 对比功能与结果
+   - 两个数据源配置完成后才能执行对比
    - 对比过程中显示进度条
    - 可以随时暂停/继续对比过程
-   - 支持导入导出对比方案以便复用
-
-4. 结果展示
-   - 支持按列排序
-   - 可以筛选只显示差异项
-   - 差异数据自动标红并用❌分隔显示两个数据源的值
-   - 支持导出对比结果到Excel
+   - 支持导入导出对比方案复用
+   - 结果表格支持：
+     * 按列排序
+     * 差异项筛选
+     * 差异值红色标记
+     * 导出到Excel
+     * 可切换显示数据项名称或别名（通过"优先显示数据项别名"选项控制）
