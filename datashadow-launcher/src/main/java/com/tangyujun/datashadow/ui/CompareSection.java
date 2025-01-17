@@ -35,8 +35,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private final Button compareButton;
     private final CheckBox showDiffOnly;
     private final CheckBox preferNickname;
-    private final Button importButton;
-    private final Button exportButton;
 
     /**
      * 构造函数
@@ -61,15 +59,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         showDiffOnly = new CheckBox("仅显示差异项");
         preferNickname = new CheckBox("优先显示数据项别名");
 
-        importButton = new Button("导入对比方案");
-        exportButton = new Button("导出对比方案");
-
         toolBox.getChildren().addAll(
                 compareButton,
                 showDiffOnly,
-                preferNickname,
-                importButton,
-                exportButton);
+                preferNickname);
 
         // 创建结果表格
         resultTable = new TableView<>();
@@ -83,8 +76,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         compareButton.setOnAction(event -> startCompare());
         showDiffOnly.setOnAction(event -> filterDiffItems());
         preferNickname.setOnAction(event -> updateColumnHeaders());
-        importButton.setOnAction(event -> importCompareScheme());
-        exportButton.setOnAction(event -> exportCompareScheme());
 
         // 注册为数据项变化监听器
         DataFactory.getInstance().addDataItemChangeListener(this);
@@ -342,20 +333,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private static class CompareResult extends HashMap<String, String> {
         // 使用 HashMap 存储每个数据项的对比结果
         // key 为数据项的 code，value 为显示的文本
-    }
-
-    /**
-     * 导入对比方案
-     */
-    private void importCompareScheme() {
-        // TODO: 实现导入对比方案功能
-    }
-
-    /**
-     * 导出对比方案
-     */
-    private void exportCompareScheme() {
-        // TODO: 实现导出对比方案功能
     }
 
     /**

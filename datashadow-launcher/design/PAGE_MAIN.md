@@ -84,8 +84,6 @@
             <button style="padding: 5px 20px;">执行对比</button>
             <label><input type="checkbox"> 仅显示差异项</label>
             <label><input type="checkbox"> 优先显示数据项别名</label>
-            <button>导入对比方案</button>
-            <button>导出对比方案</button>
         </div>
         <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; text-align: center;">
             <tr style="background: #f8f8f8;">
@@ -142,7 +140,6 @@
      * 执行对比按钮
      * 仅显示差异项选项
      * 优先显示数据项别名选项
-     * 导入/导出对比方案功能
    - 下方表格实时展示对比结果：
      * 每行展示一条数据的所有数据项
      * 相同值直接显示
