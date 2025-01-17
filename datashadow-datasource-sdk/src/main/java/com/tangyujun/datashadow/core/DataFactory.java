@@ -84,7 +84,7 @@ public class DataFactory {
      */
     public void addDataItem(DataItem item) {
         dataItems.add(item);
-        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemCreated(item));
     }
 
     /**
@@ -93,8 +93,9 @@ public class DataFactory {
      * @param item 要移除的数据项
      */
     public void removeDataItem(DataItem item) {
+        int index = dataItems.indexOf(item);
         dataItems.remove(item);
-        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemDeleted(index, item));
     }
 
     /**
@@ -104,8 +105,9 @@ public class DataFactory {
      * @param item  要更新的数据项
      */
     public void updateDataItem(int index, DataItem item) {
+        DataItem oldItem = dataItems.get(index);
         dataItems.set(index, item);
-        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemUpdated(index, oldItem, item));
     }
 
     /**

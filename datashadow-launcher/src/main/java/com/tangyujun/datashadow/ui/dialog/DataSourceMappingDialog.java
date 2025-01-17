@@ -312,7 +312,7 @@ public class DataSourceMappingDialog extends Stage {
                 DataItem newItem = new DataItem();
                 newItem.setCode(column);
                 // 添加到数据工厂
-                DataFactory.getInstance().getDataItems().add(newItem);
+                DataFactory.getInstance().addDataItem(newItem);
                 // 建立映射关系
                 mappings.put(newItem, column);
             }
