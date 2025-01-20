@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
 import com.tangyujun.datashadow.dataitem.DataItem;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
@@ -52,6 +53,11 @@ public class DataFactory {
      * 已注册的所有数据源列表
      */
     private final Map<String, DataSourceGenerator> dataSources = new LinkedHashMap<>();
+
+    /**
+     * 已注册的所有数据比较器
+     */
+    private final Map<String, DataComparatorGenerator> dataComparators = new LinkedHashMap<>();
 
     /**
      * 数据项变化监听器列表
