@@ -35,21 +35,21 @@
                         <th style="text-align: center;">是否唯一</th>
                         <th style="text-align: center;">名称</th>
                         <th style="text-align: center;">别名</th>
-                        <th style="text-align: center;">自定义比较器</th>
+                        <th style="text-align: center;">比较器</th>
                         <th style="text-align: center;">备注</th>
                     </tr>
                     <tr style="background: #e6f3ff;">
                         <td><span style="color: green;">✓</span></td>
                         <td>id</td>
                         <td>用户ID</td>
-                        <td>已设置</td>
+                        <td>整数比较器</td>
                         <td>用户的唯一标识符</td>
                     </tr>
                     <tr>
                         <td></td>
                         <td>userName</td>
                         <td>用户名称</td>
-                        <td>未设置</td>
+                        <td>字符串比较器(忽略大小写)</td>
                         <td>用户的显示名称</td>
                     </tr>
                 </table>
@@ -158,7 +158,7 @@
      * ID：数据项的唯一标识符（code）
      * 名称：数据项的显示名称
      * 别名：数据项的别名（nick）
-     * 是否唯一：标识该数据项是否具有唯一性
+     * 比较器：数据项比较器的具体实现
      * 备注：数据项的详细说明
      * 排序：显示顺序
    - 支持单选和多选操作
@@ -200,20 +200,35 @@
        - 打开文件选择对话框，仅显示.shadow文件
        - 选择文件后，解码Base64字符串得到JSON字符串
        - JSON包含以下内容：
-         + dataItems：数据项列表
+         + dataItems：数据项列表，每个数据项包含：
+           - id：数据项ID
+           - name：数据项名称
+           - nick：数据项别名
+           - remark：数据项备注
+           - comparator：比较器配置，包含：
+             + group：比较器分组
+             + friendlyName：比较器友好名称
+             + config：比较器导出的配置字符串
          + primaryDataSourceName：主数据源类型名称
          + primaryDataSource：主数据源导出的配置字符串
          + shadowDataSourceName：影子数据源类型名称
          + shadowDataSource：影子数据源导出的配置字符串
        - 导入流程：
          + 清空当前所有配置
-         + 导入数据项列表
+         + 导入数据项列表：
+           - 创建数据项
+           - 根据group和friendlyName找到对应的DataComparatorGenerator
+           - 使用importComparator方法导入比较器配置
          + 根据数据源名称生成对应的数据源实例
          + 使用importSource方法导入数据源配置
      * 点击"导出方案"：
        - 打开文件保存对话框，默认扩展名为.shadow
        - 收集当前配置信息：
-         + 从DataFactory获取数据项列表
+         + 从DataFactory获取数据项列表，每个数据项包含：
+           - 基本信息（id、name、nick、remark）
+           - 比较器信息：
+             + 从DataComparatorRegistry获取group和friendlyName
+             + 调用exportComparator获取比较器配置
          + 获取主数据源名称和实例
          + 获取影子数据源名称和实例
          + 调用数据源的exportSource方法获取序列化后的配置
@@ -233,8 +248,9 @@
      * ID输入框（必填，唯一）
      * 名称输入框（必填）
      * 别名输入框
-     * 是否唯一复选框
-     * 比较器选择（可选择内置比较器或自定义比较规则）
+     * 比较器类型选择
+     * 比较器选择
+     * 比较器配置
      * 备注多行文本框
    - 移动操作时：
      * 选中单条数据时，上移/下移按钮根据位置自动启用/禁用
@@ -253,11 +269,11 @@
      * 通过菜单栏的"对比方案"进行导入导出
      * 导出的方案为.shadow格式文件，内容为Base64编码的JSON字符串
      * JSON包含：
-       - 数据项配置列表
+       - 数据项配置列表（包含比较器配置）
        - 主数据源类型名称和配置
        - 影子数据源类型名称和配置
      * 导入方案时会替换当前所有配置，包括：
-       - 清空并重新导入数据项
+       - 清空并重新导入数据项（包括重新生成比较器）
        - 重新生成并配置主数据源
        - 重新生成并配置影子数据源
    - 结果表格支持：

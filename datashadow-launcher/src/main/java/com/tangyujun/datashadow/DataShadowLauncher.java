@@ -16,6 +16,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
+
+import com.tangyujun.datashadow.core.DataComparatorLoader;
+
 import javafx.application.Platform;
 
 /**
@@ -64,7 +67,9 @@ public class DataShadowLauncher extends Application {
         try {
             // 加载数据源
             DataSourceLoader loader = new DataSourceLoader();
+            DataComparatorLoader comparatorLoader = new DataComparatorLoader();
             loader.loadOfficial();
+            comparatorLoader.loadOfficial();
             // 临时读取resources/plugins目录
             URL pluginsUrl = DataShadowLauncher.class.getClassLoader().getResource("plugins");
             if (pluginsUrl == null) {
@@ -75,11 +80,12 @@ public class DataShadowLauncher extends Application {
                 // 确保路径正确解码（处理空格和特殊字符）
                 pluginsPath = URLDecoder.decode(pluginsPath, StandardCharsets.UTF_8);
                 loader.loadCustom(pluginsPath);
+                comparatorLoader.loadCustom(pluginsPath);
             }
             // 启动应用程序
             launch(args);
         } catch (IOException e) {
-            log.error("Error loading custom data sources", e);
+            log.error("Error loading custom plugins", e);
             // 显示错误对话框
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);

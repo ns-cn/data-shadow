@@ -29,7 +29,7 @@ public class DoubleDataComparator implements DataComparator {
      * 
      * @return 浮点数数据比较器
      */
-    @DataComparatorRegistry(friendlyName = "数值", group = "浮点数")
+    @DataComparatorRegistry(friendlyName = "浮点数", group = "System")
     public static DataComparatorGenerator generate() {
         return () -> new DoubleDataComparator();
     }

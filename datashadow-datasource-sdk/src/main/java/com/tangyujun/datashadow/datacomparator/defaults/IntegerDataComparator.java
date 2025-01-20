@@ -17,7 +17,7 @@ public class IntegerDataComparator implements DataComparator {
      * 
      * @return 整数数据比较器
      */
-    @DataComparatorRegistry(friendlyName = "数值", group = "整数")
+    @DataComparatorRegistry(friendlyName = "整数", group = "System")
     public static DataComparatorGenerator generator() {
         return () -> new IntegerDataComparator();
     }

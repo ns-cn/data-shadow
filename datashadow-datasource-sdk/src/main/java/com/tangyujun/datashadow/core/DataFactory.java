@@ -56,8 +56,10 @@ public class DataFactory {
 
     /**
      * 已注册的所有数据比较器
+     * 例如{"数值":{"整数":IntegerDataComparator.generator(),"浮点数":DoubleDataComparator.generator()},
+     * "布尔值":{"布尔值":BooleanDataComparator.generator()}}
      */
-    private final Map<String, DataComparatorGenerator> dataComparators = new LinkedHashMap<>();
+    private final Map<String, Map<String, DataComparatorGenerator>> dataComparators = new LinkedHashMap<>();
 
     /**
      * 数据项变化监听器列表
@@ -142,6 +144,23 @@ public class DataFactory {
         DataItem oldItem = dataItems.get(index);
         dataItems.set(index, item);
         dataItemChangeListeners.forEach(listener -> listener.onDataItemUpdated(index, oldItem, item));
+    }
+
+    /**
+     * 注册一个新的数据比较器
+     * 
+     * @param group        数据比较器组
+     * @param friendlyName 数据比较器友好名称
+     * @param generator    数据比较器生成器
+     */
+    public void registerDataComparator(String group, String friendlyName, DataComparatorGenerator generator) {
+        if (dataComparators.containsKey(group)) {
+            dataComparators.get(group).put(friendlyName, generator);
+        } else {
+            Map<String, DataComparatorGenerator> comparators = new LinkedHashMap<>();
+            comparators.put(friendlyName, generator);
+            dataComparators.put(group, comparators);
+        }
     }
 
     /**

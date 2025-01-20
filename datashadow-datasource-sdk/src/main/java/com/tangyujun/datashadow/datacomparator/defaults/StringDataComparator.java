@@ -24,7 +24,7 @@ public class StringDataComparator implements DataComparator {
      * 
      * @return 数据比较器生成器
      */
-    @DataComparatorRegistry(friendlyName = "字符串", group = "字符串")
+    @DataComparatorRegistry(friendlyName = "字符串", group = "System")
     public static DataComparatorGenerator ignoreAndNullEquals() {
         return () -> new StringDataComparator(false, true);
     }

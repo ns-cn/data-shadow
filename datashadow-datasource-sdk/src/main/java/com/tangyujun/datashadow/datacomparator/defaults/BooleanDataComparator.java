@@ -28,7 +28,7 @@ public class BooleanDataComparator implements DataComparator {
      * 
      * @return 布尔值数据比较器
      */
-    @DataComparatorRegistry(friendlyName = "布尔值", group = "布尔值")
+    @DataComparatorRegistry(friendlyName = "布尔值", group = "System")
     public static DataComparatorGenerator generator() {
         return () -> new BooleanDataComparator();
     }
