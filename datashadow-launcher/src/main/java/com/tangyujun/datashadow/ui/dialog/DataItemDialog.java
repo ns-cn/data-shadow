@@ -1,52 +1,91 @@
 package com.tangyujun.datashadow.ui.dialog;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import com.tangyujun.datashadow.core.DataFactory;
+import com.tangyujun.datashadow.datacomparator.DataComparator;
+import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
+
+import javafx.scene.layout.HBox;
+
 /**
  * 数据项编辑对话框
  * 用于新增或编辑数据项信息
  * 包含以下字段:
- * - 是否唯一: 标识该数据项是否作为唯一标识
- * - 名称: 数据项的代码,必填且必须符合命名规范
- * - 别名: 数据项的显示名称,选填
- * - 自定义比较器: JavaScript代码,用于自定义数据项的比较逻辑
- * - 备注: 数据项的补充说明信息
+ * - 是否唯一: 标识该数据项是否作为唯一标识,用于数据比对时确定记录的唯一性
+ * - 名称: 数据项的代码,必填且必须符合命名规范(字母开头,只能包含字母数字下划线)
+ * - 别名: 数据项的显示名称,选填,用于界面展示时的友好显示
+ * - 自定义比较器: 用于配置数据项的比较逻辑,支持多种比较器类型和自定义配置
+ * - 备注: 数据项的补充说明信息,用于记录额外的描述性内容
+ * 
+ * 对话框功能:
+ * 1. 支持新增和编辑两种模式
+ * 2. 提供完整的输入验证
+ * 3. 支持比较器的动态选择和配置
+ * 4. 实时预览比较器配置状态
  */
 public class DataItemDialog extends Dialog<DataItem> {
     /**
      * 数据项代码输入框
+     * 用于输入数据项的唯一标识符,必须符合命名规范
      */
     private final TextField codeField = new TextField();
 
     /**
      * 数据项别名输入框
+     * 用于输入数据项的显示名称,提供更友好的界面展示
      */
     private final TextField nickField = new TextField();
 
     /**
      * 是否作为唯一标识的复选框
+     * 用于标识该数据项是否作为数据比对时的唯一键
      */
     private final CheckBox uniqueCheckBox = new CheckBox();
 
     /**
-     * 自定义比较器代码输入区域
+     * 自定义比较器类型选择下拉框
+     * 用于选择比较器的主要类型(如数值、字符串等)
      */
-    private final TextArea comparatorArea = new TextArea();
+    private final ComboBox<String> comparatorTypeCombo;
+
+    /**
+     * 自定义比较器子类型选择下拉框
+     * 用于选择具体的比较器实现(如整数比较器、浮点数比较器等)
+     */
+    private final ComboBox<String> comparatorSubTypeCombo;
+
+    /**
+     * 比较器配置按钮
+     * 用于打开比较器的详细配置界面
+     */
+    private final Button configButton;
+
+    /**
+     * 当前配置预览标签
+     * 用于显示当前选择的比较器配置信息
+     */
+    private final Label currentConfigLabel;
 
     /**
      * 备注信息输入区域
+     * 用于输入数据项的补充说明信息
      */
     private final TextArea remarkArea = new TextArea();
 
+    private DataComparator comparator;
+
     /**
      * 构造函数
+     * 初始化对话框界面,设置布局和事件处理
      * 
-     * @param item 待编辑的数据项,为null时表示新增模式
+     * @param item 待编辑的数据项,为null时表示新增模式,否则为编辑模式并填充现有数据
      */
     public DataItemDialog(DataItem item) {
         // 设置对话框标题
@@ -76,28 +115,80 @@ public class DataItemDialog extends Dialog<DataItem> {
 
         // 自定义比较器
         form.add(new Label("自定义比较器:"), 0, 3);
-        comparatorArea.setPrefRowCount(6);
-        comparatorArea.setPromptText("""
-                // \u8bf7\u8f93\u5165\u81ea\u5b9a\u4e49\u6bd4\u8f83\u5668\u4ee3\u7801
-                // \u53c2\u6570: value1, value2 - \u5f85\u6bd4\u8f83\u7684\u4e24\u4e2a\u503c
-                // \u8fd4\u56de: true - \u76f8\u7b49, false - \u4e0d\u76f8\u7b49
-                function compare(value1, value2) {
-                    return value1 === value2;
-                }""");
-        form.add(comparatorArea, 1, 3);
+
+        // 创建比较器选择和配置的容器
+        VBox comparatorBox = new VBox(5);
+
+        // 比较器类型选择区域
+        HBox typeBox = new HBox(10);
+
+        comparatorTypeCombo = new ComboBox<>();
+        // 从DataFactory获取比较器组
+        comparatorTypeCombo.getItems().addAll(DataFactory.getInstance().getDataComparators().keySet());
+        comparatorTypeCombo.setPrefWidth(150);
+        comparatorTypeCombo.setPromptText("请选择比较器类型");
+
+        comparatorSubTypeCombo = new ComboBox<>();
+        comparatorSubTypeCombo.setPrefWidth(150);
+        comparatorSubTypeCombo.setPromptText("请先选择比较器类型");
+
+        configButton = new Button("⚙");
+        configButton.setTooltip(new Tooltip("配置比较器"));
+
+        typeBox.getChildren().addAll(comparatorTypeCombo, comparatorSubTypeCombo, configButton);
+
+        // 当前配置预览
+        VBox previewBox = new VBox(5);
+        previewBox.setStyle("-fx-background-color: #f9f9f9; -fx-border-color: #eee; -fx-padding: 5;");
+        currentConfigLabel = new Label("未配置");
+        currentConfigLabel.setStyle("-fx-text-fill: #666;");
+        previewBox.getChildren().addAll(new Label("当前配置:"), currentConfigLabel);
+
+        // 将类型选择和预览添加到比较器容器
+        comparatorBox.getChildren().addAll(typeBox, previewBox);
+
+        // 将整个比较器容器添加到表单
+        form.add(comparatorBox, 1, 3, 3, 1);
 
         // 备注
         form.add(new Label("备注:"), 0, 4);
         remarkArea.setPrefRowCount(3);
-        form.add(remarkArea, 1, 4);
+        form.add(remarkArea, 1, 4, 3, 1);
 
         // 如果是编辑模式，填充现有数据
         if (item != null) {
             uniqueCheckBox.setSelected(item.isUnique());
             codeField.setText(item.getCode());
             nickField.setText(item.getNick());
-            comparatorArea.setText(item.getComparator());
             remarkArea.setText(item.getRemark());
+
+            // 处理比较器相关信息
+            if (item.getComparator() != null) {
+                this.comparator = item.getComparator();
+                // 先设置类型
+                String group = item.getComparatorGroup();
+                if (group != null) {
+                    comparatorTypeCombo.setValue(group);
+                    // 手动触发类型选择事件，加载子类型列表
+                    String type = comparatorTypeCombo.getValue();
+                    if (type != null) {
+                        var comparators = DataFactory.getInstance().getDataComparators().get(type);
+                        if (comparators != null) {
+                            comparatorSubTypeCombo.getItems().clear();
+                            comparatorSubTypeCombo.getItems().addAll(comparators.keySet());
+                            comparatorSubTypeCombo.setDisable(false);
+                            // 然后设置子类型
+                            String name = item.getComparatorName();
+                            if (name != null) {
+                                comparatorSubTypeCombo.setValue(name);
+                            }
+                        }
+                    }
+                }
+                currentConfigLabel.setText(comparator.getDescription());
+            } else {
+                currentConfigLabel.setText("未配置");
+            }
         }
 
         // 添加按钮
@@ -118,16 +209,19 @@ public class DataItemDialog extends Dialog<DataItem> {
 
         content.getChildren().add(form);
         getDialogPane().setContent(content);
+
+        // 设置事件处理
+        setupComparatorEvents();
     }
 
     /**
      * 验证输入数据的有效性
      * 验证规则:
-     * 1. 名称不能为空
-     * 2. 名称必须以字母开头
-     * 3. 名称只能包含字母、数字和下划线
+     * 1. 名称不能为空 - 确保必填字段已填写
+     * 2. 名称必须以字母开头 - 符合标准命名规范
+     * 3. 名称只能包含字母、数字和下划线 - 确保命名合法性
      * 
-     * @return 验证通过返回true,否则返回false
+     * @return 验证通过返回true,否则返回false并显示相应错误提示
      */
     private boolean validateInput() {
         String code = codeField.getText().trim();
@@ -144,8 +238,9 @@ public class DataItemDialog extends Dialog<DataItem> {
 
     /**
      * 显示错误提示对话框
+     * 用于在输入验证失败时向用户展示错误信息
      * 
-     * @param message 错误信息
+     * @param message 错误信息内容
      */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -158,13 +253,13 @@ public class DataItemDialog extends Dialog<DataItem> {
     /**
      * 从对话框输入创建数据项
      * 处理流程:
-     * 1. 创建新的数据项对象
-     * 2. 设置是否唯一标识
-     * 3. 获取并处理各输入字段的值
-     * 4. 设置必填字段(code)
-     * 5. 设置可选字段(nick,comparator,remark)
+     * 1. 创建新的数据项对象 - 初始化基础结构
+     * 2. 设置是否唯一标识 - 确定数据项在比对时的角色
+     * 3. 获取并处理各输入字段的值 - 包括必填和可选字段
+     * 4. 设置必填字段(code) - 确保核心数据的完整性
+     * 5. 设置可选字段(nick,comparator,remark) - 补充额外信息
      * 
-     * @return 新创建的数据项对象
+     * @return 新创建的数据项对象,包含完整的配置信息
      */
     private DataItem createDataItem() {
         DataItem item = new DataItem();
@@ -175,7 +270,8 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 获取输入值并进行空值处理
         String code = codeField.getText();
         String nick = nickField.getText();
-        String comparator = comparatorArea.getText();
+        String comparatorType = comparatorTypeCombo.getValue();
+        String comparatorSubType = comparatorSubTypeCombo.getValue();
         String remark = remarkArea.getText();
 
         // 设置必填字段，确保不为null
@@ -185,12 +281,67 @@ public class DataItemDialog extends Dialog<DataItem> {
         if (nick != null && !nick.trim().isEmpty()) {
             item.setNick(nick.trim());
         }
-        if (comparator != null && !comparator.trim().isEmpty()) {
-            item.setComparator(comparator.trim());
+        String comparatorGroup = comparatorType.trim();
+        if (comparatorGroup != null && !comparatorGroup.isEmpty()) {
+            item.setComparatorGroup(comparatorGroup);
+        }
+        String comparatorName = comparatorSubType.trim();
+        if (comparatorName != null && !comparatorName.isEmpty()) {
+            item.setComparatorName(comparatorName);
+        }
+        if (comparator != null) {
+            item.setComparator(comparator);
         }
         if (remark != null && !remark.trim().isEmpty()) {
             item.setRemark(remark.trim());
         }
         return item;
+    }
+
+    /**
+     * 设置比较器相关的事件处理
+     * 主要包含两个部分:
+     * 1. 比较器类型选择事件 - 当选择主类型时,更新子类型列表
+     * 2. 配置按钮点击事件 - 打开比较器配置界面并更新预览
+     * 
+     * 事件处理确保了比较器选择和配置的流畅性,并实时反馈配置状态
+     */
+    private void setupComparatorEvents() {
+        // 比较器类型选择事件
+        comparatorTypeCombo.setOnAction(e -> {
+            String type = comparatorTypeCombo.getValue();
+            comparatorSubTypeCombo.getItems().clear();
+            if (type != null) {
+                // 从DataFactory获取选中类型的比较器列表
+                var comparators = DataFactory.getInstance().getDataComparators().get(type);
+                if (comparators != null) {
+                    comparatorSubTypeCombo.getItems().addAll(comparators.keySet());
+                    comparatorSubTypeCombo.setDisable(false);
+                    comparatorSubTypeCombo.getSelectionModel().selectFirst();
+                }
+            } else {
+                comparatorSubTypeCombo.setDisable(true);
+                comparatorSubTypeCombo.setPromptText("请先选择比较器类型");
+            }
+            configButton.setDisable(type == null);
+        });
+
+        comparatorSubTypeCombo.setOnAction(e -> {
+            String subType = comparatorSubTypeCombo.getValue();
+            if (subType != null) {
+                comparator = DataFactory.getInstance().getDataComparators()
+                        .get(comparatorTypeCombo.getValue())
+                        .get(subType)
+                        .generate();
+            }
+        });
+
+        // 配置按钮点击事件
+        configButton.setOnAction(e -> {
+            if (comparator != null) {
+                comparator.config(getDialogPane().getScene().getWindow());
+                currentConfigLabel.setText(comparator.getDescription());
+            }
+        });
     }
 }

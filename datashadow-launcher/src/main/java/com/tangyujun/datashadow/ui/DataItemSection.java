@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.core.DataItemChangeListener;
+import com.tangyujun.datashadow.datacomparator.DataComparator;
 
 import javafx.scene.Cursor;
 import javafx.scene.layout.Region;
@@ -164,8 +165,13 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
         TableColumn<DataItem, String> comparatorColumn = new TableColumn<>("自定义比较器");
         comparatorColumn.setPrefWidth(100);
         comparatorColumn.setCellValueFactory(cellData -> {
-            String comparator = cellData.getValue().getComparator();
-            return new SimpleStringProperty(comparator != null && !comparator.isEmpty() ? "已设置" : "未设置");
+            DataItem item = cellData.getValue();
+            DataComparator comparator = item.getComparator();
+            if (comparator == null) {
+                return new SimpleStringProperty("未设置");
+            }
+            String description = comparator.getDescription();
+            return new SimpleStringProperty(description != null ? description : "已设置");
         });
         comparatorColumn.setSortable(false);
 

@@ -9,15 +9,15 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tangyujun.datashadow.core.DataSourceLoader;
+import com.tangyujun.datashadow.module.ModuleLoader;
+import com.tangyujun.datashadow.module.listener.DataComparatorListener;
+import com.tangyujun.datashadow.module.listener.DataSourceListener;
 import com.tangyujun.datashadow.ui.MainLayout;
 
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
-
-import com.tangyujun.datashadow.core.DataComparatorLoader;
 
 import javafx.application.Platform;
 
@@ -66,10 +66,14 @@ public class DataShadowLauncher extends Application {
     public static void main(String[] args) {
         try {
             // 加载数据源
-            DataSourceLoader loader = new DataSourceLoader();
-            DataComparatorLoader comparatorLoader = new DataComparatorLoader();
-            loader.loadOfficial();
-            comparatorLoader.loadOfficial();
+            DataSourceListener loader = new DataSourceListener();
+            DataComparatorListener comparatorLoader = new DataComparatorListener();
+            // loader.loadOfficial();
+            // comparatorLoader.loadOfficial();
+            ModuleLoader moduleLoader = new ModuleLoader();
+            moduleLoader.registerListener(loader);
+            moduleLoader.registerListener(comparatorLoader);
+            moduleLoader.loadOfficial("com.tangyujun.datashadow");
             // 临时读取resources/plugins目录
             URL pluginsUrl = DataShadowLauncher.class.getClassLoader().getResource("plugins");
             if (pluginsUrl == null) {
@@ -79,8 +83,7 @@ public class DataShadowLauncher extends Application {
                 log.info("Loading plugins directory: {}", pluginsPath);
                 // 确保路径正确解码（处理空格和特殊字符）
                 pluginsPath = URLDecoder.decode(pluginsPath, StandardCharsets.UTF_8);
-                loader.loadCustom(pluginsPath);
-                comparatorLoader.loadCustom(pluginsPath);
+                moduleLoader.loadCustom(pluginsPath);
             }
             // 启动应用程序
             launch(args);

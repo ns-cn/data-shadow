@@ -1,5 +1,7 @@
 package com.tangyujun.datashadow.dataitem;
 
+import com.tangyujun.datashadow.datacomparator.DataComparator;
+
 /**
  * 数据项类
  * 用于定义数据源中的数据项属性
@@ -26,9 +28,19 @@ public class DataItem {
     private String remark;
 
     /**
+     * 比较器组,用于标识数据项的比较器组
+     */
+    private String comparatorGroup;
+
+    /**
+     * 比较器名称,用于标识数据项的比较器
+     */
+    private String comparatorName;
+
+    /**
      * 比较器,用于定义数据项的比较规则
      */
-    private String comparator;
+    private DataComparator comparator;
 
     /**
      * 获取数据项编码
@@ -103,11 +115,47 @@ public class DataItem {
     }
 
     /**
+     * 获取数据项比较器组
+     * 
+     * @return 数据项比较器组
+     */
+    public String getComparatorGroup() {
+        return comparatorGroup;
+    }
+
+    /**
+     * 设置数据项比较器组
+     * 
+     * @param comparatorGroup 数据项比较器组
+     */
+    public void setComparatorGroup(String comparatorGroup) {
+        this.comparatorGroup = comparatorGroup;
+    }
+
+    /**
+     * 获取数据项比较器名称
+     * 
+     * @return 数据项比较器名称
+     */
+    public String getComparatorName() {
+        return comparatorName;
+    }
+
+    /**
+     * 设置数据项比较器名称
+     * 
+     * @param comparatorName 数据项比较器名称
+     */
+    public void setComparatorName(String comparatorName) {
+        this.comparatorName = comparatorName;
+    }
+
+    /**
      * 获取数据项比较器
      * 
      * @return 数据项比较器
      */
-    public String getComparator() {
+    public DataComparator getComparator() {
         return comparator;
     }
 
@@ -116,7 +164,7 @@ public class DataItem {
      * 
      * @param comparator 数据项比较器
      */
-    public void setComparator(String comparator) {
+    public void setComparator(DataComparator comparator) {
         this.comparator = comparator;
     }
 

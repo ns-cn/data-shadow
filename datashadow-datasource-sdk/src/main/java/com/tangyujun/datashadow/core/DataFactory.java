@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
+import com.tangyujun.datashadow.datacomparator.defaults.StringDataComparator;
 import com.tangyujun.datashadow.dataitem.DataItem;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
@@ -161,6 +163,33 @@ public class DataFactory {
             comparators.put(friendlyName, generator);
             dataComparators.put(group, comparators);
         }
+    }
+
+    /**
+     * 获取数据比较器
+     * 
+     * @param group        数据比较器组
+     * @param friendlyName 数据比较器友好名称
+     * @return 数据比较器
+     */
+    public DataComparatorGenerator getDataComparator(String group, String friendlyName) {
+        if (group == null || friendlyName == null) {
+            return null;
+        }
+        Map<String, DataComparatorGenerator> comparators = dataComparators.get(group);
+        if (comparators == null) {
+            return null;
+        }
+        return Optional.ofNullable(comparators.get(friendlyName)).orElse(StringDataComparator.ignoreAndNullEquals());
+    }
+
+    /**
+     * 获取所有已注册的数据比较器
+     * 
+     * @return 数据比较器映射表
+     */
+    public Map<String, Map<String, DataComparatorGenerator>> getDataComparators() {
+        return dataComparators;
     }
 
     /**

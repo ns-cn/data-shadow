@@ -1,10 +1,8 @@
 package com.tangyujun.datashadow.ui;
 
 import com.alibaba.fastjson2.JSON;
-import com.tangyujun.datashadow.core.ComparisonScheme;
 import com.tangyujun.datashadow.core.DataFactory;
-import com.tangyujun.datashadow.datasource.DataSource;
-import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.storage.ComparisonScheme;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -27,22 +25,8 @@ public class ComparisonSchemeManager {
      */
     public static boolean exportScheme(Window window) {
         try {
-            // 获取当前配置
-            DataFactory factory = DataFactory.getInstance();
-
             // 创建导出数据结构
-            ComparisonScheme schemeData = new ComparisonScheme();
-            schemeData.setDataItems(factory.getDataItems());
-            schemeData.setPrimaryDataSourceName(factory.getPrimaryDataSourceName());
-            schemeData.setShadowDataSourceName(factory.getShadowDataSourceName());
-
-            // 获取数据源配置
-            if (factory.getPrimaryDataSource() != null) {
-                schemeData.setPrimaryDataSource(factory.getPrimaryDataSource().exportSource());
-            }
-            if (factory.getShadowDataSource() != null) {
-                schemeData.setShadowDataSource(factory.getShadowDataSource().exportSource());
-            }
+            ComparisonScheme schemeData = ComparisonScheme.snapshot();
 
             // 转换为JSON并Base64编码
             String jsonStr = JSON.toJSONString(schemeData);
@@ -94,58 +78,31 @@ public class ComparisonSchemeManager {
                 byte[] bytes = Files.readAllBytes(file.toPath());
                 String base64Str = new String(bytes);
                 String jsonStr = new String(Base64.getDecoder().decode(base64Str));
-
                 // 解析JSON
                 ComparisonScheme schemeData = JSON.parseObject(jsonStr, ComparisonScheme.class);
-
-                // 获取工厂实例
-                DataFactory factory = DataFactory.getInstance();
-
-                // 清空当前配置
-                factory.clearDataItems();
-
-                // 导入数据项
-                if (schemeData.getDataItems() != null) {
-                    factory.addDataItems(schemeData.getDataItems());
-                }
-
-                // 导入数据源
-                try {
-                    if (schemeData.getPrimaryDataSourceName() != null && schemeData.getPrimaryDataSource() != null) {
-                        DataSourceGenerator dataSourceGenerator = factory.getDataSources()
-                                .get(schemeData.getPrimaryDataSourceName());
-                        if (dataSourceGenerator == null) {
-                            showError("导入主数据源失败", "找不到对应的数据源类型：" + schemeData.getPrimaryDataSourceName() +
-                                    "\n请确保已安装该数据源插件。");
-                        } else {
-                            DataSource primaryDataSource = dataSourceGenerator.generate();
-                            primaryDataSource.importSource(schemeData.getPrimaryDataSource());
-                            factory.setPrimaryDataSource(schemeData.getPrimaryDataSourceName(), primaryDataSource);
-                        }
+                // 检查数据源是否存在
+                StringBuilder errorMsg = new StringBuilder();
+                if (schemeData.getPrimaryDataSource() != null) {
+                    String primarySourceName = schemeData.getPrimaryDataSource().getSourceName();
+                    if (!DataFactory.getInstance().getDataSources().containsKey(primarySourceName)) {
+                        errorMsg.append("主数据源 '").append(primarySourceName).append("' 不存在\n");
                     }
-                } catch (Exception exception) {
-                    showError("导入主数据源失败", "导入主数据源时发生错误：" + exception.getMessage());
                 }
-                try {
-                    if (schemeData.getShadowDataSourceName() != null && schemeData.getShadowDataSource() != null) {
-                        DataSourceGenerator dataSourceGenerator = factory.getDataSources()
-                                .get(schemeData.getShadowDataSourceName());
-                        if (dataSourceGenerator == null) {
-                            showError("导入影子数据源失败", "找不到对应的数据源类型：" + schemeData.getShadowDataSourceName() +
-                                    "\n请确保已安装该数据源插件。");
-                        } else {
-                            DataSource shadowDataSource = dataSourceGenerator.generate();
-                            shadowDataSource.importSource(schemeData.getShadowDataSource());
-                            factory.setShadowDataSource(schemeData.getShadowDataSourceName(), shadowDataSource);
-                        }
+                if (schemeData.getShadowDataSource() != null) {
+                    String shadowSourceName = schemeData.getShadowDataSource().getSourceName();
+                    if (!DataFactory.getInstance().getDataSources().containsKey(shadowSourceName)) {
+                        errorMsg.append("影子数据源 '").append(shadowSourceName).append("' 不存在");
                     }
-                } catch (Exception exception) {
-                    showError("导入影子数据源失败", "导入影子数据源时发生错误：" + exception.getMessage());
                 }
+                if (errorMsg.length() > 0) {
+                    showError("导入异常", "以下数据源不存在，请注意检查数据源插件:\n" + errorMsg);
+                }
+                // 应用对比方案
+                schemeData.applyToFactory();
                 return true;
             }
         } catch (IOException e) {
-            showError("导入失败", "导入对比方案时发生错误：" + e.getMessage());
+            showError("导入异常", "导入对比方案时发生错误：" + e.getMessage());
         }
         return false;
     }

@@ -18,7 +18,9 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
   - Field Mapping: Support mapping between different data sources
   - Data Conversion: Built-in type conversion and formatting
   - Custom Comparators: Customizable comparison rules
-  - JavaScript Scripts: Support using JS to write custom data item comparison logic
+    - Built-in Comparators: Support numeric, string, date and other basic type comparisons
+    - Custom Implementation: Custom comparison logic through DataComparator interface
+    - Fault Tolerance: Support setting error ranges, case insensitive options, etc.
 
 - 📈 Intuitive Result Display
   - Difference highlighting
