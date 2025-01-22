@@ -21,7 +21,7 @@ import javafx.scene.layout.HBox;
  * - 是否唯一: 标识该数据项是否作为唯一标识,用于数据比对时确定记录的唯一性
  * - 名称: 数据项的代码,必填且必须符合命名规范(字母开头,只能包含字母数字下划线)
  * - 别名: 数据项的显示名称,选填,用于界面展示时的友好显示
- * - 自定义比较器: 用于配置数据项的比较逻辑,支持多种比较器类型和自定义配置
+ * - 自定义比较器: 用于配置数据项的比较逻辑,必填,支持多种比较器类型和自定义配置
  * - 备注: 数据项的补充说明信息,用于记录额外的描述性内容
  * 
  * 对话框功能:
@@ -114,7 +114,7 @@ public class DataItemDialog extends Dialog<DataItem> {
         form.add(nickField, 1, 2);
 
         // 自定义比较器
-        form.add(new Label("自定义比较器:"), 0, 3);
+        form.add(new Label("自定义比较器: *"), 0, 3);
 
         // 创建比较器选择和配置的容器
         VBox comparatorBox = new VBox(5);
@@ -207,6 +207,14 @@ public class DataItemDialog extends Dialog<DataItem> {
             return null;
         });
 
+        // 阻止对话框在验证失败时关闭
+        final Button confirmButton = (Button) getDialogPane().lookupButton(confirmButtonType);
+        confirmButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+            if (!validateInput()) {
+                event.consume();
+            }
+        });
+
         content.getChildren().add(form);
         getDialogPane().setContent(content);
 
@@ -220,6 +228,7 @@ public class DataItemDialog extends Dialog<DataItem> {
      * 1. 名称不能为空 - 确保必填字段已填写
      * 2. 名称必须以字母开头 - 符合标准命名规范
      * 3. 名称只能包含字母、数字和下划线 - 确保命名合法性
+     * 4. 比较器类型和比较器必须选择 - 确保数据比较逻辑完整
      * 
      * @return 验证通过返回true,否则返回false并显示相应错误提示
      */
@@ -233,6 +242,22 @@ public class DataItemDialog extends Dialog<DataItem> {
             showError("名称必须以字母开头，只能包含字母、数字和下划线");
             return false;
         }
+
+        if (comparatorTypeCombo.getValue() == null) {
+            showError("请选择比较器类型");
+            return false;
+        }
+
+        if (comparatorSubTypeCombo.getValue() == null) {
+            showError("请选择比较器");
+            return false;
+        }
+
+        if (comparator == null) {
+            showError("请配置比较器");
+            return false;
+        }
+
         return true;
     }
 
@@ -281,17 +306,12 @@ public class DataItemDialog extends Dialog<DataItem> {
         if (nick != null && !nick.trim().isEmpty()) {
             item.setNick(nick.trim());
         }
-        String comparatorGroup = comparatorType.trim();
-        if (comparatorGroup != null && !comparatorGroup.isEmpty()) {
-            item.setComparatorGroup(comparatorGroup);
-        }
-        String comparatorName = comparatorSubType.trim();
-        if (comparatorName != null && !comparatorName.isEmpty()) {
-            item.setComparatorName(comparatorName);
-        }
-        if (comparator != null) {
-            item.setComparator(comparator);
-        }
+
+        // 设置比较器相关信息(必填)
+        item.setComparatorGroup(comparatorType.trim());
+        item.setComparatorName(comparatorSubType.trim());
+        item.setComparator(comparator);
+
         if (remark != null && !remark.trim().isEmpty()) {
             item.setRemark(remark.trim());
         }

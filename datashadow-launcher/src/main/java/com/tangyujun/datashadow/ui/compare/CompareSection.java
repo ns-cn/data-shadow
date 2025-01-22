@@ -47,7 +47,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
  * 包含对比操作和结果展示的完整功能区域
  * 主要功能:
  * 1. 执行主数据源和影子数据源的数据对比
- * 2. 展示对比结果,支持仅显示差异项和显示全部数据
+ * 2. 展示对比结果,支持多种过滤模式
  * 3. 支持数据项名称和别名两种显示模式
  * 4. 支持导出对比结果为CSV、Excel和JSON格式
  */
@@ -56,10 +56,18 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /** 日志记录器 */
     private static final Logger log = Logger.getLogger(CompareSection.class.getName());
 
-    /** 过滤模式常量 - 仅显示存在差异的数据项 */
-    private static final String FILTER_MODE_DIFF_ONLY = "仅差异项";
     /** 过滤模式常量 - 显示所有数据项 */
     private static final String FILTER_MODE_ALL = "全部数据";
+    /** 过滤模式常量 - 显示所有差异项 */
+    private static final String FILTER_MODE_ALL_DIFF = "所有差异项";
+    /** 过滤模式常量 - 仅显示主数据源数据 */
+    private static final String FILTER_MODE_PRIMARY = "仅主数据源";
+    /** 过滤模式常量 - 仅显示主数据源差异项 */
+    private static final String FILTER_MODE_PRIMARY_DIFF = "仅主数据源差异项";
+    /** 过滤模式常量 - 仅显示影子数据源数据 */
+    private static final String FILTER_MODE_SHADOW = "仅影子数据源";
+    /** 过滤模式常量 - 仅显示影子数据源差异项 */
+    private static final String FILTER_MODE_SHADOW_DIFF = "仅影子数据源差异项";
 
     /** 表头显示模式常量 - 使用数据项代码作为列标题 */
     private static final String HEADER_MODE_CODE = "数据项名称";
@@ -118,8 +126,14 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         compareButton.setPrefWidth(100);
 
         filterMode = new ComboBox<>();
-        filterMode.setItems(FXCollections.observableArrayList(FILTER_MODE_DIFF_ONLY, FILTER_MODE_ALL));
-        filterMode.setValue(FILTER_MODE_DIFF_ONLY);
+        filterMode.setItems(FXCollections.observableArrayList(
+                FILTER_MODE_ALL,
+                FILTER_MODE_ALL_DIFF,
+                FILTER_MODE_PRIMARY,
+                FILTER_MODE_PRIMARY_DIFF,
+                FILTER_MODE_SHADOW,
+                FILTER_MODE_SHADOW_DIFF));
+        filterMode.setValue(FILTER_MODE_ALL_DIFF);
 
         headerDisplayMode = new ComboBox<>();
         headerDisplayMode.setItems(FXCollections.observableArrayList(HEADER_MODE_CODE, HEADER_MODE_NICK));
@@ -395,13 +409,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 results.add(result);
             }
             // 更新表格数据和过滤器
-            if (filterMode.getValue().equals(FILTER_MODE_DIFF_ONLY)) {
-                FilteredList<CompareResult> filteredData = new FilteredList<>(results);
-                filteredData.setPredicate(result -> result.hasDifferences());
-                resultTable.setItems(filteredData);
-            } else {
-                resultTable.setItems(results);
-            }
+            filterDiffItems();
 
         } catch (DataAccessException e) {
             log.severe("执行对比时发生错误: " + e.getMessage());
@@ -471,8 +479,12 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /**
      * 过滤差异项
      * 根据当前过滤模式设置表格数据显示:
-     * - 仅差异项模式: 只显示存在差异的数据行
-     * - 全部数据模式: 显示所有数据行
+     * - 全部数据: 显示所有数据行
+     * - 所有差异项: 显示所有存在差异的数据行
+     * - 仅主数据源: 仅显示主数据源中存在的数据行
+     * - 仅主数据源差异项: 仅显示主数据源中存在差异的数据行
+     * - 仅影子数据源: 仅显示影子数据源中存在的数据行
+     * - 仅影子数据源差异项: 仅显示影子数据源中存在差异的数据行
      */
     private void filterDiffItems() {
         @SuppressWarnings("unchecked")
@@ -481,13 +493,22 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                         .getSource()
                 : (ObservableList<CompareResult>) resultTable.getItems();
 
-        if (filterMode.getValue().equals(FILTER_MODE_DIFF_ONLY)) {
-            FilteredList<CompareResult> filteredData = new FilteredList<>(baseItems);
-            filteredData.setPredicate(CompareResult::hasDifferences);
-            resultTable.setItems(filteredData);
-        } else {
-            resultTable.setItems(baseItems);
+        FilteredList<CompareResult> filteredData = new FilteredList<>(baseItems);
+
+        switch (filterMode.getValue()) {
+            case FILTER_MODE_ALL -> filteredData.setPredicate(result -> true);
+            case FILTER_MODE_ALL_DIFF -> filteredData.setPredicate(CompareResult::hasDifferences);
+            case FILTER_MODE_PRIMARY -> filteredData.setPredicate(result -> result.getCellResults().values().stream()
+                    .anyMatch(cell -> cell.getPrimaryValue() != null));
+            case FILTER_MODE_PRIMARY_DIFF -> filteredData.setPredicate(result -> result.getCellResults().values()
+                    .stream().anyMatch(cell -> cell.getPrimaryValue() != null && cell.isDifferent()));
+            case FILTER_MODE_SHADOW -> filteredData.setPredicate(result -> result.getCellResults().values().stream()
+                    .anyMatch(cell -> cell.getShadowValue() != null));
+            case FILTER_MODE_SHADOW_DIFF -> filteredData.setPredicate(result -> result.getCellResults().values()
+                    .stream().anyMatch(cell -> cell.getShadowValue() != null && cell.isDifferent()));
         }
+
+        resultTable.setItems(filteredData);
     }
 
     /**
