@@ -2,6 +2,11 @@
 
 DataShadow is a JavaFX-based data comparison tool that supports structured data reading, comparison and result display from multiple data sources. It is mainly used for data migration, data validation, data consistency checking and other scenarios.
 
+## Navigation
+- [中文](README.md)
+- [User Guide](docs/使用说明.md)
+- [Plugin Development](docs/插件开发.md)
+
 ## Main Features
 
 - 🔌 Plugin Architecture
