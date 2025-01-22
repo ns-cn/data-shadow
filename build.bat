@@ -1,5 +1,7 @@
 @echo off
+chcp 65001
 setlocal enabledelayedexpansion
+:: 开始构建Data Shadow应用程序
 echo Start building Data Shadow Application...
 echo Current directory: %CD%
 
@@ -12,7 +14,7 @@ if not exist datashadow-script (
 )
 echo datashadow-script directory found.
 
-:: 检查JAVA_HOME是否设置
+:: 检查JAVA_HOME环境变量是否设置
 echo Checking JAVA_HOME environment variable...
 if "%JAVA_HOME%" == "" (
     echo Error: JAVA_HOME environment variable is not set.
@@ -22,7 +24,7 @@ if "%JAVA_HOME%" == "" (
 )
 echo JAVA_HOME is set to: %JAVA_HOME%
 
-:: 检查JAVAFX_HOME是否设置
+:: 检查JAVAFX_HOME环境变量是否设置
 echo Checking JAVAFX_HOME environment variable...
 if "%JAVAFX_HOME%" == "" (
     echo Error: JAVAFX_HOME environment variable is not set.
@@ -32,7 +34,7 @@ if "%JAVAFX_HOME%" == "" (
 )
 echo JAVAFX_HOME is set to: %JAVAFX_HOME%
 
-:: 检查Java版本
+:: 检查Java版本是否满足要求(需要Java 21或更高版本)
 echo Checking Java version...
 for /f "tokens=* usebackq" %%i in (`"%JAVA_HOME%\bin\java.exe" -version 2^>^&1`) do (
     echo %%i
@@ -48,7 +50,7 @@ for /f "tokens=* usebackq" %%i in (`"%JAVA_HOME%\bin\java.exe" -version 2^>^&1`)
 )
 echo Java version check passed.
 
-:: 创建dist目录
+:: 创建并清理dist目录(如果已存在)
 echo Setting up dist directory...
 if exist dist (
     echo Cleaning up previous dist directory...
@@ -59,6 +61,7 @@ if exist dist (
     )
 )
 
+:: 创建新的dist目录
 echo Creating new dist directory...
 mkdir "dist\datashadow"
 if !errorlevel! neq 0 (
@@ -67,7 +70,7 @@ if !errorlevel! neq 0 (
 )
 echo Dist directory created successfully.
 
-:: 使用jlink创建运行时
+:: 使用jlink创建自定义运行时环境，仅包含必要的模块
 echo Creating runtime environment...
 "%JAVA_HOME%\bin\jlink.exe" --module-path "%JAVA_HOME%\jmods" --add-modules java.base,java.desktop,java.logging,java.xml,java.management,java.naming,java.sql,java.prefs,java.scripting,jdk.unsupported --no-header-files --no-man-pages --output "dist\datashadow\runtime"
 if !errorlevel! neq 0 (
@@ -76,7 +79,7 @@ if !errorlevel! neq 0 (
 )
 echo Runtime environment created successfully.
 
-:: 执行Maven构建
+:: 执行Maven构建，清理并打包项目
 echo Executing Maven build...
 call mvn clean package
 if !errorlevel! neq 0 (
@@ -85,8 +88,9 @@ if !errorlevel! neq 0 (
 )
 echo Maven build completed successfully.
 
-:: 复制文件到dist目录
+:: 复制必要文件到dist目录
 echo Copying files to dist directory...
+:: 复制JavaFX SDK文件
 echo Copying JavaFX SDK files...
 xcopy /E /I /Y "%JAVAFX_HOME%" "dist\datashadow\javafx_sdk"
 if !errorlevel! neq 0 (
@@ -94,6 +98,7 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
+:: 复制启动器jar包
 echo Copying launcher jar...
 copy /Y "datashadow-launcher\target\datashadow-launcher-1.0.0-SNAPSHOT.jar" "dist\datashadow\"
 if !errorlevel! neq 0 (
@@ -101,6 +106,7 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
+:: 复制运行脚本
 echo Copying run.bat...
 copy /Y "datashadow-script\run.bat" "dist\datashadow\"
 if !errorlevel! neq 0 (
@@ -108,7 +114,7 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
-:: 创建zip包
+:: 创建最终的zip发布包
 echo Creating zip package...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Write-Host 'Starting zip creation...'; try { Compress-Archive -Path 'dist\datashadow' -DestinationPath 'dist\datashadow.zip' -Force; if ($?) { Write-Host 'Zip creation successful'; exit 0 } else { Write-Host 'Zip creation failed'; exit 1 }} catch { Write-Host 'Exception during zip creation:'; Write-Error $_.Exception.Message; exit 1 }"
 if !errorlevel! neq 0 (
@@ -116,5 +122,6 @@ if !errorlevel! neq 0 (
     exit /b 1
 )
 
+:: 构建完成提示
 echo Build completed! Application has been packaged to dist\datashadow.zip
 endlocal
