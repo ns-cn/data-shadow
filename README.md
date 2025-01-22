@@ -67,9 +67,12 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 1. 确保已安装JDK 21或更高版本
 2. 设置JAVA_HOME环境变量，指向JDK安装目录
    - 例如: `set JAVA_HOME=C:\Program Files\Java\jdk-21`
-3. 在项目根目录下运行`build.bat`脚本，等待构建完成
-4. 构建完成后，进入`dist/datashadow`目录
-5. 运行`run.bat`脚本启动DataShadow
+3. 设置JAVAFX_HOME环境变量，指向JavaFX SDK安装目录
+   - 例如: `set JAVAFX_HOME=C:\Path\To\javafx-sdk-21.0.2`
+   - JavaFX SDK可从[官方网站](https://gluonhq.com/products/javafx/)下载
+4. 在项目根目录下运行`build.bat`脚本，等待构建完成
+5. 构建完成后，进入`dist/datashadow`目录
+6. 运行`run.bat`脚本启动DataShadow
 
 注: 目前仅提供Windows平台的构建脚本，其他平台的构建支持正在开发中。
 
