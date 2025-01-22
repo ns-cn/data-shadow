@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui;
+package com.tangyujun.datashadow.ui.menu;
 
 import com.alibaba.fastjson2.JSON;
 import com.tangyujun.datashadow.core.DataFactory;
