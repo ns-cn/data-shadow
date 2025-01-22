@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class DataShadowLauncher extends Application {
      * @param primaryStage 主舞台对象
      */
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {
         // 创建主布局
         MainLayout mainLayout = new MainLayout();
 
@@ -69,6 +70,10 @@ public class DataShadowLauncher extends Application {
 
         // 设置场景
         primaryStage.setScene(scene);
+
+        // 设置程序图标
+        Image icon = new Image(getClass().getResourceAsStream("/icon.png"));
+        primaryStage.getIcons().add(icon);
 
         // 添加窗口关闭事件处理
         primaryStage.setOnCloseRequest(event -> {

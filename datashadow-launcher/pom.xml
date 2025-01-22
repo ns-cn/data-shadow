@@ -122,6 +122,11 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <!-- maven-compiler-plugin: Java编译插件 -->
             <plugin>
