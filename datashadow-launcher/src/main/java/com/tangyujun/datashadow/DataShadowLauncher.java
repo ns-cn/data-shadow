@@ -33,6 +33,15 @@ public class DataShadowLauncher extends Application {
      */
     private static final Logger log = LoggerFactory.getLogger(DataShadowLauncher.class);
 
+    /** 窗口最小宽度 */
+    private static final double MIN_WINDOW_WIDTH = 1000;
+    /** 窗口最小高度 */
+    private static final double MIN_WINDOW_HEIGHT = 868;
+    /** 窗口默认宽度 */
+    private static final double DEFAULT_WINDOW_WIDTH = MIN_WINDOW_WIDTH;
+    /** 窗口默认高度 */
+    private static final double DEFAULT_WINDOW_HEIGHT = MIN_WINDOW_HEIGHT;
+
     /**
      * JavaFX应用程序启动方法
      * 创建并显示主窗口,设置窗口属性和事件处理
@@ -44,11 +53,19 @@ public class DataShadowLauncher extends Application {
         // 创建主布局
         MainLayout mainLayout = new MainLayout();
 
-        // 创建场景,设置默认窗口大小为1024x768
-        Scene scene = new Scene(mainLayout, 1024, 768);
+        // 创建场景
+        Scene scene = new Scene(mainLayout);
 
         // 设置窗口标题
-        primaryStage.setTitle("Data Shadow - 数据影子对比工具");
+        primaryStage.setTitle("Data Shadow - 数据影子工具");
+
+        // 设置窗口最小尺寸
+        primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
+        primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
+
+        // 设置窗口初始尺寸
+        primaryStage.setWidth(DEFAULT_WINDOW_WIDTH);
+        primaryStage.setHeight(DEFAULT_WINDOW_HEIGHT);
 
         // 设置场景
         primaryStage.setScene(scene);

@@ -91,18 +91,24 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      * 4. 注册数据项变化监听
      */
     public CompareSection() {
-        super(10);
+        super(5);
         setPadding(new Insets(10));
         setStyle("-fx-border-color: #ddd; -fx-border-radius: 5;");
+
+        // 设置CompareSection自身的布局属性
+        setMaxHeight(Double.MAX_VALUE);
+        setMinHeight(200); // 设置最小高度
 
         // 创建标题
         Label title = new Label("对比功能与结果");
         title.setStyle("-fx-font-weight: bold;");
+        title.setMinHeight(Region.USE_PREF_SIZE);
 
-        // 创建功能按钮区域
+        // 工具栏布局
         HBox toolBox = new HBox(10);
         toolBox.setAlignment(Pos.CENTER_LEFT);
         toolBox.setPadding(new Insets(0, 0, 10, 0));
+        toolBox.setMinHeight(Region.USE_PREF_SIZE);
 
         // 创建左侧功能区
         HBox leftBox = new HBox(10);
@@ -136,13 +142,23 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
         toolBox.getChildren().addAll(leftBox, rightBox);
 
-        // 创建结果表格
-        resultTable = new TableView<>();
-        VBox.setVgrow(resultTable, Priority.ALWAYS);
-        resultTable.setStyle("-fx-border-color: #ddd;");
+        // 创建表格容器
+        VBox tableContainer = new VBox();
+        tableContainer.setStyle("-fx-border-color: #ddd;");
+        tableContainer.setMinHeight(100); // 设置最小高度
+        VBox.setVgrow(tableContainer, Priority.ALWAYS);
 
-        // 添加所有组件到主容器
-        getChildren().addAll(title, toolBox, resultTable);
+        // 结果表格设置
+        resultTable = new TableView<>();
+        resultTable.setStyle("-fx-border-width: 0;");
+        resultTable.setMinHeight(100); // 设置最小高度
+        VBox.setVgrow(resultTable, Priority.ALWAYS);
+
+        tableContainer.getChildren().add(resultTable);
+
+        // 将所有组件添加到主容器，并设置合适的间距
+        getChildren().addAll(title, toolBox, tableContainer);
+        setSpacing(5); // 设置组件之间的间距
 
         // 设置按钮事件
         compareButton.setOnAction(event -> startCompare());
