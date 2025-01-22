@@ -115,17 +115,30 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         resultTable.getColumns().clear();
 
         if (dataItems != null) {
-            for (DataItem item : dataItems) {
-                TableColumn<CompareResult, String> column = new TableColumn<>(getColumnHeader(item));
-                column.setId(item.getCode());
+            for (DataItem dataItem : dataItems) {
+                TableColumn<CompareResult, String> column = new TableColumn<>(getColumnHeader(dataItem));
+                column.setId(dataItem.getCode());
 
                 // 设置列宽
                 column.setPrefWidth(150);
 
                 // 修改这里：正确设置 cellValueFactory
                 column.setCellValueFactory(cellData -> {
-                    String value = cellData.getValue().get(item.getCode());
-                    return new SimpleStringProperty(value != null ? value : "");
+                    CellResult cellResult = cellData.getValue().getCellResult(dataItem.getCode());
+                    if (cellResult == null) {
+                        return new SimpleStringProperty("");
+                    }
+
+                    String primaryStr = cellResult.getPrimaryValue() != null ? cellResult.getPrimaryValue().toString()
+                            : "";
+                    String shadowStr = cellResult.getShadowValue() != null ? cellResult.getShadowValue().toString()
+                            : "";
+
+                    if (cellResult.isDifferent()) {
+                        return new SimpleStringProperty(primaryStr + " ❌ " + shadowStr);
+                    } else {
+                        return new SimpleStringProperty(primaryStr);
+                    }
                 });
 
                 // 设置单元格工厂
@@ -244,7 +257,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 String key = buildUniqueKey(mappedRow, uniqueItems);
                 shadowMap.put(key, mappedRow);
             }
-
             // 遍历主数据源进行对比，同时应用字段映射
             for (Map<String, Object> primaryRow : primaryData) {
                 Map<String, Object> mappedPrimaryRow = new HashMap<>();
@@ -254,29 +266,25 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                         mappedPrimaryRow.put(item.getCode(), primaryRow.get(mappedField));
                     }
                 }
-
                 String key = buildUniqueKey(mappedPrimaryRow, uniqueItems);
                 Map<String, Object> shadowRow = shadowMap.remove(key);
-
                 CompareResult result = new CompareResult();
-
                 // 遍历所有数据项进行对比
                 for (DataItem item : dataItems) {
                     Object primaryValue = mappedPrimaryRow.get(item.getCode());
                     Object shadowValue = shadowRow != null ? shadowRow.get(item.getCode()) : null;
-
-                    String primaryStr = primaryValue != null ? primaryValue.toString() : "";
-                    String shadowStr = shadowValue != null ? shadowValue.toString() : "";
-
-                    if (shadowRow == null) {
-                        result.put(item.getCode(), formatDifference(primaryStr, ""));
-                    } else if (!primaryStr.equals(shadowStr)) {
-                        result.put(item.getCode(), formatDifference(primaryStr, shadowStr));
+                    CellResult cellResult = new CellResult();
+                    cellResult.setPrimaryValue(primaryValue);
+                    cellResult.setShadowValue(shadowValue);
+                    // 检查比较器是否为空
+                    if (item.getComparator() != null) {
+                        cellResult.setDifferent(!item.getComparator().equals(primaryValue, shadowValue));
                     } else {
-                        result.put(item.getCode(), primaryStr);
+                        // 如果比较器为空,则使用Objects.equals进行比较
+                        cellResult.setDifferent(!Objects.equals(primaryValue, shadowValue));
                     }
+                    result.putCellResult(item.getCode(), cellResult);
                 }
-
                 results.add(result);
             }
 
@@ -285,16 +293,20 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 CompareResult result = new CompareResult();
                 for (DataItem item : dataItems) {
                     Object shadowValue = shadowRow.get(item.getCode());
-                    String shadowStr = shadowValue != null ? shadowValue.toString() : "";
-                    result.put(item.getCode(), formatDifference("", shadowStr));
+
+                    CellResult cellResult = new CellResult();
+                    cellResult.setPrimaryValue(null);
+                    cellResult.setShadowValue(shadowValue);
+                    cellResult.setDifferent(true);
+
+                    result.putCellResult(item.getCode(), cellResult);
                 }
                 results.add(result);
             }
-
             // 更新表格数据和过滤器
             if (showDiffOnly.isSelected()) {
                 FilteredList<CompareResult> filteredData = new FilteredList<>(results);
-                filteredData.setPredicate(result -> result.values().stream().anyMatch(value -> value.contains("❌")));
+                filteredData.setPredicate(result -> result.hasDifferences());
                 resultTable.setItems(filteredData);
             } else {
                 resultTable.setItems(results);
@@ -320,13 +332,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     }
 
     /**
-     * 格式化差异值显示
-     */
-    private String formatDifference(Object primary, Object shadow) {
-        return primary + " ❌ " + shadow;
-    }
-
-    /**
      * 显示警告对话框
      */
     private void showAlert(String title, String content) {
@@ -348,7 +353,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
         if (showDiffOnly.isSelected()) {
             FilteredList<CompareResult> filteredData = new FilteredList<>(baseItems);
-            filteredData.setPredicate(result -> result.values().stream().anyMatch(value -> value.contains("❌")));
+            filteredData.setPredicate(CompareResult::hasDifferences);
             resultTable.setItems(filteredData);
         } else {
             resultTable.setItems(baseItems);
@@ -357,10 +362,118 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 比对结果数据类
+     * 用于存储一行数据的所有字段比对结果
      */
-    public static class CompareResult extends HashMap<String, String> {
-        // 使用 HashMap 存储每个数据项的对比结果
-        // key 为数据项的 code，value 为显示的文本
+    public static class CompareResult {
+        /**
+         * 存储每个字段的比对结果
+         * key为字段编码,value为该字段的比对结果
+         */
+        private final Map<String, CellResult> cellResults = new HashMap<>();
+
+        /**
+         * 添加一个字段的比对结果
+         * 
+         * @param code   字段编码
+         * @param result 字段比对结果
+         */
+        public void putCellResult(String code, CellResult result) {
+            cellResults.put(code, result);
+        }
+
+        /**
+         * 获取指定字段的比对结果
+         * 
+         * @param code 字段编码
+         * @return 字段比对结果,如果字段不存在则返回null
+         */
+        public CellResult getCellResult(String code) {
+            return cellResults.get(code);
+        }
+
+        /**
+         * 判断该行数据是否存在差异
+         * 
+         * @return 如果任一字段存在差异则返回true,否则返回false
+         */
+        public boolean hasDifferences() {
+            return cellResults.values().stream().anyMatch(CellResult::isDifferent);
+        }
+    }
+
+    /**
+     * 单元格比对结果类
+     * 用于存储单个单元格的主数据源值和影子数据源值,以及是否存在差异
+     */
+    public static class CellResult {
+        /**
+         * 主数据源的值
+         */
+        private Object primaryValue;
+
+        /**
+         * 影子数据源的值
+         */
+        private Object shadowValue;
+
+        /**
+         * 是否存在差异
+         */
+        private boolean isDifferent;
+
+        /**
+         * 获取主数据源的值
+         * 
+         * @return 主数据源的值
+         */
+        public Object getPrimaryValue() {
+            return primaryValue;
+        }
+
+        /**
+         * 设置主数据源的值
+         * 
+         * @param primaryValue 主数据源的值
+         */
+        public void setPrimaryValue(Object primaryValue) {
+            this.primaryValue = primaryValue;
+        }
+
+        /**
+         * 获取影子数据源的值
+         * 
+         * @return 影子数据源的值
+         */
+        public Object getShadowValue() {
+            return shadowValue;
+        }
+
+        /**
+         * 设置影子数据源的值
+         * 
+         * @param shadowValue 影子数据源的值
+         */
+        public void setShadowValue(Object shadowValue) {
+            this.shadowValue = shadowValue;
+        }
+
+        /**
+         * 判断是否存在差异
+         * 
+         * @return 如果存在差异返回true,否则返回false
+         */
+        public boolean isDifferent() {
+            return isDifferent;
+        }
+
+        /**
+         * 设置是否存在差异
+         * 
+         * @param different 是否存在差异
+         */
+        public void setDifferent(boolean different) {
+            isDifferent = different;
+        }
     }
 
     /**
