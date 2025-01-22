@@ -82,8 +82,10 @@ public class DataSourceMappingDialog extends Stage {
         initOwner(owner);
         initModality(Modality.APPLICATION_MODAL);
         setTitle("数据源字段映射");
-        setMinWidth(600);
-        setMinHeight(400);
+        setWidth(500); // 设置默认宽度
+        setHeight(350); // 设置默认高度
+        setMinWidth(400);
+        setMinHeight(300);
 
         VBox root = new VBox(10);
         root.setPadding(new Insets(20));
@@ -93,7 +95,7 @@ public class DataSourceMappingDialog extends Stage {
         titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
         // 操作按钮区域
-        HBox buttonBox = createButtonBox();
+        VBox buttonBox = createButtonBox();
 
         // 映射表格
         TableView<DataItem> mappingTable = createMappingTable();
@@ -114,25 +116,35 @@ public class DataSourceMappingDialog extends Stage {
      * 
      * @return 按钮容器
      */
-    private HBox createButtonBox() {
-        HBox buttonBox = new HBox(10);
-        buttonBox.setPadding(new Insets(10));
-        buttonBox.setStyle("-fx-background-color: #f5f5f5; -fx-border-color: #eee;");
+    private VBox createButtonBox() {
+        // 使用VBox来实现垂直布局
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new Insets(10));
+        vbox.setStyle("-fx-background-color: #f5f5f5; -fx-border-color: #eee;");
 
+        // 按钮容器
+        HBox buttonBox = new HBox(10);
         Button autoMapButton = new Button("自动映射");
         Button rebuildButton = new Button("重建映射");
         Button clearButton = new Button("清空映射");
 
+        // 提示文本
         Label tipLabel = new Label("注：自动映射将根据字段名称相似度追加映射关系，重建映射将根据数据源字段创建新的数据项，清空映射将清除所有已建立的映射关系");
         tipLabel.setWrapText(true);
-        tipLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 12px;");
+        tipLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 12px; -fx-padding: 5 0 0 0;");
+        tipLabel.setMaxWidth(460); // 设置最大宽度以强制换行
 
         autoMapButton.setOnAction(event -> handleAutoMap());
         rebuildButton.setOnAction(event -> handleRebuild());
         clearButton.setOnAction(event -> handleClearMappings());
 
-        buttonBox.getChildren().addAll(autoMapButton, rebuildButton, clearButton, tipLabel);
-        return buttonBox;
+        // 将按钮添加到按钮容器
+        buttonBox.getChildren().addAll(autoMapButton, rebuildButton, clearButton);
+
+        // 将按钮容器和提示文本添加到垂直布局容器
+        vbox.getChildren().addAll(buttonBox, tipLabel);
+
+        return vbox;
     }
 
     /**
@@ -148,11 +160,11 @@ public class DataSourceMappingDialog extends Stage {
         // 数据项名称列
         TableColumn<DataItem, String> nameColumn = new TableColumn<>("数据项名称");
         nameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDisplayName()));
-        nameColumn.setPrefWidth(200);
+        nameColumn.setPrefWidth(150);
 
         // 数据源字段列
         TableColumn<DataItem, String> mappingColumn = new TableColumn<>("数据源字段");
-        mappingColumn.setPrefWidth(300);
+        mappingColumn.setPrefWidth(150);
         mappingColumn.setCellFactory(column -> new TableCell<>() {
             private final ComboBox<String> comboBox = new ComboBox<>();
 

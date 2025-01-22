@@ -10,3 +10,10 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 .idea/
+
+# 构建相关的目录和文件
+datashadow-runtime/runtime/
+datashadow-runtime/datashadow-launcher-1.0.0-SNAPSHOT.jar
+datashadow-runtime/jdk-21.0.2/
+datashadow-runtime/javafx-sdk-21.0.5/
+dist/
