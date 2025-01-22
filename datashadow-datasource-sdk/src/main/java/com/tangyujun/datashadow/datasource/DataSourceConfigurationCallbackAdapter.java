@@ -7,7 +7,6 @@ package com.tangyujun.datashadow.datasource;
  * 通过此接口可以实现对数据源配置过程的完整监控和处理
  * 
  * @author tangyujun
- * @since 1.0.0
  */
 public class DataSourceConfigurationCallbackAdapter implements DataSourceConfigurationCallback {
     /**

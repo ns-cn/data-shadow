@@ -23,17 +23,28 @@ import javafx.application.Platform;
 
 /**
  * 数据影子应用程序启动类
+ * 负责初始化JavaFX应用程序、加载插件模块、创建主窗口
+ * 
  */
 public class DataShadowLauncher extends Application {
 
+    /**
+     * 日志记录器
+     */
     private static final Logger log = LoggerFactory.getLogger(DataShadowLauncher.class);
 
+    /**
+     * JavaFX应用程序启动方法
+     * 创建并显示主窗口,设置窗口属性和事件处理
+     *
+     * @param primaryStage 主舞台对象
+     */
     @Override
     public void start(Stage primaryStage) {
         // 创建主布局
         MainLayout mainLayout = new MainLayout();
 
-        // 创建场景
+        // 创建场景,设置默认窗口大小为1024x768
         Scene scene = new Scene(mainLayout, 1024, 768);
 
         // 设置窗口标题
@@ -50,7 +61,7 @@ public class DataShadowLauncher extends Application {
             alert.setHeaderText("确定要退出程序吗？");
             alert.setContentText("请确认是否要关闭数据影子对比工具。");
 
-            // 等待用户选择
+            // 等待用户选择,如果不是确认则取消关闭
             alert.showAndWait().ifPresent(response -> {
                 if (response != ButtonType.OK) {
                     // 如果用户点击取消，则阻止窗口关闭
@@ -63,18 +74,27 @@ public class DataShadowLauncher extends Application {
         primaryStage.show();
     }
 
+    /**
+     * 应用程序入口方法
+     * 负责加载插件模块并启动JavaFX应用程序
+     * 
+     * @param args 命令行参数
+     */
     public static void main(String[] args) {
         try {
-            // 加载数据源
+            // 初始化数据源和比较器监听器
             DataSourceListener loader = new DataSourceListener();
             DataComparatorListener comparatorLoader = new DataComparatorListener();
-            // loader.loadOfficial();
-            // comparatorLoader.loadOfficial();
+
+            // 创建模块加载器并注册监听器
             ModuleLoader moduleLoader = new ModuleLoader();
             moduleLoader.registerListener(loader);
             moduleLoader.registerListener(comparatorLoader);
+
+            // 加载官方模块
             moduleLoader.loadOfficial("com.tangyujun.datashadow");
-            // 临时读取resources/plugins目录
+
+            // 从resources/plugins目录加载自定义插件
             URL pluginsUrl = DataShadowLauncher.class.getClassLoader().getResource("plugins");
             if (pluginsUrl == null) {
                 log.error("Plugins directory not found in resources");
@@ -85,10 +105,13 @@ public class DataShadowLauncher extends Application {
                 pluginsPath = URLDecoder.decode(pluginsPath, StandardCharsets.UTF_8);
                 moduleLoader.loadCustom(pluginsPath);
             }
-            // 启动应用程序
+
+            // 启动JavaFX应用程序
             launch(args);
         } catch (IOException e) {
+            // 记录插件加载错误
             log.error("Error loading custom plugins", e);
+
             // 显示错误对话框
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -97,6 +120,7 @@ public class DataShadowLauncher extends Application {
                 alert.setContentText("详细信息：" + e.getMessage());
                 alert.showAndWait();
             });
+
             // 继续启动应用程序
             launch(args);
         }

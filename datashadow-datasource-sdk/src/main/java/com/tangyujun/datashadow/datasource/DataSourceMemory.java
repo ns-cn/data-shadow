@@ -60,7 +60,6 @@ import javafx.stage.Window;
  * 5. 支持自动数据类型推断
  * 
  * @author tangyujun
- * @since 1.0.0
  */
 public class DataSourceMemory extends DataSource {
 
