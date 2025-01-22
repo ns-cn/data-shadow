@@ -28,21 +28,50 @@ import java.io.File;
 /**
  * 对比功能与结果展示区
  * 包含对比操作和结果展示的完整功能区域
+ * 主要功能:
+ * 1. 执行主数据源和影子数据源的数据对比
+ * 2. 展示对比结果,支持仅显示差异项和显示全部数据
+ * 3. 支持数据项名称和别名两种显示模式
+ * 4. 支持导出对比结果为CSV、Excel和JSON格式
  */
 public class CompareSection extends VBox implements DataItemChangeListener {
 
+    /** 日志记录器 */
     private static final Logger log = Logger.getLogger(CompareSection.class.getName());
 
+    /** 过滤模式常量 - 仅显示存在差异的数据项 */
+    private static final String FILTER_MODE_DIFF_ONLY = "仅差异项";
+    /** 过滤模式常量 - 显示所有数据项 */
+    private static final String FILTER_MODE_ALL = "全部数据";
+
+    /** 表头显示模式常量 - 使用数据项代码作为列标题 */
+    private static final String HEADER_MODE_CODE = "数据项名称";
+    /** 表头显示模式常量 - 优先使用数据项别名作为列标题 */
+    private static final String HEADER_MODE_NICK = "数据项别名优先";
+
+    /** 对比结果展示表格 */
     private final TableView<CompareResult> resultTable;
+    /** 执行对比按钮 */
     private final Button compareButton;
-    private final CheckBox showDiffOnly;
-    private final CheckBox preferNickname;
+    /** 过滤模式选择下拉框 */
+    private final ComboBox<String> filterMode;
+    /** 表头显示模式选择下拉框 */
+    private final ComboBox<String> headerDisplayMode;
+    /** CSV导出按钮 */
     private final Button exportCsvButton;
+    /** Excel导出按钮 */
     private final Button exportExcelButton;
+    /** JSON导出按钮 */
     private final Button exportJsonButton;
 
     /**
      * 构造函数
+     * 初始化界面组件并设置布局
+     * 包括:
+     * 1. 创建标题和工具栏
+     * 2. 初始化对比结果表格
+     * 3. 设置各组件事件处理
+     * 4. 注册数据项变化监听
      */
     public CompareSection() {
         super(10);
@@ -65,10 +94,15 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         compareButton = new Button("执行对比");
         compareButton.setPrefWidth(100);
 
-        showDiffOnly = new CheckBox("仅显示差异项");
-        preferNickname = new CheckBox("优先显示数据项别名");
+        filterMode = new ComboBox<>();
+        filterMode.setItems(FXCollections.observableArrayList(FILTER_MODE_DIFF_ONLY, FILTER_MODE_ALL));
+        filterMode.setValue(FILTER_MODE_DIFF_ONLY);
 
-        leftBox.getChildren().addAll(compareButton, showDiffOnly, preferNickname);
+        headerDisplayMode = new ComboBox<>();
+        headerDisplayMode.setItems(FXCollections.observableArrayList(HEADER_MODE_CODE, HEADER_MODE_NICK));
+        headerDisplayMode.setValue(HEADER_MODE_CODE);
+
+        leftBox.getChildren().addAll(compareButton, filterMode, headerDisplayMode);
 
         // 创建右侧导出按钮区
         HBox rightBox = new HBox(5);
@@ -95,8 +129,8 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
         // 设置按钮事件
         compareButton.setOnAction(event -> startCompare());
-        showDiffOnly.setOnAction(event -> filterDiffItems());
-        preferNickname.setOnAction(event -> updateColumnHeaders());
+        filterMode.setOnAction(event -> filterDiffItems());
+        headerDisplayMode.setOnAction(event -> updateColumnHeaders());
         exportCsvButton.setOnAction(event -> exportToCsv());
         exportExcelButton.setOnAction(event -> exportToExcel());
         exportJsonButton.setOnAction(event -> exportToJson());
@@ -107,9 +141,13 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 更新表格列
-     * 根据数据项列表动态创建表格列
+     * 根据数据项列表动态创建表格列,包括:
+     * 1. 清空现有列
+     * 2. 为每个数据项创建对应的列
+     * 3. 设置列的值工厂和单元格工厂
+     * 4. 配置列的显示样式
      * 
-     * @param dataItems 数据项列表
+     * @param dataItems 数据项列表,用于创建表格列
      */
     public void updateColumns(List<DataItem> dataItems) {
         resultTable.getColumns().clear();
@@ -166,13 +204,16 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 获取列标题
-     * 根据是否优先显示别名的设置返回对应的显示文本
+     * 根据当前表头显示模式返回适当的列标题:
+     * - 如果选择别名优先且数据项有别名,则返回别名
+     * - 否则返回数据项代码
      * 
-     * @param item 数据项
-     * @return 列标题文本
+     * @param item 数据项对象
+     * @return 根据显示模式确定的列标题文本
      */
     private String getColumnHeader(DataItem item) {
-        if (preferNickname.isSelected() && item.getNick() != null && !item.getNick().isEmpty()) {
+        if (headerDisplayMode.getValue().equals(HEADER_MODE_NICK) && item.getNick() != null
+                && !item.getNick().isEmpty()) {
             return item.getNick();
         }
         return item.getCode();
@@ -180,7 +221,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 更新列标题
-     * 在切换优先显示别名选项时调用
+     * 在切换表头显示模式时更新所有列的标题:
+     * 1. 获取当前所有数据项
+     * 2. 遍历表格列
+     * 3. 根据新的显示模式更新每列标题
      */
     private void updateColumnHeaders() {
         List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
@@ -195,6 +239,11 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 开始数据对比
+     * 执行主数据源和影子数据源的数据对比操作:
+     * 1. 验证数据源和数据项配置
+     * 2. 获取两个数据源的数据
+     * 3. 根据主键匹配记录并比对
+     * 4. 生成对比结果并更新表格显示
      */
     @SuppressWarnings("LoggerStringConcat")
     private void startCompare() {
@@ -304,7 +353,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 results.add(result);
             }
             // 更新表格数据和过滤器
-            if (showDiffOnly.isSelected()) {
+            if (filterMode.getValue().equals(FILTER_MODE_DIFF_ONLY)) {
                 FilteredList<CompareResult> filteredData = new FilteredList<>(results);
                 filteredData.setPredicate(result -> result.hasDifferences());
                 resultTable.setItems(filteredData);
@@ -323,7 +372,11 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 构建唯一键
-     * 根据唯一标识字段构建用于匹配的键
+     * 将多个主键字段的值拼接成唯一标识字符串
+     * 
+     * @param row         数据行
+     * @param uniqueItems 主键数据项列表
+     * @return 由主键值拼接而成的唯一标识字符串
      */
     private String buildUniqueKey(Map<String, Object> row, List<DataItem> uniqueItems) {
         return uniqueItems.stream()
@@ -333,6 +386,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 显示警告对话框
+     * 用于显示操作过程中的警告信息
+     * 
+     * @param title   警告标题
+     * @param content 警告内容
      */
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -343,6 +400,9 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 过滤差异项
+     * 根据当前过滤模式设置表格数据显示:
+     * - 仅差异项模式: 只显示存在差异的数据行
+     * - 全部数据模式: 显示所有数据行
      */
     private void filterDiffItems() {
         @SuppressWarnings("unchecked")
@@ -351,7 +411,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                         .getSource()
                 : (ObservableList<CompareResult>) resultTable.getItems();
 
-        if (showDiffOnly.isSelected()) {
+        if (filterMode.getValue().equals(FILTER_MODE_DIFF_ONLY)) {
             FilteredList<CompareResult> filteredData = new FilteredList<>(baseItems);
             filteredData.setPredicate(CompareResult::hasDifferences);
             resultTable.setItems(filteredData);
@@ -363,6 +423,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /**
      * 比对结果数据类
      * 用于存储一行数据的所有字段比对结果
+     * 包含每个字段的主数据源值、影子数据源值及其差异状态
      */
     public static class CompareResult {
         /**
@@ -404,6 +465,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /**
      * 单元格比对结果类
      * 用于存储单个单元格的主数据源值和影子数据源值,以及是否存在差异
+     * 包含:
+     * 1. 主数据源的值
+     * 2. 影子数据源的值
+     * 3. 是否存在差异的标志
      */
     public static class CellResult {
         /**
@@ -478,6 +543,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 启用对比功能
+     * 激活对比按钮,允许用户执行对比操作
      */
     public void enableCompare() {
         compareButton.setDisable(false);
@@ -485,6 +551,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 禁用对比功能
+     * 禁用对比按钮,防止用户执行对比操作
      */
     public void disableCompare() {
         compareButton.setDisable(true);
@@ -492,8 +559,9 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 更新对比结果
+     * 清空当前表格数据并显示新的对比结果
      * 
-     * @param data 对比结果数据
+     * @param data 新的对比结果数据列表
      */
     public void updateResults(List<CompareResult> data) {
         resultTable.getItems().clear();
@@ -504,6 +572,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 设置差异值的单元格样式
+     * 为差异值设置特殊的显示样式
      * 
      * @param cell        表格单元格
      * @param isDifferent 是否为差异值
@@ -543,6 +612,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 导出为CSV文件
+     * 将当前对比结果导出为CSV格式文件
      */
     @SuppressWarnings("LoggerStringConcat")
     private void exportToCsv() {
@@ -555,6 +625,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 导出为Excel文件
+     * 将当前对比结果导出为Excel格式文件
      */
     @SuppressWarnings("LoggerStringConcat")
     private void exportToExcel() {
@@ -567,6 +638,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 导出为JSON文件
+     * 将当前对比结果导出为JSON格式文件
      */
     @SuppressWarnings("LoggerStringConcat")
     private void exportToJson() {
@@ -579,6 +651,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 显示文件保存对话框
+     * 打开系统文件选择器供用户选择保存位置
      * 
      * @param description 文件类型描述
      * @param extension   文件扩展名
