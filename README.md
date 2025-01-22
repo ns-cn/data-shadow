@@ -5,6 +5,7 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 ## 导航
 - [English](README_en.md)
 - [使用说明](docs/使用说明.md)
+- [自行构建](docs/自行构建.md)
 - [插件开发](docs/插件开发.md)
 
 ## 主要特性
@@ -60,6 +61,18 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 ![主界面](screenshots/homepage.png)
 ![数据项比较器](screenshots/data_comparator.png)
 ![插件管理](screenshots/plugins_demo.png)
+
+## 自行构建 (Windows)
+
+1. 确保已安装JDK 21或更高版本
+2. 设置JAVA_HOME环境变量，指向JDK安装目录
+   - 例如: `set JAVA_HOME=C:\Program Files\Java\jdk-21`
+3. 在项目根目录下运行`build.bat`脚本，等待构建完成
+4. 构建完成后，进入`dist/datashadow`目录
+5. 运行`run.bat`脚本启动DataShadow
+
+注: 目前仅提供Windows平台的构建脚本，其他平台的构建支持正在开发中。
+
 ## 技术栈
 
 - Java 21

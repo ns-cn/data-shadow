@@ -61,6 +61,18 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 ![Data Comparator](screenshots/data_comparator.png)
 ![Plugin Management](screenshots/plugins_demo.png)
 
+## Build Instructions (Windows)
+
+1. Ensure JDK 21 or higher is installed
+2. Set JAVA_HOME environment variable to point to your JDK installation directory
+   - Example: `set JAVA_HOME=C:\Program Files\Java\jdk-21`
+3. Run `build.bat` script in the project root directory and wait for build completion
+4. After build completes, navigate to `dist/datashadow` directory
+5. Run `run.bat` script to launch DataShadow
+
+Note: Currently only Windows build scripts are provided. Build support for other platforms is under development.
+
+
 ## Tech Stack
 
 - Java 21
