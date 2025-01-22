@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import com.alibaba.fastjson2.JSON;
 import com.tangyujun.datashadow.core.DataFactory;
-import com.tangyujun.datashadow.dataitem.DataItem;
 
 /**
  * 对比方案类

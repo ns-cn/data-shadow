@@ -10,7 +10,6 @@ import javafx.scene.layout.VBox;
 
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.datacomparator.DataComparator;
-import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
 
 import javafx.scene.layout.HBox;
 
