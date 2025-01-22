@@ -104,6 +104,10 @@ public abstract class DataSourceFile extends DataSource {
         Label pathLabel = new Label("文件路径:");
         TextField pathField = new TextField();
         pathField.setPrefWidth(300);
+        // 如果已有路径则回填
+        if (path != null && !path.isBlank()) {
+            pathField.setText(path);
+        }
         Button chooseButton = new Button("选择文件");
         Button confirmButton = new Button("确认");
         Button cancelButton = new Button("取消");
@@ -112,6 +116,13 @@ public abstract class DataSourceFile extends DataSource {
         chooseButton.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("选择数据源文件");
+            // 如果已有路径，则设置初始目录
+            if (path != null && !path.isBlank()) {
+                File currentFile = new File(path);
+                if (currentFile.getParentFile() != null) {
+                    fileChooser.setInitialDirectory(currentFile.getParentFile());
+                }
+            }
             File file = fileChooser.showOpenDialog(dialog);
             if (file != null) {
                 pathField.setText(file.getAbsolutePath());
@@ -134,8 +145,8 @@ public abstract class DataSourceFile extends DataSource {
         grid.add(pathLabel, 0, 0);
         grid.add(pathField, 1, 0);
         grid.add(chooseButton, 2, 0);
-        grid.add(confirmButton, 1, 1);
-        grid.add(cancelButton, 2, 1);
+        grid.add(cancelButton, 1, 1);
+        grid.add(confirmButton, 2, 1);
 
         Scene scene = new Scene(grid);
         dialog.setScene(scene);

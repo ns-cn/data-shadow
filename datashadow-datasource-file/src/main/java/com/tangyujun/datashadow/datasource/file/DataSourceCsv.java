@@ -276,7 +276,7 @@ public class DataSourceCsv extends DataSourceFile {
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         Button confirmButton = new Button("确定");
         Button cancelButton = new Button("取消");
-        buttonBox.getChildren().addAll(confirmButton, cancelButton);
+        buttonBox.getChildren().addAll(cancelButton, confirmButton);
 
         // 将所有组件添加到根容器
         root.getChildren().addAll(pathBox, encodingBox, buttonBox);

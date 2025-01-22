@@ -30,7 +30,17 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.awt.Desktop;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 
 /**
  * 对比功能与结果展示区
@@ -415,6 +425,34 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     }
 
     /**
+     * 显示成功对话框并提供打开文件选项
+     * 
+     * @param title   标题
+     * @param content 内容
+     * @param file    导出的文件
+     */
+    private void showSuccessDialog(String title, String content, File file) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(content);
+
+        ButtonType openButton = new ButtonType("打开文件");
+        ButtonType closeButton = new ButtonType("关闭", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(openButton, closeButton);
+
+        alert.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == openButton) {
+                try {
+                    Desktop.getDesktop().open(file);
+                } catch (IOException e) {
+                    log.severe("打开文件失败: " + e.getMessage());
+                    showAlert("打开失败", "无法打开文件：" + e.getMessage());
+                }
+            }
+        });
+    }
+
+    /**
      * 过滤差异项
      * 根据当前过滤模式设置表格数据显示:
      * - 仅差异项模式: 只显示存在差异的数据行
@@ -544,6 +582,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 }
 
                 log.info("成功导出CSV文件到: " + file.getAbsolutePath());
+                showSuccessDialog("导出成功", "CSV文件已成功导出到：" + file.getAbsolutePath(), file);
             } catch (IOException e) {
                 log.severe("导出CSV文件失败: " + e.getMessage());
                 showAlert("导出失败", "导出CSV文件时发生错误：" + e.getMessage());
@@ -559,8 +598,70 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private void exportToExcel() {
         File file = showSaveFileDialog("Excel Files", "*.xlsx");
         if (file != null) {
-            // TODO: 实现Excel导出逻辑
-            log.info("导出Excel文件到: " + file.getAbsolutePath());
+            try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+                // 获取当前表格数据
+                ObservableList<CompareResult> data = resultTable.getItems();
+                if (data == null || data.isEmpty()) {
+                    showAlert("导出失败", "没有可导出的数据");
+                    return;
+                }
+
+                XSSFSheet sheet = workbook.createSheet("对比结果");
+
+                // 创建标题行样式
+                CellStyle headerStyle = workbook.createCellStyle();
+                headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+                headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                // 创建差异单元格样式
+                CellStyle diffStyle = workbook.createCellStyle();
+                diffStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+                diffStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+                // 写入表头
+                XSSFRow headerRow = sheet.createRow(0);
+                List<TableColumn<CompareResult, ?>> columns = resultTable.getColumns();
+                for (int i = 0; i < columns.size(); i++) {
+                    XSSFCell cell = headerRow.createCell(i);
+                    cell.setCellValue(columns.get(i).getText());
+                    cell.setCellStyle(headerStyle);
+                }
+
+                // 写入数据行
+                int rowNum = 1;
+                for (CompareResult row : data) {
+                    XSSFRow excelRow = sheet.createRow(rowNum++);
+                    for (int i = 0; i < columns.size(); i++) {
+                        XSSFCell cell = excelRow.createCell(i);
+                        TableColumn<CompareResult, ?> column = columns.get(i);
+                        CellResult cellResult = row.getCellResult(column.getId());
+
+                        // 设置单元格值
+                        cell.setCellValue(getCellDisplayValue(cellResult));
+
+                        // 如果是差异项，应用差异样式
+                        if (cellResult != null && cellResult.isDifferent()) {
+                            cell.setCellStyle(diffStyle);
+                        }
+                    }
+                }
+
+                // 自动调整列宽
+                for (int i = 0; i < columns.size(); i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
+                // 写入文件
+                try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                    workbook.write(fileOut);
+                }
+
+                log.info("成功导出Excel文件到: " + file.getAbsolutePath());
+                showSuccessDialog("导出成功", "Excel文件已成功导出到：" + file.getAbsolutePath(), file);
+            } catch (IOException e) {
+                log.severe("导出Excel文件失败: " + e.getMessage());
+                showAlert("导出失败", "导出Excel文件时发生错误：" + e.getMessage());
+            }
         }
     }
 
