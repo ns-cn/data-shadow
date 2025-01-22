@@ -6,13 +6,14 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 
 - 🔌 Plugin Architecture
   - Develop data source plugins based on SDK 
-  - Support dynamic loading of data sources
-  - Provide standard interface specifications
+  - Support dynamic loading of data source plugins
+  - Provide standard data source interface specifications
+  - Support import/export of comparison schemes
 
 - 📊 Multiple Data Source Support
   - Database: MySQL, Oracle etc.
   - Files: Excel, CSV, JSON, XML
-  - Memory Data: Support direct input comparison
+  - Support data source field mapping configuration
 
 - 🔧 Flexible Configuration
   - Field Mapping: Support mapping between different data sources
@@ -24,30 +25,35 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 
 - 📈 Intuitive Result Display
   - Difference highlighting
-  - Multiple export formats
-  - Detailed comparison reports
+  - Support multiple filter modes (All/Differences/Primary/Shadow)
+  - Support switching between field names and aliases
+  - Support CSV/Excel/JSON format export
+  - Detailed comparison result reports
 
 ## Project Progress
 
 ✅ Completed:
 - Basic framework and JavaFX interface
-- Plugin loading mechanism
+- Plugin-based data source loading mechanism
 - Data source SDK interface design
 - Basic UI layout and navigation
+- Data item management (CRUD, sorting, comparators)
+- Comparison result display and export
+- Comparison scheme import/export
+- Basic file data source support (CSV/XML)
 
 ⏳ In Development:
-- Data item management (CRUD, sorting, comparators)
-- Memory data source (JSON/XML/CSV import, preview)
-- Database data source (MySQL/Oracle)
-- File data source (Excel/CSV/JSON/XML)
-- Data comparison functionality
-- Result export functionality
-- Field mapping configuration
-- Comparison result visualization
+- Database data source enhancement (MySQL/Oracle)
+- More file format support (Excel/JSON)
+- Data source field mapping optimization
+- Comparison performance optimization
+- More comparator types support
+- Q&A documentation improvement
 
 ## Screenshots
 
 ![Homepage](screenshots/homepage.png)
+![Data Comparator](screenshots/data_comparator.png)
 ![Plugin Management](screenshots/plugins_demo.png)
 
 ## Tech Stack
