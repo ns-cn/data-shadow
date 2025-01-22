@@ -1,7 +1,10 @@
-package com.tangyujun.datashadow.ui;
+package com.tangyujun.datashadow.ui.menu;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+
+import com.tangyujun.datashadow.ui.ComparisonSchemeManager;
+
 import javafx.application.Platform;
 
 /**

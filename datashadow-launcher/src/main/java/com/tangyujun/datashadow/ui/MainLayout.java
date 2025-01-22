@@ -2,6 +2,12 @@ package com.tangyujun.datashadow.ui;
 
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
+
+import com.tangyujun.datashadow.ui.compare.CompareSection;
+import com.tangyujun.datashadow.ui.dataitem.DataItemSection;
+import com.tangyujun.datashadow.ui.datasource.DataSourceSection;
+import com.tangyujun.datashadow.ui.menu.MenuBarSection;
+
 import javafx.geometry.Insets;
 
 /**

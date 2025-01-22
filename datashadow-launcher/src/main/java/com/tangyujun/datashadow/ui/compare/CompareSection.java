@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui;
+package com.tangyujun.datashadow.ui.compare;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -11,10 +11,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import com.tangyujun.datashadow.core.DataItemChangeListener;
 import com.tangyujun.datashadow.dataitem.DataItem;
 import com.tangyujun.datashadow.datasource.DataSource;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.opencsv.CSVWriter;
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.exception.DataAccessException;
 
@@ -23,7 +27,10 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.stage.FileChooser;
+
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * 对比功能与结果展示区
@@ -140,6 +147,28 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     }
 
     /**
+     * 获取单元格显示内容
+     * 根据单元格结果生成显示内容
+     * 
+     * @param cellResult 单元格结果对象
+     * @return 格式化后的显示内容
+     */
+    private String getCellDisplayValue(CellResult cellResult) {
+        if (cellResult == null) {
+            return "";
+        }
+
+        String primaryStr = cellResult.getPrimaryValue() != null ? cellResult.getPrimaryValue().toString() : "";
+        String shadowStr = cellResult.getShadowValue() != null ? cellResult.getShadowValue().toString() : "";
+
+        if (cellResult.isDifferent()) {
+            return primaryStr + " ❌ " + shadowStr;
+        } else {
+            return primaryStr;
+        }
+    }
+
+    /**
      * 更新表格列
      * 根据数据项列表动态创建表格列,包括:
      * 1. 清空现有列
@@ -160,23 +189,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 // 设置列宽
                 column.setPrefWidth(150);
 
-                // 修改这里：正确设置 cellValueFactory
+                // 设置值工厂
                 column.setCellValueFactory(cellData -> {
                     CellResult cellResult = cellData.getValue().getCellResult(dataItem.getCode());
-                    if (cellResult == null) {
-                        return new SimpleStringProperty("");
-                    }
-
-                    String primaryStr = cellResult.getPrimaryValue() != null ? cellResult.getPrimaryValue().toString()
-                            : "";
-                    String shadowStr = cellResult.getShadowValue() != null ? cellResult.getShadowValue().toString()
-                            : "";
-
-                    if (cellResult.isDifferent()) {
-                        return new SimpleStringProperty(primaryStr + " ❌ " + shadowStr);
-                    } else {
-                        return new SimpleStringProperty(primaryStr);
-                    }
+                    return new SimpleStringProperty(getCellDisplayValue(cellResult));
                 });
 
                 // 设置单元格工厂
@@ -421,127 +437,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     }
 
     /**
-     * 比对结果数据类
-     * 用于存储一行数据的所有字段比对结果
-     * 包含每个字段的主数据源值、影子数据源值及其差异状态
-     */
-    public static class CompareResult {
-        /**
-         * 存储每个字段的比对结果
-         * key为字段编码,value为该字段的比对结果
-         */
-        private final Map<String, CellResult> cellResults = new HashMap<>();
-
-        /**
-         * 添加一个字段的比对结果
-         * 
-         * @param code   字段编码
-         * @param result 字段比对结果
-         */
-        public void putCellResult(String code, CellResult result) {
-            cellResults.put(code, result);
-        }
-
-        /**
-         * 获取指定字段的比对结果
-         * 
-         * @param code 字段编码
-         * @return 字段比对结果,如果字段不存在则返回null
-         */
-        public CellResult getCellResult(String code) {
-            return cellResults.get(code);
-        }
-
-        /**
-         * 判断该行数据是否存在差异
-         * 
-         * @return 如果任一字段存在差异则返回true,否则返回false
-         */
-        public boolean hasDifferences() {
-            return cellResults.values().stream().anyMatch(CellResult::isDifferent);
-        }
-    }
-
-    /**
-     * 单元格比对结果类
-     * 用于存储单个单元格的主数据源值和影子数据源值,以及是否存在差异
-     * 包含:
-     * 1. 主数据源的值
-     * 2. 影子数据源的值
-     * 3. 是否存在差异的标志
-     */
-    public static class CellResult {
-        /**
-         * 主数据源的值
-         */
-        private Object primaryValue;
-
-        /**
-         * 影子数据源的值
-         */
-        private Object shadowValue;
-
-        /**
-         * 是否存在差异
-         */
-        private boolean isDifferent;
-
-        /**
-         * 获取主数据源的值
-         * 
-         * @return 主数据源的值
-         */
-        public Object getPrimaryValue() {
-            return primaryValue;
-        }
-
-        /**
-         * 设置主数据源的值
-         * 
-         * @param primaryValue 主数据源的值
-         */
-        public void setPrimaryValue(Object primaryValue) {
-            this.primaryValue = primaryValue;
-        }
-
-        /**
-         * 获取影子数据源的值
-         * 
-         * @return 影子数据源的值
-         */
-        public Object getShadowValue() {
-            return shadowValue;
-        }
-
-        /**
-         * 设置影子数据源的值
-         * 
-         * @param shadowValue 影子数据源的值
-         */
-        public void setShadowValue(Object shadowValue) {
-            this.shadowValue = shadowValue;
-        }
-
-        /**
-         * 判断是否存在差异
-         * 
-         * @return 如果存在差异返回true,否则返回false
-         */
-        public boolean isDifferent() {
-            return isDifferent;
-        }
-
-        /**
-         * 设置是否存在差异
-         * 
-         * @param different 是否存在差异
-         */
-        public void setDifferent(boolean different) {
-            isDifferent = different;
-        }
-    }
-
-    /**
      * 启用对比功能
      * 激活对比按钮,允许用户执行对比操作
      */
@@ -616,10 +511,43 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      */
     @SuppressWarnings("LoggerStringConcat")
     private void exportToCsv() {
-        File file = showSaveFileDialog("CSV Files", "*.csv");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("保存CSV文件");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+
+        File file = fileChooser.showSaveDialog(getScene().getWindow());
         if (file != null) {
-            // TODO: 实现CSV导出逻辑
-            log.info("导出CSV文件到: " + file.getAbsolutePath());
+            try (CSVWriter writer = new CSVWriter(new FileWriter(file))) {
+                // 获取当前表格数据
+                ObservableList<CompareResult> data = resultTable.getItems();
+                if (data == null || data.isEmpty()) {
+                    showAlert("导出失败", "没有可导出的数据");
+                    return;
+                }
+
+                // 写入表头 - 使用当前表格显示的列标题
+                String[] headers = resultTable.getColumns().stream()
+                        .map(TableColumn::getText)
+                        .toArray(String[]::new);
+                writer.writeNext(headers);
+
+                // 写入数据行 - 使用当前表格显示的内容
+                for (CompareResult row : data) {
+                    String[] rowData = resultTable.getColumns().stream()
+                            .map(column -> {
+                                CellResult cellResult = row.getCellResult(column.getId());
+                                return getCellDisplayValue(cellResult);
+                            })
+                            .toArray(String[]::new);
+                    writer.writeNext(rowData);
+                }
+
+                log.info("成功导出CSV文件到: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                log.severe("导出CSV文件失败: " + e.getMessage());
+                showAlert("导出失败", "导出CSV文件时发生错误：" + e.getMessage());
+            }
         }
     }
 
@@ -644,8 +572,40 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private void exportToJson() {
         File file = showSaveFileDialog("JSON Files", "*.json");
         if (file != null) {
-            // TODO: 实现JSON导出逻辑
-            log.info("导出JSON文件到: " + file.getAbsolutePath());
+            try {
+                // 获取当前表格数据
+                ObservableList<CompareResult> data = resultTable.getItems();
+                if (data == null || data.isEmpty()) {
+                    showAlert("导出失败", "没有可导出的数据");
+                    return;
+                }
+                // 创建JSON数组存储所有行数据
+                List<JSONObject> jsonRows = new ArrayList<>();
+                // 遍历每一行数据
+                for (CompareResult row : data) {
+                    JSONObject jsonRow = new JSONObject();
+                    // 遍历每一列
+                    for (TableColumn<CompareResult, ?> column : resultTable.getColumns()) {
+                        CellResult cellResult = row.getCellResult(column.getId());
+                        if (cellResult != null) {
+                            JSONObject cellData = new JSONObject();
+                            cellData.put("primaryValue", cellResult.getPrimaryValue());
+                            cellData.put("shadowValue", cellResult.getShadowValue());
+                            cellData.put("isDifferent", cellResult.isDifferent());
+                            jsonRow.put(column.getText(), cellData);
+                        }
+                    }
+                    jsonRows.add(jsonRow);
+                }
+                // 将JSON数据写入文件
+                try (FileWriter writer = new FileWriter(file)) {
+                    writer.write(JSON.toJSONString(jsonRows));
+                }
+                log.info("成功导出JSON文件到: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                log.severe("导出JSON文件失败: " + e.getMessage());
+                showAlert("导出失败", "导出JSON文件时发生错误：" + e.getMessage());
+            }
         }
     }
 

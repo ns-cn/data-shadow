@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui;
+package com.tangyujun.datashadow.ui.dataitem;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -10,7 +10,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.List;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
-import com.tangyujun.datashadow.ui.dialog.DataItemDialog;
 
 import javafx.collections.ObservableList;
 

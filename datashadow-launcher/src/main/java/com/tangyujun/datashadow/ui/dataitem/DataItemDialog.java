@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui.dialog;
+package com.tangyujun.datashadow.ui.dataitem;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
 

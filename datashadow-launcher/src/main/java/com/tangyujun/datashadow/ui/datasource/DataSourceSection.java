@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui;
+package com.tangyujun.datashadow.ui.datasource;
 
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.core.DataSourceChangeListener;
@@ -6,7 +6,7 @@ import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallbackAdapter;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
-import com.tangyujun.datashadow.ui.dialog.DataSourceMappingDialog;
+
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.Insets;
