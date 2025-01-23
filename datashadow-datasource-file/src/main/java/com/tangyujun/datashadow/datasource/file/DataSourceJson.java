@@ -65,7 +65,7 @@ public class DataSourceJson extends DataSourceFile {
     public List<Map<String, Object>> getValues() throws DataAccessException {
         List<Map<String, Object>> result = new ArrayList<>();
         try {
-            String jsonContent = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(path)), "UTF-8");
+            String jsonContent = new String(Files.readAllBytes(java.nio.file.Paths.get(path)), "UTF-8");
             result = JSON.parseObject(jsonContent,
                     new TypeReference<List<Map<String, Object>>>() {
                     });

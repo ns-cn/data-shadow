@@ -19,6 +19,7 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 - 📊 多种数据源支持 
   - 数据库: MySQL、Oracle等
   - 文件: Excel、CSV、JSON、XML
+  - HTTP: 从网络接口读取数据
   - 支持数据源字段映射配置
 
 - 🔧 灵活的配置

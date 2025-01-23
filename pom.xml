@@ -15,6 +15,7 @@
         <module>datashadow-datasource-file</module>
         <module>datashadow-datasource-mysql</module>
         <module>datashadow-datasource-oracle</module>
+        <module>datashadow-datasource-http</module>
     </modules>
 
     <properties>
@@ -66,6 +67,13 @@
             <dependency>
                 <groupId>com.tangyujun</groupId>
                 <artifactId>datashadow-datasource-oracle</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 数据源http -->
+            <dependency>
+                <groupId>com.tangyujun</groupId>
+                <artifactId>datashadow-datasource-http</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

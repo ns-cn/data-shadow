@@ -39,6 +39,12 @@
             <artifactId>datashadow-datasource-oracle</artifactId>
         </dependency>
 
+        <!-- datashadow-datasource-http: 数据源http模块,提供http数据源实现 -->
+        <dependency>
+            <groupId>com.tangyujun</groupId>
+            <artifactId>datashadow-datasource-http</artifactId>
+        </dependency>
+
         <!-- JavaFX依赖 -->
         <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
         <dependency>

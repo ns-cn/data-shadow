@@ -1,12 +1,8 @@
 package com.tangyujun.datashadow.datasource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.io.StringReader;
-import java.util.LinkedHashMap;
-
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.tangyujun.datashadow.exception.DataAccessException;
@@ -32,16 +28,9 @@ import javafx.stage.Stage;
 import javafx.collections.FXCollections;
 import javafx.beans.property.SimpleStringProperty;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import com.tangyujun.datashadow.datatype.CsvData;
+import com.tangyujun.datashadow.datatype.JsonData;
+import com.tangyujun.datashadow.datatype.XmlData;
 
 import javafx.stage.Window;
 
@@ -169,48 +158,9 @@ public class DataSourceMemory extends DataSource {
      */
     private String inferDataType(String content) {
         content = content.trim();
+        return JsonData.isJson(content) ? "JSON"
+                : XmlData.isXml(content) ? "XML" : CsvData.isCsv(content) ? "CSV" : "JSON";
 
-        // 检查是否为JSON格式
-        if ((content.startsWith("[") && content.endsWith("]")) ||
-                (content.startsWith("{") && content.endsWith("}"))) {
-            try {
-                JSON.parse(content);
-                return "JSON";
-            } catch (Exception ignored) {
-            }
-        }
-
-        // 检查是否为XML格式
-        if (content.startsWith("<?xml") || content.startsWith("<")) {
-            try {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                builder.parse(new InputSource(new StringReader(content)));
-                return "XML";
-            } catch (IOException | ParserConfigurationException | SAXException ignored) {
-            }
-        }
-
-        // 检查是否为CSV格式
-        // CSV格式特征：每行都有相同数量的逗号，且不包含XML/JSON特征
-        String[] lines = content.split("\n");
-        if (lines.length > 0) {
-            int commaCount = lines[0].split(",").length - 1;
-            boolean isCSV = true;
-            for (String line : lines) {
-                if (line.trim().isEmpty())
-                    continue;
-                if (line.split(",").length - 1 != commaCount) {
-                    isCSV = false;
-                    break;
-                }
-            }
-            if (isCSV)
-                return "CSV";
-        }
-
-        // 默认返回JSON
-        return "JSON";
     }
 
     /**
@@ -228,68 +178,12 @@ public class DataSourceMemory extends DataSource {
      * @throws Exception 当解析失败时抛出相应异常
      */
     private List<Map<String, Object>> parseData(String content, String type) throws Exception {
-        List<Map<String, Object>> result = new ArrayList<>();
-        switch (type) {
-            case "XML" -> {
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document doc = builder.parse(new InputSource(new StringReader(content)));
-                NodeList records = doc.getDocumentElement().getChildNodes();
-
-                for (int i = 0; i < records.getLength(); i++) {
-                    Node recordNode = records.item(i);
-                    if (recordNode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element record = (Element) recordNode;
-                        NodeList fields = record.getChildNodes();
-                        Map<String, Object> row = new LinkedHashMap<>();
-
-                        for (int j = 0; j < fields.getLength(); j++) {
-                            Node fieldNode = fields.item(j);
-                            if (fieldNode.getNodeType() == Node.ELEMENT_NODE) {
-                                Element field = (Element) fieldNode;
-                                row.put(field.getTagName(), field.getTextContent());
-                            }
-                        }
-
-                        if (!row.isEmpty()) {
-                            result.add(row);
-                        }
-                    }
-                }
-            }
-            case "JSON" -> {
-                List<Map<String, Object>> tempResult = JSON.parseArray(content,
-                        new TypeReference<LinkedHashMap<String, Object>>() {
-                        }.getType());
-                // 确保使用LinkedHashMap保持顺序
-                for (Map<String, Object> map : tempResult) {
-                    LinkedHashMap<String, Object> orderedMap = new LinkedHashMap<>(map);
-                    result.add(orderedMap);
-                }
-            }
-            case "CSV" -> {
-                String[] lines = content.split("\n");
-                if (lines.length > 0) {
-                    String[] headers = lines[0].split(",");
-                    for (int i = 0; i < headers.length; i++) {
-                        headers[i] = headers[i].trim();
-                    }
-
-                    for (int i = 1; i < lines.length; i++) {
-                        String line = lines[i].trim();
-                        if (!line.isEmpty()) {
-                            String[] values = line.split(",");
-                            Map<String, Object> row = new LinkedHashMap<>();
-                            for (int j = 0; j < headers.length && j < values.length; j++) {
-                                row.put(headers[j], values[j].trim());
-                            }
-                            result.add(row);
-                        }
-                    }
-                }
-            }
-        }
-        return result;
+        return switch (type) {
+            case "XML" -> XmlData.getValues(content);
+            case "JSON" -> JsonData.getValues(content);
+            case "CSV" -> CsvData.getValues(content);
+            default -> new ArrayList<>();
+        };
     }
 
     /**

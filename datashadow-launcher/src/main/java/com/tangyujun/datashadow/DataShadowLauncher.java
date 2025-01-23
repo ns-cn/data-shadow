@@ -58,7 +58,7 @@ public class DataShadowLauncher extends Application {
         Scene scene = new Scene(mainLayout);
 
         // 设置窗口标题
-        primaryStage.setTitle("Data Shadow - 数据影子工具");
+        primaryStage.setTitle("Data Shadow - 数据影子对比工具");
 
         // 设置窗口最小尺寸
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
@@ -91,7 +91,6 @@ public class DataShadowLauncher extends Application {
                 }
             });
         });
-
         // 显示窗口
         primaryStage.show();
     }
