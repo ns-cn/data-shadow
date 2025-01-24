@@ -198,6 +198,7 @@ public class DataSourceHttp extends DataSource {
     /**
      * 获取数据列名列表
      * 通过获取数据并提取列名
+     * 如果获取失败则返回空列表
      * 
      * @return 返回数据列名列表
      */
@@ -206,7 +207,8 @@ public class DataSourceHttp extends DataSource {
         List<Map<String, Object>> values = null;
         try {
             values = getValues();
-        } catch (DataAccessException ignored) {
+        } catch (RuntimeException e) {
+            return List.of();
         }
         return ShadowData.getColumns(values);
     }
