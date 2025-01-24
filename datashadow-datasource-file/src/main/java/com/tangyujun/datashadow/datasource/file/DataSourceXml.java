@@ -66,7 +66,7 @@ public class DataSourceXml extends DataSourceFile {
      * 
      * @return 数据源生成器
      */
-    @DataSourceRegistry(friendlyName = "XML")
+    @DataSourceRegistry(group = "文件", friendlyName = "XML")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceXml();
     }

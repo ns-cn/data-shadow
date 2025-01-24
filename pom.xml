@@ -16,6 +16,7 @@
         <module>datashadow-datasource-mysql</module>
         <module>datashadow-datasource-oracle</module>
         <module>datashadow-datasource-http</module>
+        <module>datashadow-ui-components</module>
     </modules>
 
     <properties>
@@ -42,7 +43,14 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- 项目模块 -->
+            <!-- 项目UI组件库 -->
+            <dependency>
+                <groupId>com.tangyujun</groupId>
+                <artifactId>datashadow-ui-components</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 项目SDK -->
             <dependency>
                 <groupId>com.tangyujun</groupId>
                 <artifactId>datashadow-datasource-sdk</artifactId>

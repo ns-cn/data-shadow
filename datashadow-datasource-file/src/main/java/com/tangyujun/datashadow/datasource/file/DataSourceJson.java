@@ -25,7 +25,7 @@ public class DataSourceJson extends DataSourceFile {
      * 
      * @return 数据源生成器
      */
-    @DataSourceRegistry(friendlyName = "JSON")
+    @DataSourceRegistry(group = "文件", friendlyName = "JSON")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceJson();
     }

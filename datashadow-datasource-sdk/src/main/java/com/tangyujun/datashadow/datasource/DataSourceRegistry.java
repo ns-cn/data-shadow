@@ -13,6 +13,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataSourceRegistry {
     /**
+     * 数据源分组名称
+     * 用于在界面上对数据源进行分组展示
+     * 例如：数据库类、文件类等
+     * 
+     * @return 数据源分组名称
+     */
+    String group();
+
+    /**
      * 数据源友好名称
      * 
      * @return 数据源友好名称

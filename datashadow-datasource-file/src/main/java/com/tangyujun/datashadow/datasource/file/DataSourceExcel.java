@@ -40,7 +40,7 @@ public class DataSourceExcel extends DataSourceFile {
      * 
      * @return 数据源生成器
      */
-    @DataSourceRegistry(friendlyName = "Excel")
+    @DataSourceRegistry(group = "文件", friendlyName = "Excel")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceExcel();
     }

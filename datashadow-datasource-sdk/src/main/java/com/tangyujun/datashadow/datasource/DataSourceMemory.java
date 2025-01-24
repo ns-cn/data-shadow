@@ -71,7 +71,7 @@ public class DataSourceMemory extends DataSource {
      * 
      * @return DataSourceMemory实例
      */
-    @DataSourceRegistry(friendlyName = "Memory内存数据源")
+    @DataSourceRegistry(group = "其他", friendlyName = "Memory内存数据源")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceMemory();
     }

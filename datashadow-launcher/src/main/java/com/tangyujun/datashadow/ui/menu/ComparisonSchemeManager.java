@@ -83,15 +83,23 @@ public class ComparisonSchemeManager {
                 // 检查数据源是否存在
                 StringBuilder errorMsg = new StringBuilder();
                 if (schemeData.getPrimaryDataSource() != null) {
+                    String primarySourceGroup = schemeData.getPrimaryDataSource().getGroup();
                     String primarySourceName = schemeData.getPrimaryDataSource().getSourceName();
-                    if (!DataFactory.getInstance().getDataSources().containsKey(primarySourceName)) {
-                        errorMsg.append("主数据源 '").append(primarySourceName).append("' 不存在\n");
+                    if (!DataFactory.getInstance().getDataSources().containsKey(primarySourceGroup)
+                            || !DataFactory.getInstance().getDataSources().get(primarySourceGroup)
+                                    .containsKey(primarySourceName)) {
+                        errorMsg.append("主数据源 '").append(primarySourceGroup).append("/").append(primarySourceName)
+                                .append("' 不存在\n");
                     }
                 }
                 if (schemeData.getShadowDataSource() != null) {
+                    String shadowSourceGroup = schemeData.getShadowDataSource().getGroup();
                     String shadowSourceName = schemeData.getShadowDataSource().getSourceName();
-                    if (!DataFactory.getInstance().getDataSources().containsKey(shadowSourceName)) {
-                        errorMsg.append("影子数据源 '").append(shadowSourceName).append("' 不存在");
+                    if (!DataFactory.getInstance().getDataSources().containsKey(shadowSourceGroup)
+                            || !DataFactory.getInstance().getDataSources().get(shadowSourceGroup)
+                                    .containsKey(shadowSourceName)) {
+                        errorMsg.append("影子数据源 '").append(shadowSourceGroup).append("/").append(shadowSourceName)
+                                .append("' 不存在\n");
                     }
                 }
                 if (errorMsg.length() > 0) {

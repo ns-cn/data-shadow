@@ -51,7 +51,7 @@ public class DataSourceCsv extends DataSourceFile {
      * 
      * @return 数据源生成器
      */
-    @DataSourceRegistry(friendlyName = "CSV")
+    @DataSourceRegistry(group = "文件", friendlyName = "CSV")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceCsv();
     }

@@ -59,12 +59,13 @@ public class DataSourceListener implements JarDiscoveryListener {
 
                 try {
                     DataSourceRegistry annotation = method.getAnnotation(DataSourceRegistry.class);
+                    String group = annotation.group();
                     String friendlyName = annotation.friendlyName();
                     log.info("Found data source registration method: {}#{}, friendly name: {}",
                             method.getDeclaringClass().getSimpleName(), method.getName(), friendlyName);
 
                     DataSourceGenerator generator = (DataSourceGenerator) method.invoke(null);
-                    dataFactory.registerDataSource(friendlyName, generator);
+                    dataFactory.registerDataSource(group, friendlyName, generator);
                     loadedCount++;
                     log.info("Successfully registered data source: {}", friendlyName);
 
@@ -91,10 +92,11 @@ public class DataSourceListener implements JarDiscoveryListener {
                 DataSourceRegistry annotation = method.getAnnotation(DataSourceRegistry.class);
                 if (annotation != null && isValidMethod(method)) {
                     try {
+                        String group = annotation.group();
                         String friendlyName = annotation.friendlyName();
 
                         DataSourceGenerator generator = (DataSourceGenerator) method.invoke(null);
-                        dataFactory.registerDataSource(friendlyName, generator);
+                        dataFactory.registerDataSource(group, friendlyName, generator);
                         loadedCount++;
 
                         log.info("Successfully registered data source: {}", friendlyName);

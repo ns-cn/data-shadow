@@ -116,6 +116,7 @@ public class ComparisonScheme {
         // 保存主数据源配置
         if (factory.getPrimaryDataSource() != null) {
             DataSourceStorage storage = new DataSourceStorage();
+            storage.setGroup(factory.getPrimaryDataSourceGroupName());
             storage.setSourceName(factory.getPrimaryDataSourceName());
             storage.from(factory.getPrimaryDataSource());
             scheme.setPrimaryDataSource(storage);
@@ -123,6 +124,7 @@ public class ComparisonScheme {
         // 保存影子数据源配置
         if (factory.getShadowDataSource() != null) {
             DataSourceStorage storage = new DataSourceStorage();
+            storage.setGroup(factory.getShadowDataSourceGroupName());
             storage.setSourceName(factory.getShadowDataSourceName());
             storage.from(factory.getShadowDataSource());
             scheme.setShadowDataSource(storage);
@@ -142,11 +144,13 @@ public class ComparisonScheme {
         factory.addDataItems(this.dataItems.stream().map(DataItemStorage::to).collect(Collectors.toList()));
         // 设置主数据源
         if (this.primaryDataSource != null) {
-            factory.setPrimaryDataSource(this.primaryDataSource.getSourceName(), this.primaryDataSource.to());
+            factory.setPrimaryDataSource(this.primaryDataSource.getGroup(), this.primaryDataSource.getSourceName(),
+                    this.primaryDataSource.to());
         }
         // 设置影子数据源
         if (this.shadowDataSource != null) {
-            factory.setShadowDataSource(this.shadowDataSource.getSourceName(), this.shadowDataSource.to());
+            factory.setShadowDataSource(this.shadowDataSource.getGroup(), this.shadowDataSource.getSourceName(),
+                    this.shadowDataSource.to());
         }
     }
 }

@@ -191,7 +191,7 @@ public class DataSourceMysql extends DataSource {
      * 
      * @return 数据源生成器
      */
-    @DataSourceRegistry(friendlyName = "MySQL")
+    @DataSourceRegistry(group = "数据库", friendlyName = "MySQL")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceMysql();
     }

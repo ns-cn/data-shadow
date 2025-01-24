@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+          <groupId>com.tangyujun</groupId>
+          <artifactId>datashadow</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.tangyujun</groupId>
+    <artifactId>datashadow-ui-components</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+    </properties>
+
+    <dependencies>
+        
+        <!-- JavaFX依赖 -->
+        <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+        </dependency>
+        <!-- javafx-fxml: JavaFX FXML支持,用于UI布局 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+        </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Windows平台支持 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>win</classifier>
+        </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Linux平台支持 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>linux</classifier>
+        </dependency>
+        <!-- javafx-graphics: JavaFX图形库,Mac平台支持 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>mac</classifier>
+        </dependency>
+    </dependencies>
+</project>

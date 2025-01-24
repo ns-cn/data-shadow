@@ -1,6 +1,7 @@
 package com.tangyujun.datashadow.ui.dataitem;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
+import com.tangyujun.datashadow.ui.components.GroupComboBox;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -12,6 +13,8 @@ import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.datacomparator.DataComparator;
 
 import javafx.scene.layout.HBox;
+
+import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
 
 /**
  * 数据项编辑对话框
@@ -50,15 +53,9 @@ public class DataItemDialog extends Dialog<DataItem> {
 
     /**
      * 自定义比较器类型选择下拉框
-     * 用于选择比较器的主要类型(如数值、字符串等)
+     * 用于选择比较器的主要类型和具体实现
      */
-    private final ComboBox<String> comparatorTypeCombo;
-
-    /**
-     * 自定义比较器子类型选择下拉框
-     * 用于选择具体的比较器实现(如整数比较器、浮点数比较器等)
-     */
-    private final ComboBox<String> comparatorSubTypeCombo;
+    private final GroupComboBox<DataComparatorGenerator> comparatorCombo;
 
     /**
      * 比较器配置按钮
@@ -121,20 +118,15 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 比较器类型选择区域
         HBox typeBox = new HBox(10);
 
-        comparatorTypeCombo = new ComboBox<>();
-        // 从DataFactory获取比较器组
-        comparatorTypeCombo.getItems().addAll(DataFactory.getInstance().getDataComparators().keySet());
-        comparatorTypeCombo.setPrefWidth(150);
-        comparatorTypeCombo.setPromptText("请选择比较器类型");
-
-        comparatorSubTypeCombo = new ComboBox<>();
-        comparatorSubTypeCombo.setPrefWidth(150);
-        comparatorSubTypeCombo.setPromptText("请先选择比较器类型");
+        comparatorCombo = new GroupComboBox<>("请选择比较器");
+        comparatorCombo.setPrefWidth(300);
+        comparatorCombo.setDataMap(DataFactory.getInstance().getDataComparators());
 
         configButton = new Button("⚙");
         configButton.setTooltip(new Tooltip("配置比较器"));
+        configButton.setDisable(true);
 
-        typeBox.getChildren().addAll(comparatorTypeCombo, comparatorSubTypeCombo, configButton);
+        typeBox.getChildren().addAll(comparatorCombo, configButton);
 
         // 当前配置预览
         VBox previewBox = new VBox(5);
@@ -164,25 +156,12 @@ public class DataItemDialog extends Dialog<DataItem> {
             // 处理比较器相关信息
             if (item.getComparator() != null) {
                 this.comparator = item.getComparator();
-                // 先设置类型
+                // 设置比较器选择
                 String group = item.getComparatorGroup();
-                if (group != null) {
-                    comparatorTypeCombo.setValue(group);
-                    // 手动触发类型选择事件，加载子类型列表
-                    String type = comparatorTypeCombo.getValue();
-                    if (type != null) {
-                        var comparators = DataFactory.getInstance().getDataComparators().get(type);
-                        if (comparators != null) {
-                            comparatorSubTypeCombo.getItems().clear();
-                            comparatorSubTypeCombo.getItems().addAll(comparators.keySet());
-                            comparatorSubTypeCombo.setDisable(false);
-                            // 然后设置子类型
-                            String name = item.getComparatorName();
-                            if (name != null) {
-                                comparatorSubTypeCombo.setValue(name);
-                            }
-                        }
-                    }
+                String name = item.getComparatorName();
+                if (group != null && name != null) {
+                    comparatorCombo.setSelectedItem(group, name);
+                    configButton.setDisable(false);
                 }
                 currentConfigLabel.setText(comparator.getDescription());
             } else {
@@ -242,12 +221,7 @@ public class DataItemDialog extends Dialog<DataItem> {
             return false;
         }
 
-        if (comparatorTypeCombo.getValue() == null) {
-            showError("请选择比较器类型");
-            return false;
-        }
-
-        if (comparatorSubTypeCombo.getValue() == null) {
+        if (comparatorCombo.getValue() == null) {
             showError("请选择比较器");
             return false;
         }
@@ -294,8 +268,8 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 获取输入值并进行空值处理
         String code = codeField.getText();
         String nick = nickField.getText();
-        String comparatorType = comparatorTypeCombo.getValue();
-        String comparatorSubType = comparatorSubTypeCombo.getValue();
+        String comparatorType = comparatorCombo.getSelectedGroup();
+        String comparatorSubType = comparatorCombo.getSelectedName();
         String remark = remarkArea.getText();
 
         // 设置必填字段，确保不为null
@@ -319,39 +293,18 @@ public class DataItemDialog extends Dialog<DataItem> {
 
     /**
      * 设置比较器相关的事件处理
-     * 主要包含两个部分:
-     * 1. 比较器类型选择事件 - 当选择主类型时,更新子类型列表
-     * 2. 配置按钮点击事件 - 打开比较器配置界面并更新预览
-     * 
-     * 事件处理确保了比较器选择和配置的流畅性,并实时反馈配置状态
      */
     private void setupComparatorEvents() {
-        // 比较器类型选择事件
-        comparatorTypeCombo.setOnAction(e -> {
-            String type = comparatorTypeCombo.getValue();
-            comparatorSubTypeCombo.getItems().clear();
-            if (type != null) {
-                // 从DataFactory获取选中类型的比较器列表
-                var comparators = DataFactory.getInstance().getDataComparators().get(type);
-                if (comparators != null) {
-                    comparatorSubTypeCombo.getItems().addAll(comparators.keySet());
-                    comparatorSubTypeCombo.setDisable(false);
-                    comparatorSubTypeCombo.getSelectionModel().selectFirst();
-                }
+        // 比较器选择事件
+        comparatorCombo.setOnSelectListener(event -> {
+            DataComparatorGenerator generator = event.value();
+            if (generator != null) {
+                comparator = generator.generate();
+                configButton.setDisable(false);
+                currentConfigLabel.setText(comparator.getDescription());
             } else {
-                comparatorSubTypeCombo.setDisable(true);
-                comparatorSubTypeCombo.setPromptText("请先选择比较器类型");
-            }
-            configButton.setDisable(type == null);
-        });
-
-        comparatorSubTypeCombo.setOnAction(e -> {
-            String subType = comparatorSubTypeCombo.getValue();
-            if (subType != null) {
-                comparator = DataFactory.getInstance().getDataComparators()
-                        .get(comparatorTypeCombo.getValue())
-                        .get(subType)
-                        .generate();
+                comparator = null;
+                configButton.setDisable(true);
             }
         });
 

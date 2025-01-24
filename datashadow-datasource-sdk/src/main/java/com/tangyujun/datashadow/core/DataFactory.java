@@ -32,6 +32,11 @@ public class DataFactory {
     private final ObservableList<DataItem> dataItems = FXCollections.observableArrayList();
 
     /**
+     * 主数据源组名称
+     */
+    private String primaryDataSourceGroupName;
+
+    /**
      * 主数据源名称
      */
     private String primaryDataSourceName;
@@ -40,6 +45,11 @@ public class DataFactory {
      * 主数据源
      */
     private DataSource primaryDataSource;
+
+    /**
+     * 影子数据源组名称
+     */
+    private String shadowDataSourceGroupName;
 
     /**
      * 影子数据源名称
@@ -54,7 +64,7 @@ public class DataFactory {
     /**
      * 已注册的所有数据源列表
      */
-    private final Map<String, DataSourceGenerator> dataSources = new LinkedHashMap<>();
+    private final Map<String, Map<String, DataSourceGenerator>> dataSources = new LinkedHashMap<>();
 
     /**
      * 已注册的所有数据比较器
@@ -195,11 +205,18 @@ public class DataFactory {
     /**
      * 注册一个新的数据源
      * 
+     * @param group        数据源分组
      * @param friendlyName 数据源友好名称
      * @param generator    数据源生成器
      */
-    public void registerDataSource(String friendlyName, DataSourceGenerator generator) {
-        dataSources.put(friendlyName, generator);
+    public void registerDataSource(String group, String friendlyName, DataSourceGenerator generator) {
+        if (dataSources.containsKey(group)) {
+            dataSources.get(group).put(friendlyName, generator);
+        } else {
+            Map<String, DataSourceGenerator> generators = new LinkedHashMap<>();
+            generators.put(friendlyName, generator);
+            dataSources.put(group, generators);
+        }
     }
 
     /**
@@ -207,8 +224,13 @@ public class DataFactory {
      * 
      * @param friendlyName 数据源友好名称
      */
-    public void unregisterDataSource(String friendlyName) {
-        dataSources.remove(friendlyName);
+    public void unregisterDataSource(String group, String friendlyName) {
+        if (group != null && dataSources.containsKey(group)) {
+            Map<String, DataSourceGenerator> generators = dataSources.get(group);
+            if (generators != null && friendlyName != null) {
+                generators.remove(friendlyName);
+            }
+        }
     }
 
     /**
@@ -248,16 +270,53 @@ public class DataFactory {
     }
 
     /**
+     * 获取主数据源组名称
+     * 
+     * @return 主数据源组名称
+     */
+    public String getPrimaryDataSourceGroupName() {
+        return primaryDataSourceGroupName;
+    }
+
+    /**
+     * 设置主数据源组名称
+     * 
+     * @param primaryDataSourceGroupName 主数据源组名称
+     */
+    public void setPrimaryDataSourceGroupName(String primaryDataSourceGroupName) {
+        this.primaryDataSourceGroupName = primaryDataSourceGroupName;
+    }
+
+    /**
+     * 获取影子数据源组名称
+     * 
+     * @return 影子数据源组名称
+     */
+    public String getShadowDataSourceGroupName() {
+        return shadowDataSourceGroupName;
+    }
+
+    /**
+     * 设置影子数据源组名称
+     * 
+     * @param shadowDataSourceGroupName 影子数据源组名称
+     */
+    public void setShadowDataSourceGroupName(String shadowDataSourceGroupName) {
+        this.shadowDataSourceGroupName = shadowDataSourceGroupName;
+    }
+
+    /**
      * 设置主数据源
      * 
      * @param sourceName        数据源名称
      * @param primaryDataSource 主数据源
      */
-    public void setPrimaryDataSource(String sourceName, DataSource primaryDataSource) {
+    public void setPrimaryDataSource(String groupName, String sourceName, DataSource primaryDataSource) {
+        this.primaryDataSourceGroupName = groupName;
         this.primaryDataSourceName = sourceName;
         this.primaryDataSource = primaryDataSource;
         dataSourceChangeListeners
-                .forEach(listener -> listener.onDataSourceChanged(true, sourceName, primaryDataSource));
+                .forEach(listener -> listener.onDataSourceChanged(true, groupName, sourceName, primaryDataSource));
     }
 
     /**
@@ -266,11 +325,12 @@ public class DataFactory {
      * @param sourceName       数据源名称
      * @param shadowDataSource 影子数据源
      */
-    public void setShadowDataSource(String sourceName, DataSource shadowDataSource) {
+    public void setShadowDataSource(String groupName, String sourceName, DataSource shadowDataSource) {
+        this.shadowDataSourceGroupName = groupName;
         this.shadowDataSourceName = sourceName;
         this.shadowDataSource = shadowDataSource;
         dataSourceChangeListeners
-                .forEach(listener -> listener.onDataSourceChanged(false, sourceName, shadowDataSource));
+                .forEach(listener -> listener.onDataSourceChanged(false, groupName, sourceName, shadowDataSource));
     }
 
     /**
@@ -278,7 +338,7 @@ public class DataFactory {
      * 
      * @return 数据源映射表
      */
-    public Map<String, DataSourceGenerator> getDataSources() {
+    public Map<String, Map<String, DataSourceGenerator>> getDataSources() {
         return dataSources;
     }
 

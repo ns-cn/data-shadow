@@ -14,6 +14,12 @@
     <artifactId>datashadow-launcher</artifactId>
 
     <dependencies>
+        <!-- 项目UI组件库 -->
+        <dependency>
+            <groupId>com.tangyujun</groupId>
+            <artifactId>datashadow-ui-components</artifactId>
+        </dependency>
+        
         <!-- 项目依赖 -->
         <!-- datashadow-datasource-sdk: 数据源SDK模块,提供数据源接口定义和基础实现 -->
         <dependency>

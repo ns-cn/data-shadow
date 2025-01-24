@@ -6,6 +6,7 @@ import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallbackAdapter;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
+import com.tangyujun.datashadow.ui.components.GroupComboBox;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -20,8 +21,8 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
     private boolean isUpdatingFromCallback = false;
 
     // 保存主数据源和影子数据源的控件引用
-    private ComboBox<String> primaryTypeSelect;
-    private ComboBox<String> shadowTypeSelect;
+    private GroupComboBox<DataSourceGenerator> primaryTypeSelect;
+    private GroupComboBox<DataSourceGenerator> shadowTypeSelect;
     private Button primaryConfigButton;
     private Button shadowConfigButton;
     private Button primaryMappingButton;
@@ -61,9 +62,9 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
         status.setStyle("-fx-text-fill: #666;");
 
         HBox controls = new HBox(5);
-        ComboBox<String> typeSelect = new ComboBox<>();
+        GroupComboBox<DataSourceGenerator> typeSelect = new GroupComboBox<>();
         // 从DataFactory获取所有已注册的数据源
-        typeSelect.getItems().addAll(dataFactory.getDataSources().keySet().stream().sorted().toList());
+        typeSelect.setDataMap(dataFactory.getDataSources());
         typeSelect.setPrefWidth(200);
 
         Button configButton = new Button("配置数据源");
@@ -88,34 +89,31 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
         }
 
         // 数据源选择事件处理
-        typeSelect.valueProperty().addListener((observable, oldValue, newValue) -> {
+        typeSelect.setOnSelectListener(event -> {
             // 如果是由onDataSourceChanged触发的，则不执行后续逻辑
             if (isUpdatingFromCallback) {
                 return;
             }
-            String selectedType = newValue;
-            if (selectedType != null) {
-                DataSourceGenerator generator = dataFactory.getDataSources().get(selectedType);
-                if (generator != null) {
-                    DataSource dataSource = generator.generate();
-                    // 设置到DataFactory
-                    if (isPrimary) {
-                        dataFactory.setPrimaryDataSource(selectedType, dataSource);
-                    } else {
-                        dataFactory.setShadowDataSource(selectedType, dataSource);
-                    }
-                    // 更新状态显示
-                    status.setText(dataSource.getDescription());
-                    configButton.setDisable(false);
-                    mappingButton.setDisable(false);
+            DataSourceGenerator generator = event.value();
+            if (generator != null) {
+                DataSource dataSource = generator.generate();
+                // 设置到DataFactory
+                if (isPrimary) {
+                    dataFactory.setPrimaryDataSource(event.group(), event.name(), dataSource);
+                } else {
+                    dataFactory.setShadowDataSource(event.group(), event.name(), dataSource);
                 }
+                // 更新状态显示
+                status.setText(dataSource.getDescription());
+                configButton.setDisable(false);
+                mappingButton.setDisable(false);
             }
         });
 
         // 配置按钮事件处理
         configButton.setOnAction(event -> {
-            String selectedType = typeSelect.getValue();
-            if (selectedType != null) {
+            DataSourceGenerator generator = typeSelect.getValue();
+            if (generator != null) {
                 DataSource dataSource = isPrimary ? dataFactory.getPrimaryDataSource()
                         : dataFactory.getShadowDataSource();
                 DataSourceConfigurationCallback callback = new DataSourceConfigurationCallbackAdapter() {
@@ -147,9 +145,9 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
     }
 
     @Override
-    public void onDataSourceChanged(boolean isPrimary, String sourceName, DataSource dataSource) {
+    public void onDataSourceChanged(boolean isPrimary, String group, String sourceName, DataSource dataSource) {
         javafx.application.Platform.runLater(() -> {
-            ComboBox<String> typeSelect = isPrimary ? primaryTypeSelect : shadowTypeSelect;
+            GroupComboBox<DataSourceGenerator> typeSelect = isPrimary ? primaryTypeSelect : shadowTypeSelect;
             Button configButton = isPrimary ? primaryConfigButton : shadowConfigButton;
             Button mappingButton = isPrimary ? primaryMappingButton : shadowMappingButton;
             Label status = isPrimary ? primaryStatus : shadowStatus;
@@ -157,7 +155,7 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
             isUpdatingFromCallback = true;
             // 更新数据源类型选择
             if (sourceName != null) {
-                typeSelect.setValue(sourceName);
+                typeSelect.setSelectedItem(group, sourceName);
                 // 手动更新状态
                 if (dataSource != null) {
                     status.setText(dataSource.getDescription());
@@ -165,7 +163,7 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
                     mappingButton.setDisable(false);
                 }
             } else {
-                typeSelect.setValue(null);
+                typeSelect.setSelectedItem(null, null);
                 status.setText("未配置数据源");
                 configButton.setDisable(true);
                 mappingButton.setDisable(true);

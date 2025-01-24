@@ -90,7 +90,7 @@ public class DataSourceHttp extends DataSource {
      * 
      * @return 返回HTTP数据源生成器
      */
-    @DataSourceRegistry(friendlyName = "HTTP")
+    @DataSourceRegistry(group = "网络", friendlyName = "HTTP")
     public static DataSourceGenerator getGenerator() {
         return () -> new DataSourceHttp();
     }
@@ -204,7 +204,7 @@ public class DataSourceHttp extends DataSource {
      */
     @Override
     public List<String> getColumns() {
-        List<Map<String, Object>> values = null;
+        List<Map<String, Object>> values;
         try {
             values = getValues();
         } catch (RuntimeException e) {

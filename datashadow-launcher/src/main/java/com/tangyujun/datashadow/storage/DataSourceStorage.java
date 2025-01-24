@@ -1,5 +1,7 @@
 package com.tangyujun.datashadow.storage;
 
+import java.util.Map;
+
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
@@ -11,6 +13,11 @@ import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 public class DataSourceStorage extends Storable<DataSource> {
 
     /**
+     * 数据源分组
+     */
+    private String group;
+
+    /**
      * 数据源名称
      */
     private String sourceName;
@@ -19,6 +26,24 @@ public class DataSourceStorage extends Storable<DataSource> {
      * 数据源序列化后的值
      */
     private String sourceValue;
+
+    /**
+     * 获取数据源分组
+     * 
+     * @return 数据源分组
+     */
+    public String getGroup() {
+        return group;
+    }
+
+    /**
+     * 设置数据源分组
+     * 
+     * @param group 数据源分组
+     */
+    public void setGroup(String group) {
+        this.group = group;
+    }
 
     /**
      * 获取数据源名称
@@ -77,7 +102,9 @@ public class DataSourceStorage extends Storable<DataSource> {
     @Override
     public DataSource to() {
         DataFactory factory = DataFactory.getInstance();
-        DataSourceGenerator dataSourceGenerator = factory.getDataSources().get(sourceName);
+        Map<String, Map<String, DataSourceGenerator>> dataSources = factory.getDataSources();
+        DataSourceGenerator dataSourceGenerator = dataSources == null ? null
+                : dataSources.get(group) == null ? null : dataSources.get(group).get(sourceName);
         if (dataSourceGenerator == null) {
             return null;
         }

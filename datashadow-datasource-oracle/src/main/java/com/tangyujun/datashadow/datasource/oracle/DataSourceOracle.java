@@ -50,7 +50,7 @@ public class DataSourceOracle extends DataSource {
      * 
      * @return Oracle数据源
      */
-    @DataSourceRegistry(friendlyName = "Oracle")
+    @DataSourceRegistry(group = "数据库", friendlyName = "Oracle")
     public static DataSourceGenerator generator() {
         return () -> new DataSourceOracle();
     }
