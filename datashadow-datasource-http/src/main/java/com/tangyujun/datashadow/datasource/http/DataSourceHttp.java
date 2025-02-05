@@ -32,6 +32,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import java.util.Optional;
+
 /**
  * HTTP数据源实现类
  * 支持通过HTTP请求获取JSON、XML、CSV格式的数据
@@ -310,12 +312,77 @@ public class DataSourceHttp extends DataSource {
 
         Button importCurlBtn = new Button("从CURL导入");
         importCurlBtn.setOnAction(e -> {
-            // TODO: 实现从CURL导入功能
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("提示");
-            alert.setHeaderText(null);
-            alert.setContentText("从CURL导入功能正在开发中...");
-            alert.showAndWait();
+            // 创建输入对话框
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("从CURL导入");
+            dialog.setHeaderText(null);
+            dialog.setContentText("请输入CURL命令：");
+
+            // 替换默认的TextField为TextArea
+            TextArea textArea = new TextArea();
+            textArea.setPrefRowCount(25); // 显示5行
+            textArea.setPrefColumnCount(50); // 每行大约50个字符
+            textArea.setWrapText(true); // 启用自动换行
+            textArea.setPromptText("在此粘贴CURL命令...");
+
+            // 设置TextArea的样式
+            textArea.setStyle("-fx-font-family: monospace;"); // 使用等宽字体
+
+            // 获取对话框的内容面板并替换输入控件
+            DialogPane dialogPane = dialog.getDialogPane();
+            // 移除原有的TextField
+            dialogPane.getChildren().remove(dialog.getEditor());
+            // 添加新的TextArea
+            dialogPane.setContent(textArea);
+
+            // 设置对话框大小
+            dialogPane.setPrefWidth(600);
+            dialog.setResizable(true);
+
+            // 处理确定按钮事件
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == ButtonType.OK) {
+                    return textArea.getText();
+                }
+                return null;
+            });
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                try {
+                    // 解析CURL命令
+                    CurlParser.CurlParseResult parseResult = CurlParser.parse(result.get());
+
+                    // 更新UI组件
+                    urlField.setText(parseResult.getUrl());
+                    methodCombo.setValue(parseResult.getMethod());
+
+                    // 清除现有请求头
+                    headerRows.clear();
+                    headersBox.getChildren().clear();
+
+                    // 添加新的请求头
+                    parseResult.getHeaders().forEach((key, value) -> addHeaderRow(headerRows, headersBox, key, value));
+
+                    // 设置请求体
+                    bodyArea.setText(parseResult.getBody());
+
+                    // 显示成功提示
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("导入成功");
+                    alert.setHeaderText(null);
+                    alert.setContentText("已成功导入CURL命令");
+                    alert.showAndWait();
+
+                } catch (IllegalArgumentException ex) {
+                    // 显示错误提示
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("导入失败");
+                    alert.setHeaderText(null);
+                    alert.setContentText("CURL命令解析失败：" + ex.getMessage());
+                    alert.showAndWait();
+                }
+            }
         });
 
         Button testBtn = new Button("测试连接");

@@ -1,6 +1,7 @@
 package com.tangyujun.datashadow.ui.components;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 import javafx.beans.property.ObjectProperty;
@@ -227,7 +228,13 @@ public class GroupComboBox<T> extends StackPane {
      * @param dataMap 数据源,格式为 Map<分组名称, Map<选项名称, 选项值>>
      */
     public void setDataMap(Map<String, Map<String, T>> dataMap) {
-        this.dataMap = dataMap;
+        // 使用TreeMap对分组和选项进行排序
+        TreeMap<String, Map<String, T>> sortedDataMap = new TreeMap<>();
+        dataMap.forEach((group, itemMap) -> {
+            TreeMap<String, T> sortedItemMap = new TreeMap<>(itemMap);
+            sortedDataMap.put(group, sortedItemMap);
+        });
+        this.dataMap = sortedDataMap;
         updateDropdownContent();
     }
 
