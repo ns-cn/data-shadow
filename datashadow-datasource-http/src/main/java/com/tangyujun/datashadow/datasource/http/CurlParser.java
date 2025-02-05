@@ -56,60 +56,6 @@ public class CurlParser {
     }
 
     /**
-     * 解析CURL命令字符串
-     * 
-     * @param curlCommand CURL命令字符串
-     * @return 解析结果
-     * @throws IllegalArgumentException 如果命令格式无效
-     */
-    public static CurlParseResult parse(String curlCommand) {
-        if (curlCommand == null || !curlCommand.trim().toLowerCase().startsWith("curl")) {
-            throw new IllegalArgumentException("无效的CURL命令");
-        }
-
-        CurlParseResult result = new CurlParseResult();
-        String[] parts = splitCommand(curlCommand);
-
-        for (int i = 1; i < parts.length; i++) {
-            String part = parts[i];
-
-            if (part.startsWith("http://") || part.startsWith("https://")) {
-                result.setUrl(part);
-            } else if (part.equals("-X") && i + 1 < parts.length) {
-                result.setMethod(parts[++i]);
-            } else if ((part.equals("-H") || part.equals("--header")) && i + 1 < parts.length) {
-                String header = parts[++i];
-                int colonIndex = header.indexOf(':');
-                if (colonIndex > 0) {
-                    String key = header.substring(0, colonIndex).trim();
-                    String value = header.substring(colonIndex + 1).trim();
-                    // 如果值被引号包围，保留引号
-                    if ((value.startsWith("\"") && value.endsWith("\"")) ||
-                            (value.startsWith("'") && value.endsWith("'"))) {
-                        value = value.substring(1, value.length() - 1);
-                    }
-                    result.addHeader(key, value);
-                }
-            } else if ((part.equals("-d") || part.equals("--data") ||
-                    part.equals("--data-raw") || part.equals("--data-binary")) &&
-                    i + 1 < parts.length) {
-                String data = parts[++i];
-                result.setBody(unescapeData(data));
-                // 如果没有明确指定方法，设置为POST
-                if (result.getMethod().equals("GET")) {
-                    result.setMethod("POST");
-                }
-            }
-        }
-
-        if (result.getUrl() == null) {
-            throw new IllegalArgumentException("CURL命令中未找到URL");
-        }
-
-        return result;
-    }
-
-    /**
      * 分割CURL命令，处理引号内的空格和续行符
      */
     private static String[] splitCommand(String command) {
@@ -122,12 +68,14 @@ public class CurlParser {
         java.util.List<String> parts = new java.util.ArrayList<>();
         while (matcher.find()) {
             String part = matcher.group();
-            // 处理引号，但保留请求头中的引号
-            if ((part.startsWith("\"") && part.endsWith("\"")) ||
-                    (part.startsWith("'") && part.endsWith("'"))) {
-                part = part.substring(1, part.length() - 1);
+            // 保留引号内的内容
+            if (matcher.group(1) != null) {
+                parts.add(matcher.group(1));
+            } else if (matcher.group(2) != null) {
+                parts.add(matcher.group(2));
+            } else {
+                parts.add(part);
             }
-            parts.add(part);
         }
 
         return parts.toArray(new String[0]);
@@ -147,12 +95,68 @@ public class CurlParser {
             data = data.substring(1, data.length() - 1);
         }
 
-        // 处理转义字符
-        return data.replace("\\\\", "\\") // 先处理双反斜杠
+        // 处理转义字符，使用临时标记避免冲突
+        return data.replace("\\\\", "__ESCAPED_BACKSLASH__") // 临时替换双反斜杠
                 .replace("\\\"", "\"")
                 .replace("\\'", "'")
                 .replace("\\n", "\n")
                 .replace("\\r", "\r")
-                .replace("\\t", "\t");
+                .replace("\\t", "\t")
+                .replace("__ESCAPED_BACKSLASH__", "\\"); // 还原双反斜杠
+    }
+
+    /**
+     * 解析CURL命令字符串
+     */
+    public static CurlParseResult parse(String curlCommand) {
+        if (curlCommand == null || !curlCommand.trim().toLowerCase().startsWith("curl")) {
+            throw new IllegalArgumentException("无效的CURL命令");
+        }
+
+        CurlParseResult result = new CurlParseResult();
+        String[] parts = splitCommand(curlCommand);
+
+        // 查找URL
+        boolean foundUrl = false;
+        for (int i = 1; i < parts.length; i++) {
+            String part = parts[i].trim();
+            if (part.startsWith("http://") || part.startsWith("https://")) {
+                result.setUrl(part);
+                foundUrl = true;
+                break;
+            }
+        }
+
+        // 解析其他参数
+        for (int i = 1; i < parts.length; i++) {
+            String part = parts[i].trim();
+
+            if (part.equals("-X") && i + 1 < parts.length) {
+                result.setMethod(parts[++i]);
+            } else if ((part.equals("-H") || part.equals("--header")) && i + 1 < parts.length) {
+                String header = parts[++i];
+                int colonIndex = header.indexOf(':');
+                if (colonIndex > 0) {
+                    String key = header.substring(0, colonIndex).trim();
+                    String value = header.substring(colonIndex + 1).trim();
+                    result.addHeader(key, value);
+                }
+            } else if ((part.equals("-d") || part.equals("--data") ||
+                    part.equals("--data-raw") || part.equals("--data-binary")) &&
+                    i + 1 < parts.length) {
+                String data = parts[++i];
+                result.setBody(unescapeData(data));
+                // 如果没有明确指定方法，设置为POST
+                if (result.getMethod().equals("GET")) {
+                    result.setMethod("POST");
+                }
+            }
+        }
+
+        if (!foundUrl) {
+            throw new IllegalArgumentException("CURL命令中未找到URL");
+        }
+
+        return result;
     }
 }

@@ -22,7 +22,6 @@
         <dependency>
             <groupId>com.tangyujun</groupId>
             <artifactId>datashadow-datasource-sdk</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -33,7 +32,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.1</version>
             <scope>test</scope>
         </dependency>
 

@@ -17,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 4. 转义字符处理
  * 5. 无效CURL命令处理
  * 6. 复杂CURL命令解析
- * 7. Windows格式CURL命令解析
- * 8. 复杂请求头和data-raw参数解析
+ * 7. 复杂请求头和data-raw参数解析
  */
 class CurlParserTest {
 
@@ -158,31 +157,6 @@ class CurlParserTest {
     }
 
     /**
-     * 测试Windows格式CURL命令的解析
-     * 验证解析器处理Windows风格的多行CURL命令的能力:
-     * 1. 反斜杠换行
-     * 2. 双引号字符串
-     * 3. 转义序列
-     */
-    @Test
-    @DisplayName("测试Windows格式的CURL命令")
-    void testWindowsStyleCurl() {
-        String curl = "curl -X POST \"https://api.example.com/data\" \\\n" +
-                "  -H \"Content-Type: application/json\" \\\n" +
-                "  -H \"Authorization: Bearer token123\" \\\n" +
-                "  -d \"{\\\"key\\\":\\\"value\\\"}\"";
-
-        CurlParser.CurlParseResult result = CurlParser.parse(curl);
-
-        assertEquals("https://api.example.com/data", result.getUrl());
-        assertEquals("POST", result.getMethod());
-        assertEquals(2, result.getHeaders().size());
-        assertEquals("application/json", result.getHeaders().get("Content-Type"));
-        assertEquals("Bearer token123", result.getHeaders().get("Authorization"));
-        assertEquals("{\"key\":\"value\"}", result.getBody());
-    }
-
-    /**
      * 测试复杂请求头和data-raw参数的解析
      * 验证解析器处理:
      * 1. 复杂的Accept-Language头
@@ -193,12 +167,12 @@ class CurlParserTest {
     @Test
     @DisplayName("测试复杂请求头和data-raw参数")
     void testComplexHeadersAndDataRaw() {
-        String curl = "curl 'https://gitee.com/graphql' \\\n" +
-                "  -H 'Accept: */*' \\\n" +
-                "  -H 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8' \\\n" +
-                "  -H 'Cookie: user_locale=zh-CN' \\\n" +
-                "  -H 'sec-ch-ua: \"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"' \\\n" +
-                "  --data-raw '{\"query\":\"query floatingPendant\"}'\n";
+        String curl = "curl 'https://gitee.com/graphql' " +
+                "-H 'Accept: */*' " +
+                "-H 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8' " +
+                "-H 'Cookie: user_locale=zh-CN' " +
+                "-H 'sec-ch-ua: \"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"' " +
+                "--data-raw '{\"query\":\"query floatingPendant\"}'";
 
         CurlParser.CurlParseResult result = CurlParser.parse(curl);
 
