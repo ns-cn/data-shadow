@@ -90,11 +90,13 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 创建对话框内容
         VBox content = new VBox(10);
         content.setPadding(new Insets(20));
+        content.setPrefWidth(400);
 
         // 创建表单
         GridPane form = new GridPane();
         form.setHgap(10);
         form.setVgap(10);
+        form.setPrefWidth(360);
 
         // 是否唯一
         form.add(new Label("是否唯一:"), 0, 0);
@@ -119,7 +121,7 @@ public class DataItemDialog extends Dialog<DataItem> {
         HBox typeBox = new HBox(10);
 
         comparatorCombo = new GroupComboBox<>("请选择比较器");
-        comparatorCombo.setPrefWidth(300);
+        comparatorCombo.setPrefWidth(200);
         comparatorCombo.setDataMap(DataFactory.getInstance().getDataComparators());
 
         configButton = new Button("⚙");
@@ -144,6 +146,7 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 备注
         form.add(new Label("备注:"), 0, 4);
         remarkArea.setPrefRowCount(3);
+        remarkArea.setPrefWidth(200);
         form.add(remarkArea, 1, 4, 3, 1);
 
         // 如果是编辑模式，填充现有数据
@@ -198,6 +201,10 @@ public class DataItemDialog extends Dialog<DataItem> {
 
         // 设置事件处理
         setupComparatorEvents();
+
+        // 设置对话框的首选宽度和最小宽度
+        getDialogPane().setPrefWidth(440);
+        getDialogPane().setMinWidth(400);
     }
 
     /**

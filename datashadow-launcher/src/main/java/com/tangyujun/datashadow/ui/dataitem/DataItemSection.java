@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
 
@@ -284,17 +285,36 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
      * 删除选中的一个或多个数据项,删除前会显示确认对话框
      */
     private void handleDelete() {
+        // 获取选中的数据项
         ObservableList<DataItem> selectedItems = table.getSelectionModel().getSelectedItems();
-        if (!selectedItems.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("确认删除");
-            alert.setHeaderText(null);
-            alert.setContentText("确定要删除选中的" + selectedItems.size() + "个数据项吗？");
 
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                selectedItems.forEach(item -> DataFactory.getInstance().removeDataItem(item));
-            }
+        // 检查是否有选中的数据项
+        if (selectedItems == null || selectedItems.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("警告");
+            alert.setHeaderText(null);
+            alert.setContentText("请先选择要删除的数据项");
+            alert.showAndWait();
+            return;
+        }
+
+        // 显示确认对话框
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("确认删除");
+        confirm.setHeaderText(null);
+        confirm.setContentText("确定要删除选中的数据项吗？");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // 创建要删除的数据项列表的副本
+            List<DataItem> itemsToDelete = new ArrayList<>(selectedItems);
+
+            // 从数据工厂中删除数据项
+            DataFactory dataFactory = DataFactory.getInstance();
+            itemsToDelete.forEach(dataFactory::removeDataItem);
+
+            // 清除选择
+            table.getSelectionModel().clearSelection();
         }
     }
 
