@@ -61,7 +61,7 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 
 ![主界面](screenshots/homepage.png)
 ![数据项比较器](screenshots/data_comparator.png)
-![插件管理](screenshots/plugins_demo.png)
+![插件配置](screenshots/plugins_demo.png)
 
 ## 自行构建 (Windows)
 

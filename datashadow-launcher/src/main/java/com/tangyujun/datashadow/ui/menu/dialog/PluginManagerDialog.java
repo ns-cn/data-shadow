@@ -16,23 +16,43 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * 插件管理对话框
- * 用于配置和管理插件目录
+ * 插件配置对话框
+ * 用于配置和管理插件目录,提供以下功能:
+ * 1. 查看和修改当前插件目录路径
+ * 2. 通过文件选择器浏览并选择新的插件目录
+ * 3. 在系统资源管理器中打开插件目录
+ * 4. 重置为默认插件目录
+ * 5. 保存插件目录配置
  */
 public class PluginManagerDialog extends Dialog<String> {
+    /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(PluginManagerDialog.class);
 
+    /** 插件目录输入框 */
     private final TextField pluginDirField;
+
+    /** 对话框所属窗口 */
     private final Window owner;
 
     /**
      * 默认插件目录路径
      * 位于用户目录/.datashadow/plugins下
+     * 例如Windows系统下为: C:/Users/username/.datashadow/plugins
      */
     private static final String DEFAULT_PLUGIN_DIR = System.getProperty("user.home")
             + File.separator + ".datashadow"
             + File.separator + "plugins";
 
+    /**
+     * 构造函数
+     * 初始化插件管理对话框,包括:
+     * 1. 初始化插件目录配置
+     * 2. 创建对话框UI组件
+     * 3. 设置按钮事件处理
+     * 4. 配置对话框结果转换器
+     *
+     * @param owner 对话框所属的窗口
+     */
     public PluginManagerDialog(Window owner) {
         this.owner = owner;
 
@@ -44,7 +64,7 @@ public class PluginManagerDialog extends Dialog<String> {
         }
 
         // 设置对话框标题和头部文本
-        setTitle("插件管理");
+        setTitle("插件配置");
         setHeaderText("配置插件加载目录");
 
         // 创建对话框内容
@@ -105,6 +125,8 @@ public class PluginManagerDialog extends Dialog<String> {
 
     /**
      * 打开目录选择器
+     * 允许用户通过图形界面选择插件目录
+     * 如果选择了新目录,会更新输入框中的路径
      */
     private void browseDirectory() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -126,6 +148,8 @@ public class PluginManagerDialog extends Dialog<String> {
 
     /**
      * 在系统资源管理器中打开插件目录
+     * 如果目录不存在会尝试创建
+     * 如果无法打开目录会显示错误提示
      */
     private void openPluginFolder() {
         String dirPath = pluginDirField.getText();
@@ -149,6 +173,10 @@ public class PluginManagerDialog extends Dialog<String> {
 
     /**
      * 重置为默认插件目录
+     * 会先显示确认对话框
+     * 确认后会:
+     * 1. 更新输入框中的路径为默认路径
+     * 2. 确保默认目录存在,不存在则创建
      */
     private void resetToDefault() {
         // 确认对话框
@@ -174,6 +202,10 @@ public class PluginManagerDialog extends Dialog<String> {
 
     /**
      * 显示错误对话框
+     * 用于向用户展示操作过程中的错误信息
+     *
+     * @param header  错误标题
+     * @param content 错误详细信息
      */
     private void showError(String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -185,6 +217,13 @@ public class PluginManagerDialog extends Dialog<String> {
 
     /**
      * 显示对话框并保存配置
+     * 保存成功后会提示需要重启应用
+     * 保存过程包括:
+     * 1. 验证新目录路径有效性
+     * 2. 检查是否发生变化
+     * 3. 更新配置并保存
+     * 4. 确保新目录存在
+     * 5. 显示成功提示
      */
     public void showAndSave() {
         showAndWait().ifPresent(newPluginDir -> {

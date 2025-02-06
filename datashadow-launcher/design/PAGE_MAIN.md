@@ -19,7 +19,7 @@
             <div style="cursor: pointer;">设置
                 <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
                     <div style="padding: 5px;">许可证</div>
-                    <div style="padding: 5px;">插件管理</div>
+                    <div style="padding: 5px;">插件配置</div>
                 </div>
             </div>
             <div style="cursor: pointer;">帮助
@@ -159,7 +159,7 @@
      * 许可证：
        - 查看当前许可证信息（类型、有效期、限制等）
        - 输入新的许可证密钥进行激活
-     * 插件管理：
+     * 插件配置：
        - 配置自定义插件加载目录
        - 显示已加载的插件列表
        - 启用/禁用指定插件
@@ -256,8 +256,8 @@
        - 打开许可证管理对话框
        - 显示当前许可证信息：
        - 提供许可证激活功能：
-     * 点击"插件管理"：
-       - 打开插件管理对话框
+     * 点击"插件配置"：
+       - 打开插件配置对话框
        - 显示插件目录配置：
          + 显示当前配置的插件加载目录
          + 提供目录选择功能

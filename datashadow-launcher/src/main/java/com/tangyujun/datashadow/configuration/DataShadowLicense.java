@@ -17,14 +17,38 @@ import java.util.regex.Pattern;
 /**
  * 数据影子许可证管理类
  * 负责生成机器码、验证许可证等功能
+ * 
+ * 主要功能:
+ * 1. 生成基于硬件信息的机器码
+ * 2. 验证许可证有效性
+ * 3. 格式化机器码显示
+ * 
+ * 机器码生成原理:
+ * 1. 获取CPU、主板、硬盘、BIOS等硬件序列号
+ * 2. 将所有序列号组合并进行MD5加密
+ * 3. 生成32位的唯一标识符
+ * 
+ * 使用场景:
+ * - 软件授权验证
+ * - 防止非法复制
+ * - 限制软件使用范围
  */
 public class DataShadowLicense {
 
+    /**
+     * 日志记录器
+     * 用于记录许可证验证和硬件信息获取过程中的异常信息
+     */
     private static final Logger log = LoggerFactory.getLogger(DataShadowLicense.class);
 
     /**
      * 验证许可证是否有效
      * 通过比对输入的许可证与当前机器生成的机器码是否一致来验证
+     * 
+     * 验证步骤:
+     * 1. 获取当前机器的机器码
+     * 2. 与输入的许可证进行比对
+     * 3. 完全匹配则视为有效许可
      * 
      * @param license 待验证的许可证字符串
      * @return 如果许可证与机器码匹配则返回true,否则返回false
@@ -37,6 +61,12 @@ public class DataShadowLicense {
     /**
      * 生成机器码
      * 通过组合多个硬件信息(CPU、主板、硬盘、BIOS)并进行MD5加密生成唯一标识
+     * 
+     * 生成步骤:
+     * 1. 获取各种硬件序列号
+     * 2. 使用冒号拼接所有序列号
+     * 3. 对组合信息进行MD5加密
+     * 4. 生成32位的唯一标识符
      *
      * @return 32位的机器码字符串,如果获取硬件信息失败会包含Unknown前缀
      */
@@ -62,6 +92,11 @@ public class DataShadowLicense {
     /**
      * 获取CPU序列号
      * 通过执行wmic命令获取处理器ID
+     * 
+     * 获取步骤:
+     * 1. 执行wmic cpu get ProcessorId命令
+     * 2. 读取命令输出
+     * 3. 提取处理器ID
      * 
      * @return CPU序列号,如果获取失败返回"Unknown-CPU"
      */
@@ -92,6 +127,11 @@ public class DataShadowLicense {
      * 获取主板序列号
      * 通过执行wmic命令获取主板序列号
      * 
+     * 获取步骤:
+     * 1. 执行wmic baseboard get SerialNumber命令
+     * 2. 读取命令输出
+     * 3. 提取序列号
+     * 
      * @return 主板序列号,如果获取失败返回"Unknown-MB"
      */
     private static String getMotherboardSerial() {
@@ -120,6 +160,11 @@ public class DataShadowLicense {
     /**
      * 获取硬盘序列号
      * 通过执行wmic命令获取硬盘序列号
+     * 
+     * 获取步骤:
+     * 1. 执行wmic diskdrive get SerialNumber命令
+     * 2. 读取命令输出
+     * 3. 提取序列号
      * 
      * @return 硬盘序列号,如果获取失败返回"Unknown-HDD"
      */
@@ -150,6 +195,11 @@ public class DataShadowLicense {
      * 获取BIOS序列号
      * 通过执行wmic命令获取BIOS序列号
      * 
+     * 获取步骤:
+     * 1. 执行wmic bios get SerialNumber命令
+     * 2. 读取命令输出
+     * 3. 提取序列号
+     * 
      * @return BIOS序列号,如果获取失败返回"Unknown-BIOS"
      */
     private static String getBIOSSerial() {
@@ -179,6 +229,12 @@ public class DataShadowLicense {
      * 对字符串进行MD5加密
      * 将输入字符串转换为32位的MD5哈希值
      * 
+     * 加密步骤:
+     * 1. 获取MD5算法实例
+     * 2. 将输入字符串转换为字节数组
+     * 3. 计算MD5哈希值
+     * 4. 将字节数组转换为16进制字符串
+     * 
      * @param input 需要加密的字符串
      * @return 32位MD5哈希值,如果加密失败返回"ERROR-MD5"
      */
@@ -202,7 +258,15 @@ public class DataShadowLicense {
     /**
      * 格式化机器码显示
      * 将32位字符串格式化为8-4-4-4-12的形式,便于阅读和使用
-     * 例如: 12345678-1234-1234-1234-123456789012
+     * 
+     * 格式化步骤:
+     * 1. 验证输入长度是否为32位
+     * 2. 使用正则表达式分组匹配
+     * 3. 按照8-4-4-4-12格式重组字符串
+     * 
+     * 格式示例:
+     * 输入: 12345678123412341234123456789012
+     * 输出: 12345678-1234-1234-1234-123456789012
      *
      * @param machineCode 原始32位机器码
      * @return 格式化后的机器码,如果输入无效则返回原始机器码

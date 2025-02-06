@@ -58,8 +58,8 @@ public class MenuBarSection extends VBox {
         // 创建设置菜单
         Menu settingsMenu = new Menu("设置");
 
-        // 创建插件管理菜单项
-        MenuItem pluginManagerItem = new MenuItem("插件管理");
+        // 创建插件配置菜单项
+        MenuItem pluginManagerItem = new MenuItem("插件配置");
         pluginManagerItem.setOnAction(event -> showPluginManagerDialog());
 
         settingsMenu.getItems().add(pluginManagerItem);
@@ -129,7 +129,7 @@ public class MenuBarSection extends VBox {
     }
 
     /**
-     * 显示插件管理对话框
+     * 显示插件配置对话框
      */
     private void showPluginManagerDialog() {
         PluginManagerDialog dialog = new PluginManagerDialog(menuBar.getScene().getWindow());
