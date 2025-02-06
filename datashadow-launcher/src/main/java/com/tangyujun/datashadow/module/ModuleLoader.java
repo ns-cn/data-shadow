@@ -94,31 +94,26 @@ public class ModuleLoader {
 
     /**
      * 加载自定义外部模块
-     * 扫描指定目录下的所有JAR文件并加载其中的类
+     * 扫描指定目录下的所有JAR文件并加载
      * 
-     * 加载流程:
-     * 1. 验证目录是否存在且是目录
-     * 2. 扫描目录下的所有JAR文件
-     * 3. 验证每个JAR文件的有效性
-     * 4. 创建URLClassLoader加载JAR文件
-     * 5. 扫描JAR中的所有类
-     * 6. 通知监听器处理发现的类
-     * 
-     * @param path JAR包所在目录的路径
-     * @throws IOException 如果加载过程中发生IO错误,如目录不存在、JAR文件损坏等
+     * @param pluginsPath 插件目录路径
+     * @throws IOException 如果加载过程中发生IO错误
      */
-    public void loadCustom(String path) throws IOException {
-        log.info("Start loading custom modules from path: {}", path);
-
-        File dir = new File(path);
-        if (!dir.exists() || !dir.isDirectory()) {
-            log.error("Custom module directory does not exist or is not a directory: {}", path);
+    public void loadCustom(String pluginsPath) throws IOException {
+        if (pluginsPath == null || pluginsPath.trim().isEmpty()) {
+            log.warn("Plugin directory path is null or empty, skipping custom module loading");
             return;
         }
 
-        File[] jarFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".jar"));
+        File pluginsDir = new File(pluginsPath);
+        if (!pluginsDir.exists() || !pluginsDir.isDirectory()) {
+            log.warn("Plugin directory does not exist or is not a directory: {}", pluginsPath);
+            return;
+        }
+
+        File[] jarFiles = pluginsDir.listFiles((d, name) -> name.toLowerCase().endsWith(".jar"));
         if (jarFiles == null || jarFiles.length == 0) {
-            log.warn("No jar files found in directory: {}", path);
+            log.warn("No jar files found in directory: {}", pluginsPath);
             return;
         }
 

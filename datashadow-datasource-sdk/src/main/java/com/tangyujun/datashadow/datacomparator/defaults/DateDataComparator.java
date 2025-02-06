@@ -1,12 +1,6 @@
 package com.tangyujun.datashadow.datacomparator.defaults;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-
 import com.tangyujun.datashadow.datacomparator.DataComparator;
 import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
 import com.tangyujun.datashadow.datacomparator.DataComparatorRegistry;

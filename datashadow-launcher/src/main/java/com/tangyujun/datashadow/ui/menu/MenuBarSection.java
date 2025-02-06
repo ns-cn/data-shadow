@@ -2,6 +2,9 @@ package com.tangyujun.datashadow.ui.menu;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+
+import com.tangyujun.datashadow.ui.menu.dialog.PluginManagerDialog;
+
 import javafx.application.Platform;
 
 /**
@@ -52,6 +55,15 @@ public class MenuBarSection extends VBox {
 
         comparisonSchemeMenu.getItems().addAll(importMenuItem, exportMenuItem);
 
+        // 创建设置菜单
+        Menu settingsMenu = new Menu("设置");
+
+        // 创建插件管理菜单项
+        MenuItem pluginManagerItem = new MenuItem("插件管理");
+        pluginManagerItem.setOnAction(event -> showPluginManagerDialog());
+
+        settingsMenu.getItems().add(pluginManagerItem);
+
         // 创建帮助菜单
         Menu helpMenu = new Menu("帮助");
 
@@ -67,7 +79,7 @@ public class MenuBarSection extends VBox {
         helpMenu.getItems().addAll(qaItem, new SeparatorMenuItem(), aboutItem);
 
         // 将菜单添加到菜单栏
-        menuBar.getMenus().addAll(fileMenu, comparisonSchemeMenu, helpMenu);
+        menuBar.getMenus().addAll(fileMenu, comparisonSchemeMenu, settingsMenu, helpMenu);
 
         // 将菜单栏添加到VBox容器
         getChildren().add(menuBar);
@@ -114,5 +126,13 @@ public class MenuBarSection extends VBox {
         alert.setHeaderText("常见问题解答");
         alert.setContentText("暂未实现Q&A内容");
         alert.showAndWait();
+    }
+
+    /**
+     * 显示插件管理对话框
+     */
+    private void showPluginManagerDialog() {
+        PluginManagerDialog dialog = new PluginManagerDialog(menuBar.getScene().getWindow());
+        dialog.showAndSave();
     }
 }

@@ -16,6 +16,12 @@
                     <div style="padding: 5px;">导出方案</div>
                 </div>
             </div>
+            <div style="cursor: pointer;">设置
+                <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
+                    <div style="padding: 5px;">许可证</div>
+                    <div style="padding: 5px;">插件管理</div>
+                </div>
+            </div>
             <div style="cursor: pointer;">帮助
                 <div style="display: none; position: absolute; background: white; border: 1px solid #ddd; padding: 5px;">
                     <div style="padding: 5px;">Q&A</div>
@@ -149,6 +155,16 @@
    - 对比方案菜单
      * 导入方案：从.shadow文件导入已保存的对比方案（包含数据项配置、数据源配置和映射关系）
      * 导出方案：将当前对比方案导出为.shadow文件，以便后续复用
+   - 设置菜单
+     * 许可证：
+       - 查看当前许可证信息（类型、有效期、限制等）
+       - 输入新的许可证密钥进行激活
+     * 插件管理：
+       - 配置自定义插件加载目录
+       - 显示已加载的插件列表
+       - 启用/禁用指定插件
+       - 打开插件文件夹
+       - 重置插件目录到默认路径
    - 帮助菜单
      * Q&A：显示常见问题解答
      * 关于：显示应用程序版本信息和开发者信息
@@ -235,6 +251,19 @@
        - 将配置信息组装为JSON
        - 将JSON转换为Base64编码
        - 保存为.shadow文件
+   - 点击"设置"显示下拉菜单
+     * 点击"许可证"：
+       - 打开许可证管理对话框
+       - 显示当前许可证信息：
+       - 提供许可证激活功能：
+     * 点击"插件管理"：
+       - 打开插件管理对话框
+       - 显示插件目录配置：
+         + 显示当前配置的插件加载目录
+         + 提供目录选择功能
+         + 保存目录配置
+         + 提供打开插件文件夹按钮，点击后在系统资源管理器中打开插件目录
+         + 提供重置按钮，点击后将插件目录重置为默认路径（用户目录/.datashadow/plugins）
    - 点击"帮助"显示下拉菜单
      * 点击"Q&A"显示常见问题解答对话框
      * 点击"关于"显示关于对话框

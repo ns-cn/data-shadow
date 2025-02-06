@@ -10,14 +10,12 @@ import javafx.scene.image.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tangyujun.datashadow.configuration.ConfigurationBus;
 import com.tangyujun.datashadow.module.ModuleLoader;
 import com.tangyujun.datashadow.module.listener.DataComparatorListener;
 import com.tangyujun.datashadow.module.listener.DataSourceListener;
 import com.tangyujun.datashadow.ui.MainLayout;
 
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 
 import javafx.application.Platform;
@@ -103,6 +101,9 @@ public class DataShadowLauncher extends Application {
      */
     public static void main(String[] args) {
         try {
+            // 加载配置
+            ConfigurationBus.load();
+
             // 初始化数据源和比较器监听器
             DataSourceListener loader = new DataSourceListener();
             DataComparatorListener comparatorLoader = new DataComparatorListener();
@@ -115,19 +116,10 @@ public class DataShadowLauncher extends Application {
             // 加载官方模块
             moduleLoader.loadOfficial("com.tangyujun.datashadow");
 
-            // 从resources/plugins目录加载自定义插件
-            URL pluginsUrl = DataShadowLauncher.class.getClassLoader().getResource("plugins");
-            if (pluginsUrl == null) {
-                log.error("Plugins directory not found in resources");
-                log.error("Plugins directory path: {}",
-                        DataShadowLauncher.class.getClassLoader().getResource("") + "plugins");
-            } else {
-                String pluginsPath = pluginsUrl.getFile();
-                log.info("Loading plugins directory: {}", pluginsPath);
-                // 确保路径正确解码（处理空格和特殊字符）
-                pluginsPath = URLDecoder.decode(pluginsPath, StandardCharsets.UTF_8);
-                moduleLoader.loadCustom(pluginsPath);
-            }
+            // 从配置的插件目录加载自定义插件
+            String pluginsPath = ConfigurationBus.getInstance().getPluginDir();
+            log.info("Loading plugins from configured directory: {}", pluginsPath);
+            moduleLoader.loadCustom(pluginsPath);
 
             // 启动JavaFX应用程序
             launch(args);
