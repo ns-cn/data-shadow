@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -84,6 +85,16 @@ public class GroupComboBox<T> extends StackPane {
     private String promptText;
 
     /**
+     * 分组列表宽度
+     */
+    private double groupListWidth = 100;
+
+    /**
+     * 选项列表宽度
+     */
+    private double itemListWidth = 100;
+
+    /**
      * 默认构造函数,使用默认提示文本"请选择"
      */
     public GroupComboBox() {
@@ -149,10 +160,11 @@ public class GroupComboBox<T> extends StackPane {
         dropdownContent = new HBox(0);
         dropdownContent.setStyle("""
                 -fx-background-color: white;
-                -fx-border-color: #cccccc;
+                -fx-border-color: #c4c4c4;
                 -fx-border-width: 1;
+                -fx-background-radius: 3;
                 -fx-border-radius: 3;
-                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 3, 0, 0, 1);
+                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);
                 """);
 
         // 创建分组列表和选项列表
@@ -160,6 +172,20 @@ public class GroupComboBox<T> extends StackPane {
         groupList.setStyle("""
                 -fx-padding: 2;
                 -fx-background-color: white;
+                """);
+        groupList.setPrefWidth(groupListWidth);
+
+        // 创建分组列表的滚动面板
+        ScrollPane groupScroll = new ScrollPane(groupList);
+        groupScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        groupScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        groupScroll.setFitToWidth(true);
+        groupScroll.setPrefViewportHeight(250);
+        groupScroll.setStyle("""
+                -fx-background-color: transparent;
+                -fx-background: transparent;
+                -fx-padding: 0;
+                -fx-background-insets: 0;
                 """);
 
         itemList = new VBox(0);
@@ -170,9 +196,22 @@ public class GroupComboBox<T> extends StackPane {
                 -fx-border-color: #e6e6e6;
                 """);
         itemList.setVisible(false);
-        itemList.setPrefWidth(150);
+        itemList.setPrefWidth(itemListWidth);
 
-        dropdownContent.getChildren().addAll(groupList, itemList);
+        // 创建选项列表的滚动面板
+        ScrollPane itemScroll = new ScrollPane(itemList);
+        itemScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        itemScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        itemScroll.setFitToWidth(true);
+        itemScroll.setPrefViewportHeight(250);
+        itemScroll.setStyle("""
+                -fx-background-color: transparent;
+                -fx-background: transparent;
+                -fx-padding: 0;
+                -fx-background-insets: 0;
+                """);
+
+        dropdownContent.getChildren().addAll(groupScroll, itemScroll);
 
         // 创建弹出窗口
         popup = new Popup();
@@ -297,12 +336,13 @@ public class GroupComboBox<T> extends StackPane {
         dataMap.forEach((group, itemMap) -> {
             Label groupLabel = new Label(group);
             groupLabel.setMaxWidth(Double.MAX_VALUE);
+            groupLabel.setPrefHeight(24); // 调整为标准高度
             groupLabel.setPadding(new Insets(4, 8, 4, 8));
+            groupLabel.setAlignment(Pos.CENTER_LEFT);
             groupLabel.setStyle("""
                     -fx-background-color: transparent;
                     -fx-font-size: 12px;
                     -fx-text-fill: #333333;
-                    -fx-cursor: hand;
                     """);
 
             groupLabel.setOnMouseEntered(e -> {
@@ -311,15 +351,13 @@ public class GroupComboBox<T> extends StackPane {
                             -fx-background-color: transparent;
                             -fx-font-size: 12px;
                             -fx-text-fill: #333333;
-                            -fx-cursor: hand;
                             """);
                 }
                 currentGroupLabel[0] = groupLabel;
                 groupLabel.setStyle("""
-                        -fx-background-color: #e8e8e8;
+                        -fx-background-color: -fx-selection-bar;
                         -fx-font-size: 12px;
-                        -fx-text-fill: #000000;
-                        -fx-cursor: hand;
+                        -fx-text-fill: -fx-selection-bar-text;
                         """);
                 showGroupItems(group, itemMap);
             });
@@ -334,7 +372,6 @@ public class GroupComboBox<T> extends StackPane {
                         -fx-background-color: transparent;
                         -fx-font-size: 12px;
                         -fx-text-fill: #333333;
-                        -fx-cursor: hand;
                         """);
                 currentGroupLabel[0] = null;
             }
@@ -359,26 +396,25 @@ public class GroupComboBox<T> extends StackPane {
         itemMap.forEach((name, value) -> {
             Label itemLabel = new Label(name);
             itemLabel.setMaxWidth(Double.MAX_VALUE);
-            itemLabel.setPadding(new Insets(4, 12, 4, 12));
+            itemLabel.setPrefHeight(24); // 调整为标准高度
+            itemLabel.setPadding(new Insets(4, 8, 4, 8));
+            itemLabel.setAlignment(Pos.CENTER_LEFT);
             itemLabel.setStyle("""
                     -fx-background-color: transparent;
                     -fx-font-size: 12px;
                     -fx-text-fill: #333333;
-                    -fx-cursor: hand;
                     """);
 
             itemLabel.setOnMouseEntered(e -> itemLabel.setStyle("""
-                    -fx-background-color: #0096C9;
+                    -fx-background-color: -fx-selection-bar;
                     -fx-font-size: 12px;
-                    -fx-text-fill: white;
-                    -fx-cursor: hand;
+                    -fx-text-fill: -fx-selection-bar-text;
                     """));
 
             itemLabel.setOnMouseExited(e -> itemLabel.setStyle("""
                     -fx-background-color: transparent;
                     -fx-font-size: 12px;
                     -fx-text-fill: #333333;
-                    -fx-cursor: hand;
                     """));
 
             itemLabel.setOnMouseClicked(e -> {
@@ -461,5 +497,47 @@ public class GroupComboBox<T> extends StackPane {
      */
     public T getValue() {
         return selectedValueProperty.get();
+    }
+
+    /**
+     * 设置分组列表宽度
+     * 
+     * @param width 宽度值
+     */
+    public void setGroupListWidth(double width) {
+        this.groupListWidth = width;
+        if (groupList != null) {
+            groupList.setPrefWidth(width);
+        }
+    }
+
+    /**
+     * 获取分组列表宽度
+     * 
+     * @return 分组列表宽度
+     */
+    public double getGroupListWidth() {
+        return groupListWidth;
+    }
+
+    /**
+     * 设置选项列表宽度
+     * 
+     * @param width 宽度值
+     */
+    public void setItemListWidth(double width) {
+        this.itemListWidth = width;
+        if (itemList != null) {
+            itemList.setPrefWidth(width);
+        }
+    }
+
+    /**
+     * 获取选项列表宽度
+     * 
+     * @return 选项列表宽度
+     */
+    public double getItemListWidth() {
+        return itemListWidth;
     }
 }
