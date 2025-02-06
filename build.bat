@@ -97,6 +97,10 @@ if !errorlevel! neq 0 (
     echo Error: Failed to copy JavaFX SDK files
     exit /b 1
 )
+:: 特殊的，将javafx中无用的删掉
+del "dist\datashadow\javafx_sdk\bin\jfxwebkit.dll"
+rd /s /q "dist\datashadow\javafx_sdk\legal"
+del "dist\datashadow\javafx_sdk\src.zip"
 
 :: 复制启动器jar包
 echo Copying launcher jar...
