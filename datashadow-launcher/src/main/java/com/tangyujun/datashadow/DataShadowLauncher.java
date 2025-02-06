@@ -119,6 +119,8 @@ public class DataShadowLauncher extends Application {
             URL pluginsUrl = DataShadowLauncher.class.getClassLoader().getResource("plugins");
             if (pluginsUrl == null) {
                 log.error("Plugins directory not found in resources");
+                log.error("Plugins directory path: {}",
+                        DataShadowLauncher.class.getClassLoader().getResource("") + "plugins");
             } else {
                 String pluginsPath = pluginsUrl.getFile();
                 log.info("Loading plugins directory: {}", pluginsPath);
