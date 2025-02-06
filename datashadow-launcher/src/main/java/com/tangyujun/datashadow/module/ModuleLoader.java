@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
@@ -127,12 +128,31 @@ public class ModuleLoader {
         try (URLClassLoader classLoader = new URLClassLoader(urls.toArray(URL[]::new), getClass().getClassLoader())) {
             Thread.currentThread().setContextClassLoader(classLoader);
 
-            Reflections reflections = new Reflections(new org.reflections.util.ConfigurationBuilder()
-                    .setUrls(urls)
-                    .addClassLoaders(classLoader)
-                    .setScanners(org.reflections.scanners.Scanners.SubTypes));
+            Set<Class<?>> discoveredClasses = new HashSet<>();
 
-            Set<Class<?>> discoveredClasses = reflections.getSubTypesOf(Object.class);
+            // 遍历每个jar文件
+            for (File jarFile : jarFiles) {
+                try (JarFile jar = new JarFile(jarFile)) {
+                    Enumeration<JarEntry> entries = jar.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = entries.nextElement();
+                        if (entry.getName().endsWith(".class")) {
+                            // 将文件路径转换为类名
+                            String className = entry.getName().replace('/', '.')
+                                    .substring(0, entry.getName().length() - 6); // 去掉.class后缀
+                            try {
+                                Class<?> clazz = classLoader.loadClass(className);
+                                discoveredClasses.add(clazz);
+                                log.debug("Loaded class: {}", className);
+                            } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                                log.error("Failed to load class: {}", className, e);
+                            }
+                        }
+                    }
+                }
+            }
+
+            log.info("Found {} classes in jar files", discoveredClasses.size());
             notifyListeners(classLoader, discoveredClasses);
         }
     }

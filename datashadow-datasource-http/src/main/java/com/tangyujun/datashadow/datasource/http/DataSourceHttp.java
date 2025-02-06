@@ -55,9 +55,9 @@ public class DataSourceHttp extends DataSource {
      * RESPONSE_TYPE_XML: XML格式响应数据
      * RESPONSE_TYPE_CSV: CSV格式响应数据
      */
-    private static final String RESPONSE_TYPE_JSON = "json";
-    private static final String RESPONSE_TYPE_XML = "xml";
-    private static final String RESPONSE_TYPE_CSV = "csv";
+    public static final String RESPONSE_TYPE_JSON = "json";
+    public static final String RESPONSE_TYPE_XML = "xml";
+    public static final String RESPONSE_TYPE_CSV = "csv";
 
     /**
      * HTTP请求URL
@@ -451,7 +451,7 @@ public class DataSourceHttp extends DataSource {
      * @param key        请求头名称
      * @param value      请求头值
      */
-    private void addHeaderRow(ObservableList<HBox> headerRows, VBox headersBox, String key, String value) {
+    protected void addHeaderRow(ObservableList<HBox> headerRows, VBox headersBox, String key, String value) {
         HBox headerRow = new HBox(10);
         TextField keyField = new TextField(key);
         keyField.setPromptText("Header名称");
@@ -481,7 +481,7 @@ public class DataSourceHttp extends DataSource {
      * @param headerRows  请求头行列表
      * @param bodyArea    请求体文本框
      */
-    private void updateDataSourceFromUI(TextField urlField, ComboBox<String> methodCombo,
+    protected void updateDataSourceFromUI(TextField urlField, ComboBox<String> methodCombo,
             ComboBox<String> typeCombo, ObservableList<HBox> headerRows,
             TextArea bodyArea) {
         this.url = urlField.getText();
@@ -521,5 +521,95 @@ public class DataSourceHttp extends DataSource {
         this.headers = dataSource.headers;
         this.body = dataSource.body;
         this.responseType = dataSource.responseType;
+    }
+
+    /**
+     * 获取请求URL
+     * 
+     * @return 请求URL
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     * 设置请求URL
+     * 
+     * @param url 请求URL
+     */
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    /**
+     * 获取请求方法
+     * 
+     * @return 请求方法
+     */
+    public String getMethod() {
+        return method;
+    }
+
+    /**
+     * 设置请求方法
+     * 
+     * @param method 请求方法
+     */
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    /**
+     * 获取请求头
+     * 
+     * @return 请求头Map
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    /**
+     * 设置请求头
+     * 
+     * @param headers 请求头Map
+     */
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    /**
+     * 获取请求体
+     * 
+     * @return 请求体内容
+     */
+    public String getBody() {
+        return body;
+    }
+
+    /**
+     * 设置请求体
+     * 
+     * @param body 请求体内容
+     */
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    /**
+     * 获取响应类型
+     * 
+     * @return 响应类型
+     */
+    public String getResponseType() {
+        return responseType;
+    }
+
+    /**
+     * 设置响应类型
+     * 
+     * @param responseType 响应类型
+     */
+    public void setResponseType(String responseType) {
+        this.responseType = responseType;
     }
 }

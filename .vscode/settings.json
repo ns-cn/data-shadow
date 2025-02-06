@@ -4,6 +4,10 @@
         {
             "command": "clean package",
             "debug": false
+        },
+        {
+            "command": "clean install",
+            "debug": false
         }
     ],
     "java.configuration.updateBuildConfiguration": "automatic",

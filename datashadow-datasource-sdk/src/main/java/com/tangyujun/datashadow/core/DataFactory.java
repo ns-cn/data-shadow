@@ -159,10 +159,18 @@ public class DataFactory {
     }
 
     /**
+     * 通知所有数据项变化监听器
+     */
+    public void notifyDataItemChangeListeners() {
+        dataItemChangeListeners.forEach(listener -> listener.onDataItemChanged());
+    }
+
+    /**
      * 注册一个新的数据比较器
      * 
      * @param group        数据比较器组
      * @param friendlyName 数据比较器友好名称
+     * 
      * @param generator    数据比较器生成器
      */
     public void registerDataComparator(String group, String friendlyName, DataComparatorGenerator generator) {

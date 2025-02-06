@@ -333,6 +333,7 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
             table.getSelectionModel().clearSelection();
             table.getSelectionModel().select(selectedItem);
             table.requestFocus();
+            DataFactory.getInstance().notifyDataItemChangeListeners();
         }
     }
 
@@ -351,6 +352,7 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
             table.getSelectionModel().clearSelection();
             table.getSelectionModel().select(selectedItem);
             table.requestFocus();
+            DataFactory.getInstance().notifyDataItemChangeListeners();
         }
     }
 
