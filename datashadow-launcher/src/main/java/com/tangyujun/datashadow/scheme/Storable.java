@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.storage;
+package com.tangyujun.datashadow.scheme;
 
 /**
  * 可存储对象的抽象类

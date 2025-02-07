@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.storage;
+package com.tangyujun.datashadow.scheme;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
 

@@ -17,6 +17,7 @@
         <module>datashadow-datasource-oracle</module>
         <module>datashadow-datasource-http</module>
         <module>datashadow-ui-components</module>
+        <module>datashadow-ai</module>
     </modules>
 
     <properties>

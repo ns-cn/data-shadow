@@ -1,6 +1,7 @@
 package com.tangyujun.datashadow.ui.menu.dialog;
 
-import com.tangyujun.datashadow.configuration.ConfigurationBus;
+import com.tangyujun.datashadow.configuration.ConfigurationLoader;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -8,12 +9,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+
+import com.tangyujun.datashadow.config.ConfigFactory;
 
 /**
  * 插件配置对话框
@@ -57,10 +61,10 @@ public class PluginManagerDialog extends Dialog<String> {
         this.owner = owner;
 
         // 确保当前插件目录不为空
-        String currentPluginDir = ConfigurationBus.getInstance().getPluginDir();
+        String currentPluginDir = ConfigFactory.getInstance().getConfiguration().getPluginDir();
         if (currentPluginDir == null || currentPluginDir.trim().isEmpty()) {
             currentPluginDir = DEFAULT_PLUGIN_DIR;
-            ConfigurationBus.getInstance().setPluginDir(currentPluginDir);
+            ConfigFactory.getInstance().getConfiguration().setPluginDir(currentPluginDir);
         }
 
         // 设置对话框标题和头部文本
@@ -233,10 +237,10 @@ public class PluginManagerDialog extends Dialog<String> {
                 return;
             }
 
-            if (!newPluginDir.equals(ConfigurationBus.getInstance().getPluginDir())) {
-                ConfigurationBus.getInstance().setPluginDir(newPluginDir);
+            if (!newPluginDir.equals(ConfigFactory.getInstance().getConfiguration().getPluginDir())) {
+                ConfigFactory.getInstance().getConfiguration().setPluginDir(newPluginDir);
                 try {
-                    ConfigurationBus.save();
+                    ConfigurationLoader.save();
 
                     // 尝试创建目录
                     File newDir = new File(newPluginDir);

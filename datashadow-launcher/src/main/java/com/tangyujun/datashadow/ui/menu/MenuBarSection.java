@@ -3,6 +3,7 @@ package com.tangyujun.datashadow.ui.menu;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import com.tangyujun.datashadow.scheme.ComparisonSchemeManager;
 import com.tangyujun.datashadow.ui.menu.dialog.PluginManagerDialog;
 
 import javafx.application.Platform;

@@ -1,8 +1,7 @@
-package com.tangyujun.datashadow.ui.menu;
+package com.tangyujun.datashadow.scheme;
 
 import com.alibaba.fastjson2.JSON;
 import com.tangyujun.datashadow.core.DataFactory;
-import com.tangyujun.datashadow.storage.ComparisonScheme;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Window;

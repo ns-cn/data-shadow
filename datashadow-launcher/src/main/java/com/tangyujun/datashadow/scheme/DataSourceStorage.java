@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.storage;
+package com.tangyujun.datashadow.scheme;
 
 import java.util.Map;
 
