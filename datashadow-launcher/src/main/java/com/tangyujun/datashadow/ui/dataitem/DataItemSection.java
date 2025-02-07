@@ -22,6 +22,7 @@ import com.tangyujun.datashadow.datacomparator.DataComparator;
 
 import javafx.scene.Cursor;
 import javafx.scene.layout.Region;
+import javafx.scene.input.KeyCode;
 
 /**
  * 数据项维护区域
@@ -188,6 +189,24 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
                 remarkColumn);
         tableView.getColumns().addAll(columns);
 
+        // 添加双击事件处理
+        tableView.setRowFactory(tv -> {
+            TableRow<DataItem> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    handleEdit();
+                }
+            });
+            return row;
+        });
+
+        // 添加键盘事件处理
+        tableView.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.DELETE) {
+                handleDelete();
+            }
+        });
+
         return tableView;
     }
 
@@ -301,8 +320,8 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
         // 显示确认对话框
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("确认删除");
-        confirm.setHeaderText(null);
-        confirm.setContentText("确定要删除选中的数据项吗？");
+        confirm.setHeaderText("确定要删除选中的数据项吗？");
+        confirm.setContentText("此操作不可恢复，请确认。");
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
