@@ -118,11 +118,11 @@ class DataSourceMysqlTest {
      * 使用简单的SELECT语句验证数据读取和类型转换
      */
     @Test
-    void testGetValues() throws DataAccessException {
+    void testacquireValues() throws DataAccessException {
         // 使用简单的SELECT语句
         dataSource.setSql("SELECT 1 as num, 'test' as text");
 
-        List<Map<String, Object>> result = dataSource.getValues();
+        List<Map<String, Object>> result = dataSource.acquireValues();
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -140,7 +140,7 @@ class DataSourceMysqlTest {
     void testInvalidSql() throws DataAccessException {
         dataSource.setSql("SELECT * FROM non_existent_table");
         try {
-            dataSource.getValues();
+            dataSource.acquireValues();
             fail("预期应该抛出DataAccessException异常");
         } catch (DataAccessException e) {
             // 预期的异常,测试通过
@@ -165,7 +165,7 @@ class DataSourceMysqlTest {
                 ORDER BY id
                 """);
 
-        List<Map<String, Object>> result = dataSource.getValues();
+        List<Map<String, Object>> result = dataSource.acquireValues();
 
         assertEquals(2, result.size());
         assertEquals(1L, result.get(0).get("id"));

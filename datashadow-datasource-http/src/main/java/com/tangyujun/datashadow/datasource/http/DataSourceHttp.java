@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.datasource.DataSourceConfigurationCallback;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
@@ -132,7 +133,7 @@ public class DataSourceHttp extends DataSource {
 
         try {
             // 使用OkHttp发送测试请求验证连接是否可用
-            getValues();
+            acquireValues();
         } catch (DataAccessException e) {
             if (e.getCause() instanceof IllegalArgumentException) {
                 throw new DataSourceValidException("URL格式无效，请检查URL是否正确", e);
@@ -149,9 +150,11 @@ public class DataSourceHttp extends DataSource {
      * @throws DataAccessException 数据访问异常
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    @JSONField(serialize = false, deserialize = false)
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         // 使用OkHttp发送请求获取数据
         OkHttpClient client = new OkHttpClient();
+
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url);
 
@@ -208,7 +211,7 @@ public class DataSourceHttp extends DataSource {
     public List<String> getColumns() {
         List<Map<String, Object>> values;
         try {
-            values = getValues();
+            values = acquireValues();
         } catch (RuntimeException e) {
             return List.of();
         }

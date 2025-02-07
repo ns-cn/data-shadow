@@ -92,9 +92,9 @@ class DataSourceXmlTest {
      * 测试读取XML数据
      */
     @Test
-    void testGetValues() throws DataAccessException {
+    void testacquireValues() throws DataAccessException {
         dataSourceXml.setPath(validXmlPath);
-        List<Map<String, Object>> values = dataSourceXml.getValues();
+        List<Map<String, Object>> values = dataSourceXml.acquireValues();
 
         // 验证返回的数据列表
         assertNotNull(values);
@@ -122,7 +122,7 @@ class DataSourceXmlTest {
     void testGetValuesWithInvalidXml() {
         dataSourceXml.setPath("invalid.xml");
         try {
-            dataSourceXml.getValues();
+            dataSourceXml.acquireValues();
             fail("应该抛出DataAccessException异常");
         } catch (DataAccessException e) {
             assertTrue(e.getMessage().contains("读取XML文件失败"));

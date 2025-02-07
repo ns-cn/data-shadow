@@ -69,12 +69,12 @@ public class DataSourceOracleTest {
      * 测试查询数据
      */
     @Test
-    void testGetValues() {
+    void testacquireValues() {
         // 设置一个简单的查询语句
         dataSource.setSql("SELECT 1 as TEST_COL FROM DUAL");
 
         try {
-            var result = dataSource.getValues();
+            var result = dataSource.acquireValues();
             assertNotNull(result, "Query result should not be null");
             assertFalse(result.isEmpty(), "Query result should contain data");
             assertEquals(1, result.size(), "Should return one row");
@@ -96,7 +96,7 @@ public class DataSourceOracleTest {
         dataSource.setSql("SELECT * FROM NON_EXISTENT_TABLE");
 
         try {
-            dataSource.getValues();
+            dataSource.acquireValues();
             fail("Should throw DataAccessException when querying non-existent table");
         } catch (DataAccessException e) {
             // 预期的异常,测试通过
@@ -118,7 +118,7 @@ public class DataSourceOracleTest {
                 """);
 
         try {
-            var result = dataSource.getValues();
+            var result = dataSource.acquireValues();
             assertNotNull(result, "查询结果不应为空");
             assertFalse(result.isEmpty(), "查询结果应该包含数据");
 

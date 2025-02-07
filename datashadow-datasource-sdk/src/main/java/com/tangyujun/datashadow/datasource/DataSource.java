@@ -66,7 +66,7 @@ public abstract class DataSource implements Serializable {
      * @throws DataAccessException 当数据访问出错时抛出此异常
      */
     @JSONField(serialize = false)
-    public abstract List<Map<String, Object>> getValues() throws DataAccessException;
+    public abstract List<Map<String, Object>> acquireValues() throws DataAccessException;
 
     /**
      * 获取数据集的列名

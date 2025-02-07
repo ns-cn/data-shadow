@@ -114,7 +114,7 @@ class DataSourceExcelTest {
         excel.setPath(file.getAbsolutePath());
 
         // 执行测试
-        List<Map<String, Object>> values = excel.getValues();
+        List<Map<String, Object>> values = excel.acquireValues();
 
         // 验证结果
         assertNotNull(values);
@@ -142,7 +142,7 @@ class DataSourceExcelTest {
         excel.setPath(file.getAbsolutePath());
 
         // 执行测试
-        List<Map<String, Object>> values = excel.getValues();
+        List<Map<String, Object>> values = excel.acquireValues();
 
         // 验证结果
         assertNotNull(values);
@@ -166,7 +166,7 @@ class DataSourceExcelTest {
         File file = new File(resource.getFile());
         excel.setPath(file.getAbsolutePath());
 
-        List<Map<String, Object>> values = excel.getValues();
+        List<Map<String, Object>> values = excel.acquireValues();
         assertTrue(values.isEmpty());
     }
 
@@ -185,7 +185,7 @@ class DataSourceExcelTest {
         File file = new File(resource.getFile());
         excel.setPath(file.getAbsolutePath());
 
-        List<Map<String, Object>> values = excel.getValues();
+        List<Map<String, Object>> values = excel.acquireValues();
         assertNotNull(values);
         assertFalse(values.isEmpty());
 

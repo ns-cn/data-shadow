@@ -268,7 +268,7 @@ public class DataSourceOracle extends DataSource {
      * @throws DataAccessException 当SQL执行失败或数据库连接出错时抛出
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         try {
             Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {

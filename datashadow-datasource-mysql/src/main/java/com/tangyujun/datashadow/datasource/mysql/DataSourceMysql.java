@@ -235,7 +235,7 @@ public class DataSourceMysql extends DataSource {
      * @throws SQLException 当SQL执行失败或数据库连接出错时抛出
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {

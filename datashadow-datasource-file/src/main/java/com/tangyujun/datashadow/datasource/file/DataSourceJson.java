@@ -62,7 +62,7 @@ public class DataSourceJson extends DataSourceFile {
      * @throws DataAccessException 当JSON文件读取失败时抛出
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         List<Map<String, Object>> result = new ArrayList<>();
         try {
             String jsonContent = new String(Files.readAllBytes(java.nio.file.Paths.get(path)), "UTF-8");

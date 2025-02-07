@@ -103,7 +103,7 @@ public class DataSourceCsv extends DataSourceFile {
      * @throws DataAccessException 当CSV文件读取失败时抛出
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         List<Map<String, Object>> result = new ArrayList<>();
         try (FileReader reader = new FileReader(path,
                 encoding != null ? Charset.forName(encoding) : StandardCharsets.UTF_8);

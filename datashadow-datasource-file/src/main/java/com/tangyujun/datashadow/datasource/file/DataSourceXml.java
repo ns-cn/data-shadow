@@ -116,7 +116,7 @@ public class DataSourceXml extends DataSourceFile {
      *                             - 文件读取IO异常
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         List<Map<String, Object>> result = new ArrayList<>();
         try {
             // 创建DocumentBuilder

@@ -114,7 +114,7 @@ public class DataSourceMemory extends DataSource {
      * @throws DataAccessException 当数据访问出错时抛出此异常
      */
     @Override
-    public List<Map<String, Object>> getValues() throws DataAccessException {
+    public List<Map<String, Object>> acquireValues() throws DataAccessException {
         return data;
     }
 

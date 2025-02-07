@@ -117,8 +117,6 @@ public class TimeDataComparator implements DataComparator {
      */
     @Override
     public String getDescription() {
-        return "时间数据比较器，支持多种时间类型和格式，包括LocalTime、String等。"
-                + "可以自定义时间格式，并配置null值处理方式。"
-                + "支持多种时间字符串格式，包括HH:mm、HH:mm:ss、HH:mm:ss.SSS等。";
+        return "时间";
     }
 }

@@ -85,7 +85,7 @@ class DataSourceCsvTest {
      * 3. 第一行数据内容与预期一致
      */
     @Test
-    void testGetValues() throws DataAccessException {
+    void testacquireValues() throws DataAccessException {
         // 准备测试数据
         URL resource = getClass().getClassLoader().getResource("csv/test.csv");
         assertNotNull(resource, "测试文件不存在");
@@ -95,7 +95,7 @@ class DataSourceCsvTest {
         csv.setPath(file.getAbsolutePath());
 
         // 执行测试
-        List<Map<String, Object>> values = csv.getValues();
+        List<Map<String, Object>> values = csv.acquireValues();
 
         // 验证结果
         assertNotNull(values);
@@ -136,7 +136,7 @@ class DataSourceCsvTest {
         File file = new File(resource.getFile());
         csv.setPath(file.getAbsolutePath());
 
-        List<Map<String, Object>> values = csv.getValues();
+        List<Map<String, Object>> values = csv.acquireValues();
         assertTrue(values.isEmpty());
     }
 
@@ -154,7 +154,7 @@ class DataSourceCsvTest {
         File file = new File(resource.getFile());
         csv.setPath(file.getAbsolutePath());
 
-        List<Map<String, Object>> values = csv.getValues();
+        List<Map<String, Object>> values = csv.acquireValues();
         assertNotNull(values);
 
         // 验证包含特殊字符的数据

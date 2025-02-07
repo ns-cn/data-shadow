@@ -266,16 +266,24 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      * 根据当前表头显示模式返回适当的列标题:
      * - 如果选择别名优先且数据项有别名,则返回别名
      * - 否则返回数据项代码
+     * - 如果数据项未设置比较器,在标题前添加感叹号
      * 
      * @param item 数据项对象
      * @return 根据显示模式确定的列标题文本
      */
     private String getColumnHeader(DataItem item) {
+        String header;
         if (headerDisplayMode.getValue().equals(HEADER_MODE_NICK) && item.getNick() != null
                 && !item.getNick().isEmpty()) {
-            return item.getNick();
+            header = item.getNick();
+        } else {
+            header = item.getCode();
         }
-        return item.getCode();
+        // 如果未设置比较器,在标题前添加感叹号
+        if (item.getComparator() == null) {
+            header = "❗" + header;
+        }
+        return header;
     }
 
     /**
@@ -298,145 +306,233 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 开始数据对比
-     * 执行主数据源和影子数据源的数据对比操作:
-     * 1. 验证数据源和数据项配置
-     * 2. 获取两个数据源的数据
-     * 3. 根据主键匹配记录并比对
-     * 4. 生成对比结果并更新表格显示
      */
-    @SuppressWarnings("LoggerStringConcat")
     private void startCompare() {
-        DataSource primary = DataFactory.getInstance().getPrimaryDataSource();
-        DataSource shadow = DataFactory.getInstance().getShadowDataSource();
-
-        if (primary == null || shadow == null) {
-            showAlert("请先配置数据源", "主数据源和影子数据源都必须配置后才能执行对比");
+        if (!validateComparePrerequisites()) {
             return;
         }
 
-        // 获取数据项列表
-        List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
-        if (dataItems.isEmpty()) {
-            showAlert("无法执行对比", "请先添加数据项");
-            return;
-        }
-
-        // 检查是否配置了主键
-        List<DataItem> uniqueItems = dataItems.stream()
-                .filter(DataItem::isUnique)
-                .toList();
-        if (uniqueItems.isEmpty()) {
-            showAlert("无法执行对比", "请先配置主键数据项");
-            return;
-        }
-
-        // 禁用对比按钮，避免重复操作
         compareButton.setDisable(true);
-
         try {
-            // 创建新的 ObservableList 来存储结果
             ObservableList<CompareResult> results = FXCollections.observableArrayList();
-
-            // 直接设置新的列表，而不是清空现有列表
             resultTable.setItems(results);
 
-            // 获取两个数据源的数据和映射关系
-            List<Map<String, Object>> primaryData = primary.getValues();
-            Map<String, String> primaryMapping = primary.getMappings();
+            List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
+            List<DataItem> uniqueItems = getUniqueItems(dataItems);
 
-            List<Map<String, Object>> shadowData = shadow.getValues();
-            Map<String, String> shadowMapping = shadow.getMappings();
+            // 获取数据源数据和映射
+            CompareData compareData = getCompareData();
 
-            // 创建结果数据结构
-            // ObservableList<CompareResult> results = FXCollections.observableArrayList();
+            // 构建影子数据Map
+            Map<Object, Map<String, Object>> shadowMap = buildShadowMap(compareData.shadowData(),
+                    compareData.shadowMapping(), dataItems, uniqueItems);
 
-            // 根据唯一标识字段进行数据匹配和对比
-            Map<Object, Map<String, Object>> shadowMap = new HashMap<>();
+            // 处理主数据源数据
+            processPrimaryData(compareData.primaryData(), compareData.primaryMapping(),
+                    shadowMap, dataItems, uniqueItems, results);
 
-            // 将影子数据转换为Map以便快速查找，同时应用字段映射
-            for (Map<String, Object> shadowRow : shadowData) {
-                Map<String, Object> mappedRow = new HashMap<>();
-                for (DataItem item : dataItems) {
-                    String mappedField = shadowMapping.get(item.getCode());
-                    if (mappedField != null) {
-                        mappedRow.put(item.getCode(), shadowRow.get(mappedField));
-                    }
-                }
-                String key = buildUniqueKey(mappedRow, uniqueItems);
-                shadowMap.put(key, mappedRow);
-            }
-            // 遍历主数据源进行对比，同时应用字段映射
-            for (Map<String, Object> primaryRow : primaryData) {
-                Map<String, Object> primaryObject = new HashMap<>();
-                for (DataItem item : dataItems) {
-                    String mappedField = primaryMapping.get(item.getCode());
-                    if (mappedField != null) {
-                        primaryObject.put(item.getCode(), primaryRow.get(mappedField));
+            // 处理剩余的影子数据
+            processShadowOnlyData(shadowMap, dataItems, results);
 
-                    }
-                }
-                String key = buildUniqueKey(primaryObject, uniqueItems);
-                Map<String, Object> shadowObject = shadowMap.remove(key);
-                CompareResult result = new CompareResult();
-                // 遍历所有数据项进行对比
-
-                for (DataItem item : dataItems) {
-                    Object primaryValue = primaryObject.get(item.getCode());
-                    Object shadowValue = shadowObject != null ? shadowObject.get(item.getCode()) : null;
-                    CellResult cellResult = new CellResult();
-                    cellResult.setPrimaryValue(primaryValue);
-                    cellResult.setShadowValue(shadowValue);
-                    if (shadowObject == null) {
-                        if (item.isUnique()) {
-                            if (item.getComparator() != null
-                                    && !item.getComparator().equals(primaryValue, shadowValue)) {
-                                cellResult.setDifferent(true);
-                            } else {
-                                cellResult.setDifferent(false);
-                            }
-                        } else {
-                            cellResult.setDifferent(false);
-                        }
-                    } else {
-                        // 检查比较器是否为空
-                        if (item.getComparator() != null) {
-                            cellResult.setDifferent(!item.getComparator().equals(primaryValue, shadowValue));
-                        } else {
-                            // 如果比较器为空,则使用Objects.equals进行比较
-                            cellResult.setDifferent(false);
-                        }
-                    }
-                    result.putCellResult(item.getCode(), cellResult);
-                }
-                results.add(result);
-            }
-
-            // 处理仅在影子数据源中存在的记录
-            for (Map<String, Object> shadowRow : shadowMap.values()) {
-                CompareResult result = new CompareResult();
-                for (DataItem item : dataItems) {
-                    Object shadowValue = shadowRow.get(item.getCode());
-                    CellResult cellResult = new CellResult();
-                    cellResult.setPrimaryValue(null);
-                    cellResult.setShadowValue(shadowValue);
-                    if (item.isUnique()) {
-                        cellResult.setDifferent(true);
-                    } else {
-                        cellResult.setDifferent(false);
-                    }
-                    result.putCellResult(item.getCode(), cellResult);
-                }
-                results.add(result);
-            }
-            // 更新表格数据和过滤器
             filterDiffItems();
 
         } catch (DataAccessException e) {
             log.severe("执行对比时发生错误: " + e.getMessage());
             showAlert("对比失败", "执行对比时发生错误：" + e.getMessage());
         } finally {
-            // 恢复对比按钮
             compareButton.setDisable(false);
+        }
+    }
+
+    /**
+     * 验证对比前置条件
+     */
+    private boolean validateComparePrerequisites() {
+        DataSource primary = DataFactory.getInstance().getPrimaryDataSource();
+        DataSource shadow = DataFactory.getInstance().getShadowDataSource();
+
+        if (primary == null || shadow == null) {
+            showAlert("请先配置数据源", "主数据源和影子数据源都必须配置后才能执行对比");
+            return false;
+        }
+
+        List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
+        if (dataItems.isEmpty()) {
+            showAlert("无法执行对比", "请先添加数据项");
+            return false;
+        }
+
+        List<DataItem> uniqueItems = dataItems.stream()
+                .filter(DataItem::isUnique)
+                .toList();
+        if (uniqueItems.isEmpty()) {
+            showAlert("无法执行对比", "请先配置主键数据项");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取主键数据项
+     */
+    private List<DataItem> getUniqueItems(List<DataItem> dataItems) {
+        return dataItems.stream()
+                .filter(DataItem::isUnique)
+                .toList();
+    }
+
+    /**
+     * 数据源数据和映射的封装类
+     */
+    private record CompareData(
+            List<Map<String, Object>> primaryData,
+            Map<String, String> primaryMapping,
+            List<Map<String, Object>> shadowData,
+            Map<String, String> shadowMapping) {
+    }
+
+    /**
+     * 获取数据源数据和映射
+     */
+    private CompareData getCompareData() throws DataAccessException {
+        DataSource primary = DataFactory.getInstance().getPrimaryDataSource();
+        DataSource shadow = DataFactory.getInstance().getShadowDataSource();
+
+        return new CompareData(
+                primary.acquireValues(),
+                primary.getMappings(),
+                shadow.acquireValues(),
+                shadow.getMappings());
+    }
+
+    /**
+     * 构建影子数据Map
+     */
+    private Map<Object, Map<String, Object>> buildShadowMap(
+            List<Map<String, Object>> shadowData,
+            Map<String, String> shadowMapping,
+            List<DataItem> dataItems,
+            List<DataItem> uniqueItems) {
+        Map<Object, Map<String, Object>> shadowMap = new HashMap<>();
+
+        for (Map<String, Object> shadowRow : shadowData) {
+            Map<String, Object> mappedRow = new HashMap<>();
+            for (DataItem item : dataItems) {
+                String mappedField = shadowMapping.get(item.getCode());
+                if (mappedField != null) {
+                    mappedRow.put(item.getCode(), shadowRow.get(mappedField));
+                }
+            }
+            String key = buildUniqueKey(mappedRow, uniqueItems);
+            shadowMap.put(key, mappedRow);
+        }
+
+        return shadowMap;
+    }
+
+    /**
+     * 处理主数据源数据
+     */
+    private void processPrimaryData(
+            List<Map<String, Object>> primaryData,
+            Map<String, String> primaryMapping,
+            Map<Object, Map<String, Object>> shadowMap,
+            List<DataItem> dataItems,
+            List<DataItem> uniqueItems,
+            ObservableList<CompareResult> results) {
+
+        for (Map<String, Object> primaryRow : primaryData) {
+            Map<String, Object> primaryObject = mapDataSourceRow(primaryRow, primaryMapping, dataItems);
+            String key = buildUniqueKey(primaryObject, uniqueItems);
+            Map<String, Object> shadowObject = shadowMap.remove(key);
+
+            CompareResult result = compareDataRows(primaryObject, shadowObject, dataItems);
+            results.add(result);
+        }
+    }
+
+    /**
+     * 映射数据源行数据
+     */
+    private Map<String, Object> mapDataSourceRow(
+            Map<String, Object> sourceRow,
+            Map<String, String> mapping,
+            List<DataItem> dataItems) {
+        Map<String, Object> mappedRow = new HashMap<>();
+        for (DataItem item : dataItems) {
+            String mappedField = mapping.get(item.getCode());
+            if (mappedField != null) {
+                mappedRow.put(item.getCode(), sourceRow.get(mappedField));
+            }
+        }
+        return mappedRow;
+    }
+
+    /**
+     * 比较数据行
+     */
+    private CompareResult compareDataRows(
+            Map<String, Object> primaryObject,
+            Map<String, Object> shadowObject,
+            List<DataItem> dataItems) {
+        CompareResult result = new CompareResult();
+
+        for (DataItem item : dataItems) {
+            CellResult cellResult = createCellResult(
+                    primaryObject.get(item.getCode()),
+                    shadowObject != null ? shadowObject.get(item.getCode()) : null,
+                    item,
+                    shadowObject == null);
+            result.putCellResult(item.getCode(), cellResult);
+        }
+
+        return result;
+    }
+
+    /**
+     * 创建单元格结果
+     */
+    private CellResult createCellResult(
+            Object primaryValue,
+            Object shadowValue,
+            DataItem item,
+            boolean shadowObjectNull) {
+        CellResult cellResult = new CellResult();
+        cellResult.setPrimaryValue(primaryValue);
+        cellResult.setShadowValue(shadowValue);
+
+        if (shadowObjectNull) {
+            cellResult.setDifferent(item.isUnique() &&
+                    item.getComparator() != null &&
+                    !item.getComparator().equals(primaryValue, shadowValue));
+        } else if (item.getComparator() != null) {
+            cellResult.setDifferent(!item.getComparator().equals(primaryValue, shadowValue));
+        } else {
+            cellResult.setDifferent(false);
+        }
+
+        return cellResult;
+    }
+
+    /**
+     * 处理仅在影子数据源中存在的数据
+     */
+    private void processShadowOnlyData(
+            Map<Object, Map<String, Object>> shadowMap,
+            List<DataItem> dataItems,
+            ObservableList<CompareResult> results) {
+        for (Map<String, Object> shadowRow : shadowMap.values()) {
+            CompareResult result = new CompareResult();
+            for (DataItem item : dataItems) {
+                Object shadowValue = shadowRow.get(item.getCode());
+                CellResult cellResult = new CellResult();
+                cellResult.setPrimaryValue(null);
+                cellResult.setShadowValue(shadowValue);
+                cellResult.setDifferent(item.isUnique());
+                result.putCellResult(item.getCode(), cellResult);
+            }
+            results.add(result);
         }
     }
 

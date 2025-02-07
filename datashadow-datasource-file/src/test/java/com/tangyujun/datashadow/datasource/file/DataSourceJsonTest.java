@@ -91,10 +91,10 @@ public class DataSourceJsonTest {
      * 3. 数据内容与预期一致
      */
     @Test
-    void testGetValues() throws DataAccessException {
+    void testacquireValues() throws DataAccessException {
         dataSource = new DataSourceJson();
         dataSource.setPath(validJsonPath);
-        List<Map<String, Object>> values = dataSource.getValues();
+        List<Map<String, Object>> values = dataSource.acquireValues();
 
         assertNotNull(values, "返回的列表不应为null");
         assertEquals(3, values.size(), "应该包含3条记录");
@@ -128,7 +128,7 @@ public class DataSourceJsonTest {
         dataSource = new DataSourceJson();
         dataSource.setPath(invalidPath);
         try {
-            dataSource.getValues();
+            dataSource.acquireValues();
             fail("Should throw DataAccessException when reading from non-existent JSON file");
         } catch (DataAccessException e) {
             // 预期的异常,测试通过
