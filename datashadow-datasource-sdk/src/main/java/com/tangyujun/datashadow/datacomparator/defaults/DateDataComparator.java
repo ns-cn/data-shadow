@@ -118,9 +118,6 @@ public class DateDataComparator implements DataComparator {
      */
     @Override
     public String getDescription() {
-        return "日期数据比较器，支持多种日期类型和格式，包括LocalDate、LocalDateTime、Date、String、Long等。"
-                + "可以自定义日期格式，并选择时区和null值处理方式。"
-                + "支持多种日期字符串格式，包括yyyy-MM-dd、yyyyMMdd、yyyy-MM-dd HH:mm、yyyy-MM-dd HH:mm:ss、yyyy-MM-dd HH:mm:ss.SSS、yyyy年MM月dd日、yyyy/MM/dd、dd.MM.yyyy等。"
-                + "支持时间戳转换为日期。";
+        return "日期";
     }
 }

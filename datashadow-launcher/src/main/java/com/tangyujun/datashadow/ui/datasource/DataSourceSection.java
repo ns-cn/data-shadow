@@ -66,6 +66,7 @@ public class DataSourceSection extends VBox implements DataSourceChangeListener 
         // 从DataFactory获取所有已注册的数据源
         typeSelect.setDataMap(dataFactory.getDataSources());
         typeSelect.setPrefWidth(200);
+        typeSelect.setAllowClear(false);
 
         Button configButton = new Button("配置数据源");
         configButton.setPrefWidth(120);

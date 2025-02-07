@@ -163,7 +163,7 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
         nickColumn.setCellValueFactory(new PropertyValueFactory<>("nick"));
         nickColumn.setSortable(false);
 
-        TableColumn<DataItem, String> comparatorColumn = new TableColumn<>("自定义比较器");
+        TableColumn<DataItem, String> comparatorColumn = new TableColumn<>("比较器");
         comparatorColumn.setPrefWidth(100);
         comparatorColumn.setCellValueFactory(cellData -> {
             DataItem item = cellData.getValue();

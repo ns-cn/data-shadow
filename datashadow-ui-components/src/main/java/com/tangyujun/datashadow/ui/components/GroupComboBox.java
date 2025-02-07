@@ -30,9 +30,9 @@ public class GroupComboBox<T> extends StackPane {
     private final TextField displayField;
 
     /**
-     * 触发下拉列表显示的按钮
+     * 清除按钮
      */
-    private final Button dropButton;
+    private final Button clearButton;
 
     /**
      * 下拉列表弹出窗口
@@ -95,6 +95,11 @@ public class GroupComboBox<T> extends StackPane {
     private double itemListWidth = 100;
 
     /**
+     * 是否允许清除选择
+     */
+    private boolean allowClear = true;
+
+    /**
      * 默认构造函数,使用默认提示文本"请选择"
      */
     public GroupComboBox() {
@@ -121,7 +126,7 @@ public class GroupComboBox<T> extends StackPane {
                 -fx-background-radius: 3;
                 -fx-cursor: hand;
                 """);
-        displayArea.setPrefHeight(25); // 设置标准高度
+        displayArea.setPrefHeight(25);
 
         // 创建文本显示框
         displayField = new TextField();
@@ -139,22 +144,66 @@ public class GroupComboBox<T> extends StackPane {
                 """);
         HBox.setHgrow(displayField, Priority.ALWAYS);
 
-        // 创建下拉按钮
-        dropButton = new Button("▼");
-        dropButton.setStyle("""
+        // 创建清除按钮
+        clearButton = new Button("×");
+        clearButton.setStyle("""
                 -fx-background-color: transparent;
                 -fx-border-width: 0;
-                -fx-padding: 3 8;
-                -fx-font-size: 8px;
-                -fx-text-fill: #666666;
+                -fx-padding: 0;
+                -fx-font-size: 12px;
+                -fx-text-fill: #999999;
                 -fx-min-width: 20px;
                 -fx-pref-width: 20px;
                 -fx-max-width: 20px;
+                -fx-font-weight: bold;
                 -fx-cursor: hand;
                 """);
-        dropButton.setAlignment(Pos.CENTER);
+        clearButton.setAlignment(Pos.CENTER);
 
-        displayArea.getChildren().addAll(displayField, dropButton);
+        // 添加点击事件
+        clearButton.setOnAction(e -> {
+            clearSelection();
+            e.consume();
+        });
+
+        // 添加鼠标悬停效果
+        clearButton.setOnMouseEntered(e -> clearButton.setStyle("""
+                -fx-background-color: transparent;
+                -fx-border-width: 0;
+                -fx-padding: 0;
+                -fx-font-size: 12px;
+                -fx-text-fill: #ff4444;
+                -fx-min-width: 20px;
+                -fx-pref-width: 20px;
+                -fx-max-width: 20px;
+                -fx-font-weight: bold;
+                -fx-cursor: hand;
+                """));
+
+        clearButton.setOnMouseExited(e -> clearButton.setStyle("""
+                -fx-background-color: transparent;
+                -fx-border-width: 0;
+                -fx-padding: 0;
+                -fx-font-size: 12px;
+                -fx-text-fill: #999999;
+                -fx-min-width: 20px;
+                -fx-pref-width: 20px;
+                -fx-max-width: 20px;
+                -fx-font-weight: bold;
+                -fx-cursor: hand;
+                """));
+
+        // 监听文本变化来控制清除按钮的可见性
+        displayField.textProperty().addListener((observable, oldValue, newValue) -> {
+            boolean shouldShow = allowClear && newValue != null && !newValue.isEmpty();
+            clearButton.setManaged(shouldShow);
+            clearButton.setVisible(shouldShow);
+        });
+        // 初始状态设置为不可见
+        clearButton.setVisible(false);
+        clearButton.setManaged(false);
+
+        displayArea.getChildren().addAll(displayField, clearButton);
 
         // 创建下拉内容
         dropdownContent = new HBox(0);
@@ -218,18 +267,9 @@ public class GroupComboBox<T> extends StackPane {
         popup.getContent().add(dropdownContent);
         popup.setAutoHide(true);
 
-        // 设置点击事件 - 移除原有的点击事件处理
-        // 为整个显示区域添加点击事件
+        // 设置点击事件
         displayArea.setOnMouseClicked(e -> showDropdown());
-
-        // 为文本框添加点击事件
         displayField.setOnMouseClicked(e -> showDropdown());
-
-        // 为下拉按钮添加点击事件
-        dropButton.setOnAction(e -> {
-            showDropdown();
-            e.consume(); // 防止事件冒泡
-        });
 
         // 修改鼠标悬浮效果
         displayArea.setOnMouseEntered(e -> {
@@ -460,10 +500,18 @@ public class GroupComboBox<T> extends StackPane {
      * 清除选择
      */
     public void clearSelection() {
+        if (!allowClear) {
+            return;
+        }
         selectedGroup = null;
         selectedName = null;
         selectedValueProperty.set(null);
         displayField.setText("");
+
+        // 触发选择监听器，传递null值表示清除选择
+        if (onSelectListener != null) {
+            onSelectListener.accept(new GroupSelectEvent<>(null, null, null));
+        }
     }
 
     /**
@@ -539,5 +587,28 @@ public class GroupComboBox<T> extends StackPane {
      */
     public double getItemListWidth() {
         return itemListWidth;
+    }
+
+    /**
+     * 设置是否允许清除选择
+     * 
+     * @param allowClear true表示允许清除，false表示不允许清除
+     */
+    public void setAllowClear(boolean allowClear) {
+        this.allowClear = allowClear;
+        // 立即更新清除按钮的可见性
+        String currentText = displayField.getText();
+        boolean shouldShow = allowClear && currentText != null && !currentText.isEmpty();
+        clearButton.setManaged(shouldShow);
+        clearButton.setVisible(shouldShow);
+    }
+
+    /**
+     * 获取是否允许清除选择
+     * 
+     * @return true表示允许清除，false表示不允许清除
+     */
+    public boolean isAllowClear() {
+        return allowClear;
     }
 }

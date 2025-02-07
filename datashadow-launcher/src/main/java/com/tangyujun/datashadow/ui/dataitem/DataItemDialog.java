@@ -23,7 +23,7 @@ import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
  * - 是否唯一: 标识该数据项是否作为唯一标识,用于数据比对时确定记录的唯一性
  * - 名称: 数据项的代码,必填且必须符合命名规范(字母开头,只能包含字母数字下划线)
  * - 别名: 数据项的显示名称,选填,用于界面展示时的友好显示
- * - 自定义比较器: 用于配置数据项的比较逻辑,必填,支持多种比较器类型和自定义配置
+ * - 比较器: 用于配置数据项的比较逻辑,必填,支持多种比较器类型和自定义配置
  * - 备注: 数据项的补充说明信息,用于记录额外的描述性内容
  * 
  * 对话框功能:
@@ -52,7 +52,7 @@ public class DataItemDialog extends Dialog<DataItem> {
     private final CheckBox uniqueCheckBox = new CheckBox();
 
     /**
-     * 自定义比较器类型选择下拉框
+     * 比较器类型选择下拉框
      * 用于选择比较器的主要类型和具体实现
      */
     private final GroupComboBox<DataComparatorGenerator> comparatorCombo;
@@ -111,8 +111,8 @@ public class DataItemDialog extends Dialog<DataItem> {
         form.add(new Label("别名:"), 0, 2);
         form.add(nickField, 1, 2);
 
-        // 自定义比较器
-        form.add(new Label("自定义比较器: *"), 0, 3);
+        // 比较器
+        form.add(new Label("比较器: "), 0, 3);
 
         // 创建比较器选择和配置的容器
         VBox comparatorBox = new VBox(5);
@@ -228,16 +228,6 @@ public class DataItemDialog extends Dialog<DataItem> {
             return false;
         }
 
-        if (comparatorCombo.getValue() == null) {
-            showError("请选择比较器");
-            return false;
-        }
-
-        if (comparator == null) {
-            showError("请配置比较器");
-            return false;
-        }
-
         return true;
     }
 
@@ -275,8 +265,6 @@ public class DataItemDialog extends Dialog<DataItem> {
         // 获取输入值并进行空值处理
         String code = codeField.getText();
         String nick = nickField.getText();
-        String comparatorType = comparatorCombo.getSelectedGroup();
-        String comparatorSubType = comparatorCombo.getSelectedName();
         String remark = remarkArea.getText();
 
         // 设置必填字段，确保不为null
@@ -287,10 +275,14 @@ public class DataItemDialog extends Dialog<DataItem> {
             item.setNick(nick.trim());
         }
 
-        // 设置比较器相关信息(必填)
-        item.setComparatorGroup(comparatorType.trim());
-        item.setComparatorName(comparatorSubType.trim());
-        item.setComparator(comparator);
+        // 设置比较器相关信息(可选)
+        if (comparatorCombo.getValue() != null && comparator != null) {
+            String comparatorType = comparatorCombo.getSelectedGroup();
+            String comparatorSubType = comparatorCombo.getSelectedName();
+            item.setComparatorGroup(comparatorType.trim());
+            item.setComparatorName(comparatorSubType.trim());
+            item.setComparator(comparator);
+        }
 
         if (remark != null && !remark.trim().isEmpty()) {
             item.setRemark(remark.trim());

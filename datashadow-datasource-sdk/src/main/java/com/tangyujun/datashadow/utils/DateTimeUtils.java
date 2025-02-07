@@ -64,6 +64,13 @@ public class DateTimeUtils {
                     }
                     return null;
                 }
+                // 尝试日期格式 MM-dd
+                if (dateStr.matches("\\d{1,2}-\\d{1,2}")) {
+                    String[] parts = dateStr.split("-");
+                    int month = Integer.parseInt(parts[0]);
+                    int day = Integer.parseInt(parts[1]);
+                    return LocalDate.of(LocalDate.now().getYear(), month, day);
+                }
                 // 尝试日期格式 yyyyMMdd
                 if (dateStr.matches("\\d{4}\\d{2}\\d{2}")) {
                     int year = Integer.parseInt(dateStr.substring(0, 4));

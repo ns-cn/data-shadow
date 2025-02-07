@@ -8,7 +8,7 @@ import javafx.geometry.Pos;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.awt.Desktop;
+import java.util.logging.Level;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -204,7 +205,9 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         if (cellResult.isDifferent()) {
             return primaryStr + " ❌ " + shadowStr;
         } else {
-            return primaryStr;
+            return Optional.ofNullable(primaryStr)
+                    .filter(str -> !str.isEmpty())
+                    .orElse(shadowStr);
         }
     }
 
@@ -364,29 +367,44 @@ public class CompareSection extends VBox implements DataItemChangeListener {
             }
             // 遍历主数据源进行对比，同时应用字段映射
             for (Map<String, Object> primaryRow : primaryData) {
-                Map<String, Object> mappedPrimaryRow = new HashMap<>();
+                Map<String, Object> primaryObject = new HashMap<>();
                 for (DataItem item : dataItems) {
                     String mappedField = primaryMapping.get(item.getCode());
                     if (mappedField != null) {
-                        mappedPrimaryRow.put(item.getCode(), primaryRow.get(mappedField));
+                        primaryObject.put(item.getCode(), primaryRow.get(mappedField));
+
                     }
                 }
-                String key = buildUniqueKey(mappedPrimaryRow, uniqueItems);
-                Map<String, Object> shadowRow = shadowMap.remove(key);
+                String key = buildUniqueKey(primaryObject, uniqueItems);
+                Map<String, Object> shadowObject = shadowMap.remove(key);
                 CompareResult result = new CompareResult();
                 // 遍历所有数据项进行对比
+
                 for (DataItem item : dataItems) {
-                    Object primaryValue = mappedPrimaryRow.get(item.getCode());
-                    Object shadowValue = shadowRow != null ? shadowRow.get(item.getCode()) : null;
+                    Object primaryValue = primaryObject.get(item.getCode());
+                    Object shadowValue = shadowObject != null ? shadowObject.get(item.getCode()) : null;
                     CellResult cellResult = new CellResult();
                     cellResult.setPrimaryValue(primaryValue);
                     cellResult.setShadowValue(shadowValue);
-                    // 检查比较器是否为空
-                    if (item.getComparator() != null) {
-                        cellResult.setDifferent(!item.getComparator().equals(primaryValue, shadowValue));
+                    if (shadowObject == null) {
+                        if (item.isUnique()) {
+                            if (item.getComparator() != null
+                                    && !item.getComparator().equals(primaryValue, shadowValue)) {
+                                cellResult.setDifferent(true);
+                            } else {
+                                cellResult.setDifferent(false);
+                            }
+                        } else {
+                            cellResult.setDifferent(false);
+                        }
                     } else {
-                        // 如果比较器为空,则使用Objects.equals进行比较
-                        cellResult.setDifferent(!Objects.equals(primaryValue, shadowValue));
+                        // 检查比较器是否为空
+                        if (item.getComparator() != null) {
+                            cellResult.setDifferent(!item.getComparator().equals(primaryValue, shadowValue));
+                        } else {
+                            // 如果比较器为空,则使用Objects.equals进行比较
+                            cellResult.setDifferent(false);
+                        }
                     }
                     result.putCellResult(item.getCode(), cellResult);
                 }
@@ -398,12 +416,14 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 CompareResult result = new CompareResult();
                 for (DataItem item : dataItems) {
                     Object shadowValue = shadowRow.get(item.getCode());
-
                     CellResult cellResult = new CellResult();
                     cellResult.setPrimaryValue(null);
                     cellResult.setShadowValue(shadowValue);
-                    cellResult.setDifferent(true);
-
+                    if (item.isUnique()) {
+                        cellResult.setDifferent(true);
+                    } else {
+                        cellResult.setDifferent(false);
+                    }
                     result.putCellResult(item.getCode(), cellResult);
                 }
                 results.add(result);
@@ -469,9 +489,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
                 try {
                     Desktop.getDesktop().open(file);
                 } catch (IOException e) {
-                    log.severe("打开文件失败: " + e.getMessage());
+                    log.log(Level.SEVERE, "打开文件失败: {0}", e.getMessage());
                     showAlert("打开失败", "无法打开文件：" + e.getMessage());
                 }
+
             }
         });
     }
