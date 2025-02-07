@@ -111,10 +111,15 @@ if !errorlevel! neq 0 (
 )
 
 :: 复制运行脚本
-echo Copying run.bat...
+echo Copying run.bat and 启动.vbs...
 copy /Y "datashadow-script\run.bat" "dist\datashadow\"
 if !errorlevel! neq 0 (
     echo Error: Failed to copy run.bat
+    exit /b 1
+)
+copy /Y "datashadow-script\启动.vbs" "dist\datashadow\"
+if !errorlevel! neq 0 (
+    echo Error: Failed to copy 启动.vbs
     exit /b 1
 )
 
