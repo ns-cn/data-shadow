@@ -54,7 +54,7 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
      * - 内边距和边框 (30px)
      * - 分隔条高度 (5px)
      */
-    private static final double MIN_HEIGHT = 250;
+    private static final double MIN_HEIGHT = 180;
 
     /**
      * 最大高度，避免占据太多空间
@@ -72,7 +72,7 @@ public class DataItemSection extends VBox implements DataItemChangeListener {
         setStyle("-fx-border-color: #ddd; -fx-border-radius: 5;");
 
         // 设置初始高度和限制
-        setPrefHeight(350);
+        setPrefHeight(MIN_HEIGHT);
         setMinHeight(MIN_HEIGHT);
         setMaxHeight(MAX_HEIGHT);
 
