@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui.compare;
+package com.tangyujun.datashadow.ui.compare.model;
 
 import java.util.HashMap;
 import java.util.Map;

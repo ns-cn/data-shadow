@@ -388,4 +388,48 @@ public class DataFactory {
     public void removeDataSourceChangeListener(DataSourceChangeListener listener) {
         dataSourceChangeListeners.remove(listener);
     }
+
+    /**
+     * 验证数据对比前置条件
+     * 
+     * @return 如果验证通过返回true，否则返回false
+     */
+    public boolean validateComparePrerequisites() {
+        if (primaryDataSource == null || shadowDataSource == null) {
+            return false;
+        }
+
+        if (dataItems.isEmpty()) {
+            return false;
+        }
+
+        List<DataItem> uniqueItems = dataItems.stream()
+                .filter(DataItem::isUnique)
+                .toList();
+        return !uniqueItems.isEmpty();
+    }
+
+    /**
+     * 获取验证失败的错误信息
+     * 
+     * @return 错误信息，如果没有错误返回null
+     */
+    public String getValidationErrorMessage() {
+        if (primaryDataSource == null || shadowDataSource == null) {
+            return "主数据源和影子数据源都必须配置后才能执行对比";
+        }
+
+        if (dataItems.isEmpty()) {
+            return "请先添加数据项";
+        }
+
+        List<DataItem> uniqueItems = dataItems.stream()
+                .filter(DataItem::isUnique)
+                .toList();
+        if (uniqueItems.isEmpty()) {
+            return "请先配置主键数据项";
+        }
+
+        return null;
+    }
 }

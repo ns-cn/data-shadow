@@ -1,8 +1,12 @@
-package com.tangyujun.datashadow.ui.compare;
+package com.tangyujun.datashadow.ui.compare.helper;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.opencsv.CSVWriter;
+import com.tangyujun.datashadow.ui.compare.model.CellResult;
+import com.tangyujun.datashadow.ui.compare.model.CompareResult;
+import com.tangyujun.datashadow.ui.compare.model.ResultExportCallback;
+
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -29,22 +33,60 @@ import java.util.logging.Logger;
  * 对比结果导出工具类
  * 支持将对比结果导出为CSV、Excel和JSON格式
  * 
- * @author tangyujun
- * @since 2024-01-01
+ * 主要功能:
+ * 1. 导出CSV格式
+ * - 包含表头和数据行
+ * - 差异数据使用"❌"分隔显示
+ * 
+ * 2. 导出Excel格式
+ * - 表头使用灰色背景
+ * - 差异数据使用黄色背景标注
+ * - 自动调整列宽
+ * - 差异数据使用"❌"分隔显示
+ * 
+ * 3. 导出JSON格式
+ * - 每个单元格包含主数据源值、影子数据源值和差异标记
+ * - 保持完整的数据结构
+ * 
+ * 使用方式:
+ * 1. 创建实例时需提供:
+ * - TableView对象: 包含要导出的数据
+ * - Window对象: 用于显示文件选择对话框
+ * - 回调接口: 处理导出成功和失败的情况
+ * 
+ * 2. 调用相应的导出方法:
+ * - exportToCsv()
+ * - exportToExcel()
+ * - exportToJson()
+ * 
+ * 错误处理:
+ * - 导出前验证数据有效性
+ * - 导出过程中的异常会通过回调接口通知
+ * - 记录详细的错误日志
+ * 
+ * 注意事项:
+ * - 确保导出目录有写入权限
+ * - 大数据量导出可能需要较长时间
+ * - Excel导出使用XLSX格式以支持更大数据量
  */
 public class CompareResultExporter {
+    /** 日志记录器 - 用于记录导出过程中的日志信息 */
     private static final Logger log = Logger.getLogger(CompareResultExporter.class.getName());
 
+    /** 包含对比结果的表格视图 */
     private final TableView<CompareResult> resultTable;
+    /** 父窗口 - 用于显示文件选择对话框 */
     private final Window parentWindow;
+    /** 导出结果回调接口 - 用于处理导出成功和失败的情况 */
     private final ResultExportCallback callback;
 
     /**
      * 构造函数
+     * 初始化导出工具类,设置必要的组件引用
      * 
-     * @param resultTable 包含对比结果的表格视图
-     * @param parentWindow 父窗口，用于显示文件选择对话框
-     * @param callback 导出结果回调接口
+     * @param resultTable  包含对比结果的表格视图,提供要导出的数据源
+     * @param parentWindow 父窗口,用于显示文件选择对话框
+     * @param callback     导出结果回调接口,处理导出成功和失败的情况
      */
     public CompareResultExporter(TableView<CompareResult> resultTable, Window parentWindow,
             ResultExportCallback callback) {
@@ -55,8 +97,19 @@ public class CompareResultExporter {
 
     /**
      * 导出为CSV文件
-     * 将对比结果表格数据导出为CSV格式，包含表头和数据行
-     * 对于有差异的单元格，使用"❌"分隔主数据源和影子数据源的值
+     * 将对比结果表格数据导出为CSV格式
+     * 
+     * 导出步骤:
+     * 1. 显示文件保存对话框
+     * 2. 验证导出数据的有效性
+     * 3. 写入表头信息
+     * 4. 逐行写入数据内容
+     * 5. 处理导出结果回调
+     * 
+     * 数据格式:
+     * - 使用标准CSV格式
+     * - 包含表头和数据行
+     * - 差异数据使用"❌"分隔显示
      */
     public void exportToCsv() {
         File file = showSaveFileDialog("CSV Files", "*.csv");
@@ -93,11 +146,22 @@ public class CompareResultExporter {
 
     /**
      * 导出为Excel文件
-     * 将对比结果表格数据导出为Excel格式，包含以下特性：
+     * 将对比结果表格数据导出为Excel格式
+     * 
+     * 导出步骤:
+     * 1. 显示文件保存对话框
+     * 2. 验证导出数据的有效性
+     * 3. 创建工作簿和样式
+     * 4. 写入表头和数据
+     * 5. 调整列宽
+     * 6. 保存文件
+     * 7. 处理导出结果回调
+     * 
+     * 格式特性:
      * - 表头使用灰色背景
      * - 差异数据使用黄色背景标注
      * - 自动调整列宽
-     * - 对于有差异的单元格，使用"❌"分隔主数据源和影子数据源的值
+     * - 差异数据使用"❌"分隔显示
      */
     public void exportToExcel() {
         File file = showSaveFileDialog("Excel Files", "*.xlsx");
@@ -136,7 +200,18 @@ public class CompareResultExporter {
 
     /**
      * 导出为JSON文件
-     * 将对比结果表格数据导出为JSON格式，每个单元格包含以下信息：
+     * 将对比结果表格数据导出为JSON格式
+     * 
+     * 导出步骤:
+     * 1. 显示文件保存对话框
+     * 2. 验证导出数据的有效性
+     * 3. 构建JSON数据结构
+     * 4. 写入文件
+     * 5. 处理导出结果回调
+     * 
+     * 数据结构:
+     * - 每行数据为一个JSON对象
+     * - 每个单元格包含:
      * - primaryValue: 主数据源的值
      * - shadowValue: 影子数据源的值
      * - isDifferent: 是否存在差异
@@ -180,10 +255,11 @@ public class CompareResultExporter {
 
     /**
      * 显示文件保存对话框
+     * 配置并显示文件选择器,让用户选择保存位置
      * 
-     * @param description 文件类型描述
-     * @param extension 文件扩展名过滤器
-     * @return 用户选择的文件，如果用户取消则返回null
+     * @param description 文件类型描述,如"CSV Files"
+     * @param extension   文件扩展名过滤器,如"*.csv"
+     * @return 用户选择的文件对象,如果用户取消则返回null
      */
     private File showSaveFileDialog(String description, String extension) {
         FileChooser fileChooser = new FileChooser();
@@ -195,9 +271,10 @@ public class CompareResultExporter {
 
     /**
      * 验证导出数据的有效性
+     * 检查数据列表是否为空
      * 
      * @param data 要导出的数据列表
-     * @return 如果数据有效返回true，否则返回false
+     * @return 如果数据有效返回true,否则返回false并通过回调通知错误
      */
     private boolean validateData(ObservableList<CompareResult> data) {
         if (data == null || data.isEmpty()) {
@@ -209,9 +286,10 @@ public class CompareResultExporter {
 
     /**
      * 处理导出错误
+     * 记录错误日志并通过回调通知错误
      * 
-     * @param format 导出格式名称
-     * @param e 异常信息
+     * @param format 导出格式名称(CSV/Excel/JSON)
+     * @param e      异常信息
      */
     private void handleExportError(String format, Exception e) {
         log.log(Level.SEVERE, "导出" + format + "文件失败: ", e);
@@ -220,8 +298,9 @@ public class CompareResultExporter {
 
     /**
      * 创建Excel表头样式
+     * 配置表头的背景色为浅灰色
      * 
-     * @param workbook Excel工作簿
+     * @param workbook Excel工作簿对象
      * @return 配置好的单元格样式
      */
     private CellStyle createHeaderStyle(XSSFWorkbook workbook) {
@@ -233,8 +312,9 @@ public class CompareResultExporter {
 
     /**
      * 创建Excel差异数据样式
+     * 配置差异数据的背景色为浅黄色
      * 
-     * @param workbook Excel工作簿
+     * @param workbook Excel工作簿对象
      * @return 配置好的单元格样式
      */
     private CellStyle createDiffStyle(XSSFWorkbook workbook) {
@@ -246,8 +326,9 @@ public class CompareResultExporter {
 
     /**
      * 写入Excel表头
+     * 创建表头行并应用表头样式
      * 
-     * @param sheet Excel工作表
+     * @param sheet       Excel工作表对象
      * @param headerStyle 表头样式
      */
     private void writeExcelHeader(XSSFSheet sheet, CellStyle headerStyle) {
@@ -262,8 +343,9 @@ public class CompareResultExporter {
 
     /**
      * 写入Excel数据行
+     * 逐行写入数据并为差异数据应用样式
      * 
-     * @param sheet Excel工作表
+     * @param sheet     Excel工作表对象
      * @param diffStyle 差异数据样式
      */
     private void writeExcelData(XSSFSheet sheet, CellStyle diffStyle) {
@@ -287,7 +369,7 @@ public class CompareResultExporter {
 
     /**
      * 获取单元格显示值
-     * 对于有差异的数据，使用"❌"分隔主数据源和影子数据源的值
+     * 格式化单元格数据,对于差异数据使用"❌"分隔显示
      * 
      * @param cellResult 单元格结果对象
      * @return 格式化后的显示字符串
@@ -304,26 +386,5 @@ public class CompareResultExporter {
         } else {
             return !primaryStr.isEmpty() ? primaryStr : shadowStr;
         }
-    }
-
-    /**
-     * 导出结果回调接口
-     * 用于处理导出成功和失败的回调
-     */
-    public interface ResultExportCallback {
-        /**
-         * 导出成功回调
-         * 
-         * @param message 成功消息
-         * @param file 导出的文件
-         */
-        void onExportSuccess(String message, File file);
-
-        /**
-         * 导出失败回调
-         * 
-         * @param message 错误消息
-         */
-        void onExportError(String message);
     }
 }

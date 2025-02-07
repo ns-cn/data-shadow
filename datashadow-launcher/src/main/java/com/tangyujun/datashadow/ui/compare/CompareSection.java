@@ -7,82 +7,118 @@ import javafx.geometry.Pos;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.HashMap;
 import com.tangyujun.datashadow.core.DataItemChangeListener;
 import com.tangyujun.datashadow.dataitem.DataItem;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.exception.DataAccessException;
+import com.tangyujun.datashadow.ui.compare.helper.CompareEngine;
+import com.tangyujun.datashadow.ui.compare.helper.CompareResultExporter;
+import com.tangyujun.datashadow.ui.compare.helper.CompareTableHelper;
+import com.tangyujun.datashadow.ui.compare.helper.DialogHelper;
+import com.tangyujun.datashadow.ui.compare.model.CompareResult;
+import com.tangyujun.datashadow.ui.compare.model.ResultExportCallback;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.beans.property.SimpleStringProperty;
 import java.io.File;
-import java.io.IOException;
-import java.awt.Desktop;
 import java.util.logging.Level;
 
 /**
  * 对比功能与结果展示区
  * 包含对比操作和结果展示的完整功能区域
+ * 
  * 主要功能:
  * 1. 执行主数据源和影子数据源的数据对比
  * 2. 展示对比结果,支持多种过滤模式
  * 3. 支持数据项名称和别名两种显示模式
  * 4. 支持导出对比结果为CSV、Excel和JSON格式
+ * 
+ * 界面组成:
+ * 1. 标题区 - 显示功能区标题
+ * 2. 工具栏 - 包含对比按钮、过滤模式选择、显示模式选择和导出按钮
+ * 3. 结果表格 - 以表格形式展示对比结果
+ * 
+ * 交互功能:
+ * 1. 执行对比 - 点击对比按钮触发数据对比操作
+ * 2. 过滤显示 - 通过下拉框选择不同的过滤模式
+ * 3. 切换显示 - 支持数据项代码和别名两种显示方式
+ * 4. 导出结果 - 支持多种格式导出对比结果
+ * 
+ * 数据处理:
+ * 1. 自动监听数据项变化并更新显示
+ * 2. 支持动态加载和更新数据
+ * 3. 提供数据验证和错误处理机制
  */
 public class CompareSection extends VBox implements DataItemChangeListener {
 
-    /** 日志记录器 */
+    /** 日志记录器 - 用于记录组件运行时的日志信息 */
     private static final Logger log = Logger.getLogger(CompareSection.class.getName());
 
-    /** 过滤模式常量 - 显示所有数据项 */
+    /**
+     * 过滤模式常量定义
+     * FILTER_MODE_ALL - 显示所有数据项,不进行过滤
+     * FILTER_MODE_ALL_DIFF - 显示所有存在差异的数据项
+     * FILTER_MODE_PRIMARY - 仅显示主数据源中存在的数据项
+     * FILTER_MODE_PRIMARY_DIFF - 仅显示主数据源中存在差异的数据项
+     * FILTER_MODE_SHADOW - 仅显示影子数据源中存在的数据项
+     * FILTER_MODE_SHADOW_DIFF - 仅显示影子数据源中存在差异的数据项
+     */
     private static final String FILTER_MODE_ALL = "全部数据";
-    /** 过滤模式常量 - 显示所有差异项 */
     private static final String FILTER_MODE_ALL_DIFF = "所有差异项";
-    /** 过滤模式常量 - 仅显示主数据源数据 */
     private static final String FILTER_MODE_PRIMARY = "仅主数据源";
-    /** 过滤模式常量 - 仅显示主数据源差异项 */
     private static final String FILTER_MODE_PRIMARY_DIFF = "仅主数据源差异项";
-    /** 过滤模式常量 - 仅显示影子数据源数据 */
     private static final String FILTER_MODE_SHADOW = "仅影子数据源";
-    /** 过滤模式常量 - 仅显示影子数据源差异项 */
     private static final String FILTER_MODE_SHADOW_DIFF = "仅影子数据源差异项";
 
-    /** 表头显示模式常量 - 使用数据项代码作为列标题 */
+    /**
+     * 表头显示模式常量定义
+     * HEADER_MODE_CODE - 使用数据项的原始代码作为列标题
+     * HEADER_MODE_NICK - 优先使用数据项的别名作为列标题,如无别名则使用代码
+     */
     private static final String HEADER_MODE_CODE = "数据项名称";
-    /** 表头显示模式常量 - 优先使用数据项别名作为列标题 */
     private static final String HEADER_MODE_NICK = "数据项别名优先";
 
-    /** 对比结果展示表格 */
+    /** 对比结果展示表格 - 用于展示数据对比的详细结果 */
     private final TableView<CompareResult> resultTable;
-    /** 执行对比按钮 */
+    /** 执行对比按钮 - 触发数据对比操作 */
     private final Button compareButton;
-    /** 过滤模式选择下拉框 */
+    /** 过滤模式选择下拉框 - 用于选择不同的数据过滤方式 */
     private final ComboBox<String> filterMode;
-    /** 表头显示模式选择下拉框 */
+    /** 表头显示模式选择下拉框 - 用于切换列标题的显示方式 */
     private final ComboBox<String> headerDisplayMode;
-    /** CSV导出按钮 */
+    /** CSV格式导出按钮 - 将对比结果导出为CSV文件 */
     private final Button exportCsvButton;
-    /** Excel导出按钮 */
+    /** Excel格式导出按钮 - 将对比结果导出为Excel文件 */
     private final Button exportExcelButton;
-    /** JSON导出按钮 */
+    /** JSON格式导出按钮 - 将对比结果导出为JSON文件 */
     private final Button exportJsonButton;
 
+    /** 结果导出工具 - 处理不同格式的结果导出功能 */
     private CompareResultExporter exporter;
 
     /**
      * 构造函数
      * 初始化界面组件并设置布局
-     * 包括:
+     * 
+     * 初始化流程:
      * 1. 创建标题和工具栏
+     * - 设置标题样式和布局
+     * - 配置工具栏组件和布局
      * 2. 初始化对比结果表格
+     * - 创建表格容器
+     * - 设置表格样式和布局属性
      * 3. 设置各组件事件处理
+     * - 配置按钮点击事件
+     * - 设置下拉框选择事件
      * 4. 注册数据项变化监听
+     * - 监听数据项变化以更新显示
+     * 
+     * 布局设置:
+     * 1. 使用VBox作为主容器,设置间距和边框
+     * 2. 使用HBox组织工具栏组件
+     * 3. 合理分配组件大小和空间
      */
     public CompareSection() {
         super(5);
@@ -163,22 +199,25 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         // 设置按钮事件
         compareButton.setOnAction(event -> startCompare());
         filterMode.setOnAction(event -> filterDiffItems());
-        headerDisplayMode.setOnAction(event -> updateColumnHeaders());
+        headerDisplayMode.setOnAction(event -> {
+            List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
+            updateColumns(dataItems);
+        });
 
         // 延迟初始化导出工具，直到组件被添加到Scene中
         sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 // 初始化导出工具
                 exporter = new CompareResultExporter(resultTable, newScene.getWindow(),
-                        new CompareResultExporter.ResultExportCallback() {
+                        new ResultExportCallback() {
                             @Override
                             public void onExportSuccess(String message, File file) {
-                                showSuccessDialog("导出成功", message, file);
+                                DialogHelper.showSuccessDialog("导出成功", message, file);
                             }
 
                             @Override
                             public void onExportError(String message) {
-                                showAlert("导出失败", message);
+                                DialogHelper.showAlert("导出失败", message);
                             }
                         });
 
@@ -195,132 +234,45 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 更新表格列
-     * 根据数据项列表动态创建表格列,包括:
-     * 1. 清空现有列
-     * 2. 为每个数据项创建对应的列
-     * 3. 设置列的值工厂和单元格工厂
-     * 4. 配置列的显示样式
+     * 根据当前数据项列表和显示模式重新创建表格列
      * 
-     * @param dataItems 数据项列表,用于创建表格列
+     * @param dataItems 数据项列表,用于创建对应的表格列
      */
     public void updateColumns(List<DataItem> dataItems) {
-        resultTable.getColumns().clear();
-
-        if (dataItems != null) {
-            for (DataItem dataItem : dataItems) {
-                TableColumn<CompareResult, String> column = new TableColumn<>(getColumnHeader(dataItem));
-                column.setId(dataItem.getCode());
-
-                // 设置列宽
-                column.setPrefWidth(150);
-
-                // 设置值工厂
-                column.setCellValueFactory(cellData -> {
-                    CellResult cellResult = cellData.getValue().getCellResult(dataItem.getCode());
-                    return new SimpleStringProperty(cellResult != null ? cellResult.getDisplayValue() : "");
-                });
-
-                // 设置单元格工厂
-                column.setCellFactory(col -> new TableCell<>() {
-                    @Override
-                    protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty || item == null) {
-                            setText(null);
-                            setStyle("");
-                        } else if (item.contains("❌")) {
-                            setText(item);
-                            setStyle("-fx-text-fill: red; -fx-alignment: center;");
-                        } else {
-                            setText(item);
-                            setStyle("-fx-alignment: center;");
-                        }
-                    }
-                });
-
-                resultTable.getColumns().add(column);
-            }
-        }
-    }
-
-    /**
-     * 获取列标题
-     * 根据当前表头显示模式返回适当的列标题:
-     * - 如果选择别名优先且数据项有别名,则返回别名
-     * - 否则返回数据项代码
-     * - 如果数据项未设置比较器,在标题前添加感叹号
-     * 
-     * @param item 数据项对象
-     * @return 根据显示模式确定的列标题文本
-     */
-    private String getColumnHeader(DataItem item) {
-        String header;
-        if (headerDisplayMode.getValue().equals(HEADER_MODE_NICK) && item.getNick() != null
-                && !item.getNick().isEmpty()) {
-            header = item.getNick();
-        } else {
-            header = item.getCode();
-        }
-        // 如果未设置比较器,在标题前添加感叹号
-        if (item.getComparator() == null) {
-            header = "❗" + header;
-        }
-        return header;
-    }
-
-    /**
-     * 更新列标题
-     * 在切换表头显示模式时更新所有列的标题:
-     * 1. 获取当前所有数据项
-     * 2. 遍历表格列
-     * 3. 根据新的显示模式更新每列标题
-     */
-    private void updateColumnHeaders() {
-        List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
-        for (TableColumn<CompareResult, ?> column : resultTable.getColumns()) {
-            String columnId = column.getId();
-            dataItems.stream()
-                    .filter(item -> item.getCode().equals(columnId))
-                    .findFirst()
-                    .ifPresent(item -> column.setText(getColumnHeader(item)));
-        }
+        CompareTableHelper.updateColumns(resultTable, dataItems, headerDisplayMode.getValue());
     }
 
     /**
      * 开始数据对比
+     * 执行主数据源和影子数据源的数据对比操作
+     * 
+     * 处理流程:
+     * 1. 验证对比前置条件
+     * 2. 禁用对比按钮防止重复操作
+     * 3. 执行数据对比
+     * 4. 根据过滤模式显示结果
+     * 5. 处理可能的异常情况
+     * 6. 恢复对比按钮状态
      */
     private void startCompare() {
         if (!validateComparePrerequisites()) {
             return;
         }
-
         compareButton.setDisable(true);
         try {
             ObservableList<CompareResult> results = FXCollections.observableArrayList();
             resultTable.setItems(results);
 
+            DataSource primary = DataFactory.getInstance().getPrimaryDataSource();
+            DataSource shadow = DataFactory.getInstance().getShadowDataSource();
             List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
-            List<DataItem> uniqueItems = getUniqueItems(dataItems);
 
-            // 获取数据源数据和映射
-            CompareData compareData = getCompareData();
-
-            // 构建影子数据Map
-            Map<Object, Map<String, Object>> shadowMap = buildShadowMap(compareData.shadowData(),
-                    compareData.shadowMapping(), dataItems, uniqueItems);
-
-            // 处理主数据源数据
-            processPrimaryData(compareData.primaryData(), compareData.primaryMapping(),
-                    shadowMap, dataItems, uniqueItems, results);
-
-            // 处理剩余的影子数据
-            processShadowOnlyData(shadowMap, dataItems, results);
-
+            CompareEngine.compare(primary, shadow, dataItems, results);
             filterDiffItems();
 
         } catch (DataAccessException e) {
             log.log(Level.SEVERE, "执行对比时发生错误: {0}", e.getMessage());
-            showAlert("对比失败", "执行对比时发生错误：" + e.getMessage());
+            DialogHelper.showAlert("对比失败", "执行对比时发生错误：" + e.getMessage());
         } finally {
             compareButton.setDisable(false);
         }
@@ -329,228 +281,30 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
     /**
      * 验证对比前置条件
+     * 检查是否满足执行数据对比的必要条件
+     * 
+     * 验证项目:
+     * 1. 主数据源和影子数据源是否已配置
+     * 2. 是否已添加数据项
+     * 3. 是否已配置主键数据项
+     * 
+     * @return 如果满足所有条件返回true,否则返回false
      */
     private boolean validateComparePrerequisites() {
-        DataSource primary = DataFactory.getInstance().getPrimaryDataSource();
-        DataSource shadow = DataFactory.getInstance().getShadowDataSource();
-
-        if (primary == null || shadow == null) {
-            showAlert("请先配置数据源", "主数据源和影子数据源都必须配置后才能执行对比");
+        DataFactory factory = DataFactory.getInstance();
+        if (!factory.validateComparePrerequisites()) {
+            String errorMessage = factory.getValidationErrorMessage();
+            DialogHelper.showAlert("无法执行对比", errorMessage);
             return false;
         }
-
-        List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
-        if (dataItems.isEmpty()) {
-            showAlert("无法执行对比", "请先添加数据项");
-            return false;
-        }
-
-        List<DataItem> uniqueItems = dataItems.stream()
-                .filter(DataItem::isUnique)
-                .toList();
-        if (uniqueItems.isEmpty()) {
-            showAlert("无法执行对比", "请先配置主键数据项");
-            return false;
-        }
-
         return true;
     }
 
     /**
-     * 获取主键数据项
-     */
-    private List<DataItem> getUniqueItems(List<DataItem> dataItems) {
-        return dataItems.stream()
-                .filter(DataItem::isUnique)
-                .toList();
-    }
-
-    /**
-     * 数据源数据和映射的封装类
-     */
-    private record CompareData(
-            List<Map<String, Object>> primaryData,
-            Map<String, String> primaryMapping,
-            List<Map<String, Object>> shadowData,
-            Map<String, String> shadowMapping) {
-    }
-
-    /**
-     * 获取数据源数据和映射
-     */
-    private CompareData getCompareData() throws DataAccessException {
-        DataSource primary = DataFactory.getInstance().getPrimaryDataSource();
-        DataSource shadow = DataFactory.getInstance().getShadowDataSource();
-
-        return new CompareData(
-                primary.acquireValues(),
-                primary.getMappings(),
-                shadow.acquireValues(),
-                shadow.getMappings());
-    }
-
-    /**
-     * 构建影子数据Map
-     */
-    private Map<Object, Map<String, Object>> buildShadowMap(
-            List<Map<String, Object>> shadowData,
-            Map<String, String> shadowMapping,
-            List<DataItem> dataItems,
-            List<DataItem> uniqueItems) {
-        Map<Object, Map<String, Object>> shadowMap = new HashMap<>();
-
-        for (Map<String, Object> shadowRow : shadowData) {
-            Map<String, Object> mappedRow = new HashMap<>();
-            for (DataItem item : dataItems) {
-                String mappedField = shadowMapping.get(item.getCode());
-                if (mappedField != null) {
-                    mappedRow.put(item.getCode(), shadowRow.get(mappedField));
-                }
-            }
-            String key = buildUniqueKey(mappedRow, uniqueItems);
-            shadowMap.put(key, mappedRow);
-        }
-
-        return shadowMap;
-    }
-
-    /**
-     * 处理主数据源数据
-     */
-    private void processPrimaryData(
-            List<Map<String, Object>> primaryData,
-            Map<String, String> primaryMapping,
-            Map<Object, Map<String, Object>> shadowMap,
-            List<DataItem> dataItems,
-            List<DataItem> uniqueItems,
-            ObservableList<CompareResult> results) {
-
-        for (Map<String, Object> primaryRow : primaryData) {
-            Map<String, Object> primaryObject = mapDataSourceRow(primaryRow, primaryMapping, dataItems);
-            String key = buildUniqueKey(primaryObject, uniqueItems);
-            Map<String, Object> shadowObject = shadowMap.remove(key);
-
-            CompareResult result = compareDataRows(primaryObject, shadowObject, dataItems);
-            results.add(result);
-        }
-    }
-
-    /**
-     * 映射数据源行数据
-     */
-    private Map<String, Object> mapDataSourceRow(
-            Map<String, Object> sourceRow,
-            Map<String, String> mapping,
-            List<DataItem> dataItems) {
-        Map<String, Object> mappedRow = new HashMap<>();
-        for (DataItem item : dataItems) {
-            String mappedField = mapping.get(item.getCode());
-            if (mappedField != null) {
-                mappedRow.put(item.getCode(), sourceRow.get(mappedField));
-            }
-        }
-        return mappedRow;
-    }
-
-    /**
-     * 比较数据行
-     */
-    private CompareResult compareDataRows(
-            Map<String, Object> primaryObject,
-            Map<String, Object> shadowObject,
-            List<DataItem> dataItems) {
-        CompareResult result = new CompareResult();
-
-        for (DataItem item : dataItems) {
-            CellResult cellResult = CellResult.create(
-                    primaryObject.get(item.getCode()),
-                    shadowObject != null ? shadowObject.get(item.getCode()) : null,
-                    item,
-                    shadowObject == null);
-            result.putCellResult(item.getCode(), cellResult);
-        }
-
-        return result;
-    }
-
-    /**
-     * 处理仅在影子数据源中存在的数据
-     */
-    private void processShadowOnlyData(
-            Map<Object, Map<String, Object>> shadowMap,
-            List<DataItem> dataItems,
-            ObservableList<CompareResult> results) {
-        for (Map<String, Object> shadowRow : shadowMap.values()) {
-            CompareResult result = new CompareResult();
-            for (DataItem item : dataItems) {
-                Object shadowValue = shadowRow.get(item.getCode());
-                CellResult cellResult = CellResult.create(null, shadowValue, item, false);
-                result.putCellResult(item.getCode(), cellResult);
-            }
-            results.add(result);
-        }
-    }
-
-    /**
-     * 构建唯一键
-     * 将多个主键字段的值拼接成唯一标识字符串
-     * 
-     * @param row         数据行
-     * @param uniqueItems 主键数据项列表
-     * @return 由主键值拼接而成的唯一标识字符串
-     */
-    private String buildUniqueKey(Map<String, Object> row, List<DataItem> uniqueItems) {
-        return uniqueItems.stream()
-                .map(item -> String.valueOf(row.get(item.getCode())))
-                .collect(Collectors.joining("_"));
-    }
-
-    /**
-     * 显示警告对话框
-     * 用于显示操作过程中的警告信息
-     * 
-     * @param title   警告标题
-     * @param content 警告内容
-     */
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    /**
-     * 显示成功对话框并提供打开文件选项
-     * 
-     * @param title   标题
-     * @param content 内容
-     * @param file    导出的文件
-     */
-    private void showSuccessDialog(String title, String content, File file) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setContentText(content);
-
-        ButtonType openButton = new ButtonType("打开文件");
-        ButtonType closeButton = new ButtonType("关闭", ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(openButton, closeButton);
-
-        alert.showAndWait().ifPresent(buttonType -> {
-            if (buttonType == openButton) {
-                try {
-                    Desktop.getDesktop().open(file);
-                } catch (IOException e) {
-                    log.log(Level.SEVERE, "打开文件失败: {0}", e.getMessage());
-                    showAlert("打开失败", "无法打开文件：" + e.getMessage());
-                }
-
-            }
-        });
-    }
-
-    /**
      * 过滤差异项
-     * 根据当前过滤模式设置表格数据显示:
+     * 根据当前选择的过滤模式设置表格数据显示
+     * 
+     * 过滤模式说明:
      * - 全部数据: 显示所有数据行
      * - 所有差异项: 显示所有存在差异的数据行
      * - 仅主数据源: 仅显示主数据源中存在的数据行
@@ -586,6 +340,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /**
      * 启用对比功能
      * 激活对比按钮,允许用户执行对比操作
+     * 通常在数据源配置完成后调用
      */
     public void enableCompare() {
         compareButton.setDisable(false);
@@ -594,6 +349,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /**
      * 禁用对比功能
      * 禁用对比按钮,防止用户执行对比操作
+     * 通常在数据源配置不完整时调用
      */
     public void disableCompare() {
         compareButton.setDisable(true);
@@ -603,7 +359,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      * 更新对比结果
      * 清空当前表格数据并显示新的对比结果
      * 
-     * @param data 新的对比结果数据列表
+     * @param data 新的对比结果数据列表,如果为null则仅清空表格
      */
     public void updateResults(List<CompareResult> data) {
         resultTable.getItems().clear();
@@ -616,8 +372,8 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      * 设置差异值的单元格样式
      * 为差异值设置特殊的显示样式
      * 
-     * @param cell        表格单元格
-     * @param isDifferent 是否为差异值
+     * @param cell        表格单元格对象
+     * @param isDifferent 是否为差异值,true表示存在差异需要特殊标记
      */
     @SuppressWarnings("unused")
     private void setCellStyle(TableCell<Object, String> cell, boolean isDifferent) {
@@ -628,24 +384,49 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         }
     }
 
+    /**
+     * 数据项变化事件处理
+     * 当数据项发生任何变化时更新表格列
+     */
     @Override
     public void onDataItemChanged() {
         log.info("数据项发生变更,重新加载表格列");
         updateColumns(DataFactory.getInstance().getDataItems());
     }
 
+    /**
+     * 数据项创建事件处理
+     * 当新建数据项时更新表格列
+     * 
+     * @param item 新创建的数据项
+     */
     @Override
     public void onDataItemCreated(DataItem item) {
         log.info("数据项发生变更,重新加载表格列");
         updateColumns(DataFactory.getInstance().getDataItems());
     }
 
+    /**
+     * 数据项更新事件处理
+     * 当数据项被更新时更新表格列
+     * 
+     * @param index   更新的数据项索引
+     * @param oldItem 更新前的数据项
+     * @param newItem 更新后的数据项
+     */
     @Override
     public void onDataItemUpdated(int index, DataItem oldItem, DataItem newItem) {
         log.info("数据项发生变更,重新加载表格列");
         updateColumns(DataFactory.getInstance().getDataItems());
     }
 
+    /**
+     * 数据项删除事件处理
+     * 当数据项被删除时更新表格列
+     * 
+     * @param index 被删除的数据项索引
+     * @param item  被删除的数据项
+     */
     @Override
     public void onDataItemDeleted(int index, DataItem item) {
         log.info("数据项发生变更,重新加载表格列");
