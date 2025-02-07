@@ -22,6 +22,8 @@ import javafx.stage.Popup;
  * 自定义分组下拉选框组件
  * 提供分组展示的下拉选择功能,支持分组和选项的层级展示
  * 支持鼠标悬停效果、选择事件监听等功能
+ * 
+ * @param <T> 选项值的类型参数，表示下拉选项的值类型
  */
 public class GroupComboBox<T> extends StackPane {
     /**
@@ -304,7 +306,7 @@ public class GroupComboBox<T> extends StackPane {
     /**
      * 设置数据源
      * 
-     * @param dataMap 数据源,格式为 Map<分组名称, Map<选项名称, 选项值>>
+     * @param dataMap 数据源,格式为 Map&lt;分组名称, Map&lt;选项名称, 选项值&gt;&gt;
      */
     public void setDataMap(Map<String, Map<String, T>> dataMap) {
         // 使用TreeMap对分组和选项进行排序

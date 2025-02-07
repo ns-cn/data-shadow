@@ -6,6 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * CSV格式数据类型
+ * 用于处理CSV格式的数据读取和存储
+ */
 public class CsvData {
 
     /**

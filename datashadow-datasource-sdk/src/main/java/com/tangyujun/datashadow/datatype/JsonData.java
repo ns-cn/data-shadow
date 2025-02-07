@@ -29,7 +29,7 @@ public class JsonData extends ShadowData {
 
     /**
      * 解析JSON字符串数据
-     * 使用FastJson库将JSON字符串解析为List<Map>结构
+     * 使用FastJson库将JSON字符串解析为List&lt;Map&gt;结构
      * 每个Map代表一行数据,key为列名,value为对应的值
      * 
      * @param json JSON格式的字符串,必须是一个JSON数组,且数组元素为对象
@@ -48,7 +48,7 @@ public class JsonData extends ShadowData {
 
     /**
      * 从JSON字符串中获取数据列名
-     * 首先将JSON字符串解析为List<Map>结构
+     * 首先将JSON字符串解析为List&lt;Map&gt;结构
      * 然后调用父类的getColumns方法获取所有可能的列名
      * 
      * @param json JSON格式的字符串,必须是一个JSON数组,且数组元素为对象

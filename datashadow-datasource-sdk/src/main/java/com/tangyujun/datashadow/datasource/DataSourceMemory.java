@@ -39,7 +39,7 @@ import javafx.stage.Window;
  * 用于存储和管理内存中的数据集
  * 主要用于临时数据的存储和处理
  * 支持XML、JSON、CSV三种格式的数据导入
- * 数据导入后将以List<Map<String, Object>>的形式存储在内存中
+ * 数据导入后将以List&lt;Map&lt;String, Object&gt;&gt;的形式存储在内存中
  * 
  * 主要功能:
  * 1. 支持XML、JSON、CSV三种格式数据的导入和解析
@@ -78,7 +78,7 @@ public class DataSourceMemory extends DataSource {
 
     /**
      * 数据集
-     * 使用List<Map<String, Object>>存储数据
+     * 使用List&lt;Map&lt;String, Object&gt;&gt;存储数据
      * 其中List中的每个Map代表一行数据
      * Map的key为字段名，value为字段值
      * 数据格式示例:
@@ -199,7 +199,7 @@ public class DataSourceMemory extends DataSource {
      * 5. 确定/取消按钮
      * 
      * 数据格式说明：
-     * XML格式：<root><record><field1>value1</field1><field2>value2</field2></record></root>
+     * XML格式：&lt;root&gt;&lt;record&gt;&lt;field1&gt;value1&lt;/field1&gt;&lt;field2&gt;value2&lt;/field2&gt;&lt;/record&gt;&lt;/root&gt;
      * JSON格式：[{"field1":"value1","field2":"value2"}]
      * CSV格式：field1,field2\nvalue1,value2
      * 

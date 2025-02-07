@@ -230,6 +230,7 @@ public class DataFactory {
     /**
      * 注销一个数据源
      * 
+     * @param group        数据源分组名称
      * @param friendlyName 数据源友好名称
      */
     public void unregisterDataSource(String group, String friendlyName) {
@@ -316,8 +317,9 @@ public class DataFactory {
     /**
      * 设置主数据源
      * 
+     * @param groupName         数据源分组名称
      * @param sourceName        数据源名称
-     * @param primaryDataSource 主数据源
+     * @param primaryDataSource 主数据源实例
      */
     public void setPrimaryDataSource(String groupName, String sourceName, DataSource primaryDataSource) {
         this.primaryDataSourceGroupName = groupName;
@@ -330,8 +332,9 @@ public class DataFactory {
     /**
      * 设置影子数据源
      * 
+     * @param groupName        数据源分组名称
      * @param sourceName       数据源名称
-     * @param shadowDataSource 影子数据源
+     * @param shadowDataSource 影子数据源实例
      */
     public void setShadowDataSource(String groupName, String sourceName, DataSource shadowDataSource) {
         this.shadowDataSourceGroupName = groupName;

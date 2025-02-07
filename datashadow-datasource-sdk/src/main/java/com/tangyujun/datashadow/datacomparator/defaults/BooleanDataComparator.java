@@ -19,8 +19,8 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 
 /**
- * 布尔值数据比较器
- * 用于比较两个值是否代表相同的布尔值
+ * 布尔类型数据比较器
+ * 用于比较布尔类型数据的差异
  * 支持配置:
  * 1. 自定义哪些值被视为true
  * 2. 是否将null值视为true
