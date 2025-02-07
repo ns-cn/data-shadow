@@ -521,6 +521,7 @@ public class DataSourceHttp extends DataSource {
         this.headers = dataSource.headers;
         this.body = dataSource.body;
         this.responseType = dataSource.responseType;
+        this.setMappings(dataSource.getMappings());
     }
 
     /**

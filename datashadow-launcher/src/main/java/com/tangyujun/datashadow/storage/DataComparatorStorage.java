@@ -86,7 +86,11 @@ public class DataComparatorStorage extends Storable<DataComparator> {
      */
     @Override
     public void from(DataComparator object) {
-        this.config = object.exportComparator();
+        if (object != null) {
+            this.config = object.exportComparator();
+        } else {
+            this.config = null;
+        }
     }
 
     /**
