@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.tangyujun.datashadow.ai.Models;
+import com.tangyujun.datashadow.ai.AIService;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -207,85 +208,31 @@ public class TestChatDialog extends Dialog<Void> {
         addMessage(input, true);
 
         // 添加用户消息到历史记录
-        JSONObject userMessage = new JSONObject();
-        userMessage.put("role", "user");
-        userMessage.put("content", input);
-        messageHistory.add(userMessage);
+        messageHistory.add(AIService.createUserMessage(input));
 
-        // 清空输入框
+        // 清空输入框并禁用发送按钮
         inputArea.clear();
         sendButton.setDisable(true);
 
-        new Thread(() -> {
-            try {
-                // 配置HTTP客户端
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(30, TimeUnit.SECONDS)
-                        .readTimeout(30, TimeUnit.SECONDS)
-                        .writeTimeout(30, TimeUnit.SECONDS)
-                        .build();
-
-                // 构建请求体，包含完整的消息历史
-                String jsonBody = String.format("""
-                        {
-                            "model": "%s",
-                            "messages": %s,
-                            "temperature": 0.7,
-                            "max_tokens": 2048,
-                            "stream": false
-                        }""",
-                        model.getModelName(),
-                        JSON.toJSONString(messageHistory));
-
-                // 构建HTTP请求
-                Request request = new Request.Builder()
-                        .url("https://api.siliconflow.cn/v1/chat/completions")
-                        .header("Authorization", String.format("Bearer %s", apiKey.trim()))
-                        .header("Content-Type", "application/json")
-                        .post(RequestBody.create(jsonBody, MediaType.parse("application/json")))
-                        .build();
-
-                try (Response response = client.newCall(request).execute()) {
-                    String responseBody = "";
-                    if (response.body() != null) {
-                        responseBody = response.body().string();
-                    }
-                    final String finalResponseBody = responseBody;
-
+        // 发送消息
+        AIService.sendMessage(
+                model,
+                apiKey,
+                messageHistory,
+                content -> {
+                    // 成功回调
+                    messageHistory.add(AIService.createAssistantMessage(content));
                     Platform.runLater(() -> {
                         sendButton.setDisable(false);
-                        if (response.isSuccessful()) {
-                            try {
-                                // 解析JSON响应获取AI回答
-                                JSONObject json = JSON.parseObject(finalResponseBody);
-                                String content = json.getJSONArray("choices")
-                                        .getJSONObject(0)
-                                        .getJSONObject("message")
-                                        .getString("content");
-
-                                // 添加AI回答到历史记录
-                                JSONObject assistantMessage = new JSONObject();
-                                assistantMessage.put("role", "assistant");
-                                assistantMessage.put("content", content);
-                                messageHistory.add(assistantMessage);
-
-                                addMessage(content, false);
-                            } catch (Exception e) {
-                                log.error("Failed to parse response", e);
-                                addMessage("解析响应失败: " + e.getMessage(), false);
-                            }
-                        } else {
-                            addMessage("请求失败 (HTTP " + response.code() + "): " + finalResponseBody, false);
-                        }
+                        addMessage(content, false);
                     });
-                }
-            } catch (IOException e) {
-                Platform.runLater(() -> {
-                    sendButton.setDisable(false);
-                    addMessage("发送失败: " + e.getMessage(), false);
+                },
+                error -> {
+                    // 错误回调
+                    Platform.runLater(() -> {
+                        sendButton.setDisable(false);
+                        addMessage(error, false);
+                    });
                 });
-                log.error("Failed to send message", e);
-            }
-        }).start();
     }
 }

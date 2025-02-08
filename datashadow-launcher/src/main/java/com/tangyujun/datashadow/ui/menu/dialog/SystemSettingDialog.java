@@ -3,6 +3,7 @@ package com.tangyujun.datashadow.ui.menu.dialog;
 import com.tangyujun.datashadow.ai.Models;
 import com.tangyujun.datashadow.configuration.ConfigurationLoader;
 import com.tangyujun.datashadow.config.ConfigFactory;
+import com.tangyujun.datashadow.ai.AIService;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -341,59 +342,25 @@ public class SystemSettingDialog extends Dialog<Boolean> {
         validateButton.setDisable(true);
         validateButton.setText("验证中...");
 
-        // 在后台线程执行验证
         new Thread(() -> {
             try {
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(30, TimeUnit.SECONDS)
-                        .readTimeout(30, TimeUnit.SECONDS)
-                        .writeTimeout(30, TimeUnit.SECONDS)
-                        .build();
+                boolean isValid = AIService.validateApiKey(selectedModel, apiKey);
 
-                // 构建请求体
-                String jsonBody = String.format("""
-                        {
-                            "model": "%s",
-                            "messages": [
-                                {"role": "user", "content": "Hello"}
-                            ]
-                        }""", selectedModel.getModelName());
+                Platform.runLater(() -> {
+                    validateButton.setDisable(false);
+                    validateButton.setText("验证");
 
-                Request request = new Request.Builder()
-                        .url("https://api.siliconflow.cn/v1/chat/completions")
-                        .addHeader("Authorization", "Bearer " + apiKey)
-                        .addHeader("Content-Type", "application/json")
-                        .post(RequestBody.create(jsonBody, MediaType.parse("application/json")))
-                        .build();
-
-                // 执行请求
-                try (Response response = client.newCall(request).execute()) {
-                    String responseBody = "";
-                    if (response.body() != null) {
-                        responseBody = response.body().string();
+                    if (isValid) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("验证成功");
+                        alert.setHeaderText(null);
+                        alert.setContentText("API Key验证通过");
+                        alert.showAndWait();
+                    } else {
+                        showError("验证失败", "API Key无效");
                     }
-                    final String finalResponseBody = responseBody;
-
-                    Platform.runLater(() -> {
-                        validateButton.setDisable(false);
-                        validateButton.setText("验证");
-
-                        if (response.isSuccessful()) {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("验证成功");
-                            alert.setHeaderText(null);
-                            alert.setContentText("API Key验证通过");
-                            alert.showAndWait();
-                        } else {
-                            showError("验证失败",
-                                    String.format("API Key无效 (HTTP %d): %s",
-                                            response.code(),
-                                            finalResponseBody));
-                        }
-                    });
-                }
+                });
             } catch (IOException e) {
-                // 在JavaFX线程中更新UI和显示错误
                 Platform.runLater(() -> {
                     validateButton.setDisable(false);
                     validateButton.setText("验证");
