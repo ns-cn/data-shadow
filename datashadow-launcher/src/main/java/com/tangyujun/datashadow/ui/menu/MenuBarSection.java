@@ -4,7 +4,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 import com.tangyujun.datashadow.scheme.ComparisonSchemeManager;
-import com.tangyujun.datashadow.ui.menu.dialog.PluginManagerDialog;
+import com.tangyujun.datashadow.ui.menu.dialog.SystemSettingDialog;
 
 import javafx.application.Platform;
 
@@ -59,11 +59,11 @@ public class MenuBarSection extends VBox {
         // 创建设置菜单
         Menu settingsMenu = new Menu("设置");
 
-        // 创建插件配置菜单项
-        MenuItem pluginManagerItem = new MenuItem("插件配置");
-        pluginManagerItem.setOnAction(event -> showPluginManagerDialog());
+        // 创建系统设置菜单项
+        MenuItem systemSettingItem = new MenuItem("系统设置");
+        systemSettingItem.setOnAction(event -> showSystemSettingDialog());
 
-        settingsMenu.getItems().add(pluginManagerItem);
+        settingsMenu.getItems().add(systemSettingItem);
 
         // 创建帮助菜单
         Menu helpMenu = new Menu("帮助");
@@ -130,10 +130,10 @@ public class MenuBarSection extends VBox {
     }
 
     /**
-     * 显示插件配置对话框
+     * 显示系统设置对话框
      */
-    private void showPluginManagerDialog() {
-        PluginManagerDialog dialog = new PluginManagerDialog(menuBar.getScene().getWindow());
+    private void showSystemSettingDialog() {
+        SystemSettingDialog dialog = new SystemSettingDialog(menuBar.getScene().getWindow());
         dialog.showAndSave();
     }
 }

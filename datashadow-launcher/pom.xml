@@ -27,6 +27,12 @@
             <artifactId>datashadow-datasource-sdk</artifactId>
         </dependency>
 
+        <!-- datashadow-ai: AI模块,提供AI相关功能 -->
+        <dependency>
+            <groupId>com.tangyujun</groupId>
+            <artifactId>datashadow-ai</artifactId>
+        </dependency>
+
         <!-- datashadow-datasource-file: 数据源file模块,提供file数据源实现 -->
         <dependency>
             <groupId>com.tangyujun</groupId>
@@ -130,6 +136,13 @@
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>5.9</version>
+        </dependency>
+
+        <!-- OkHttp依赖 -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
         </dependency>
     </dependencies>
 

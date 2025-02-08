@@ -10,15 +10,19 @@
           <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.tangyujun</groupId>
     <artifactId>datashadow-datasource-sdk</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <dependencies>
+        <!-- AI相关 -->
+        <dependency>
+            <groupId>com.tangyujun</groupId>
+            <artifactId>datashadow-ai</artifactId>
+        </dependency>
+
         <!-- JavaFX依赖 -->
         <!-- javafx-controls: JavaFX控件库,提供基础UI组件 -->
         <dependency>

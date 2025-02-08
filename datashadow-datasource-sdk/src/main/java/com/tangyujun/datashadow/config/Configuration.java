@@ -33,11 +33,10 @@ public class Configuration {
     private String aiApiKey;
 
     /**
-     * 程序许可证
+     * 程序许可证（暂不考虑实现）
      * 用于存储用户的授权信息
      * 包含授权码等验证信息
      */
-
     private String license;
 
     /**

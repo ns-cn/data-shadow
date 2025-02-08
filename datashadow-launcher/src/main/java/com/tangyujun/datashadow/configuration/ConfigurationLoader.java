@@ -95,6 +95,7 @@ public class ConfigurationLoader implements ConfigurationChangeListener {
             Files.writeString(new File(ConfigFactory.getInstance().getStorageFile()).toPath(), encodedContent);
             log.info("Configuration saved successfully");
             log.info("Plugin directory: {}", configuration.getPluginDir());
+            log.info("AI model: {}", configuration.getAiModel());
             log.info("License: {}", configuration.getLicense());
         } catch (IOException ex) {
             log.error("Failed to save configuration file", ex);
@@ -115,9 +116,9 @@ public class ConfigurationLoader implements ConfigurationChangeListener {
      * - 许可证: 空字符串
      */
     private void loafFromFile() {
-        String storageFile = ConfigFactory.getInstance().getStorageFile();
         String userHome = System.getProperty("user.home");
         ConfigFactory.getInstance().setHomeDir(userHome);
+        String storageFile = ConfigFactory.getInstance().getStorageFile();
         log.info("User Home: {}", userHome);
         log.info("Data Shadow Dir: {}", storageFile);
         // 读取配置文件
