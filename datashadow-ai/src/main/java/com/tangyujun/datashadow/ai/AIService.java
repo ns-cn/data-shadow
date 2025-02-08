@@ -89,15 +89,12 @@ public class AIService {
                         .build();
 
                 try (Response response = client.newCall(request).execute()) {
-                    String responseBody = "";
-                    if (response.body() != null) {
-                        responseBody = response.body().string();
-                    }
-                    final String finalResponseBody = responseBody;
+                    ResponseBody body = response.body();
+                    String responseBody = body != null ? body.string() : "";
 
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful() && !responseBody.isEmpty()) {
                         try {
-                            JSONObject json = JSON.parseObject(finalResponseBody);
+                            JSONObject json = JSON.parseObject(responseBody);
                             String content = json.getJSONArray("choices")
                                     .getJSONObject(0)
                                     .getJSONObject("message")
@@ -108,7 +105,7 @@ public class AIService {
                             onError.accept("解析响应失败: " + e.getMessage());
                         }
                     } else {
-                        onError.accept("请求失败 (HTTP " + response.code() + "): " + finalResponseBody);
+                        onError.accept("请求失败 (HTTP " + response.code() + "): " + responseBody);
                     }
                 }
             } catch (IOException e) {
