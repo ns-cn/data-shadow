@@ -1,5 +1,7 @@
 package com.tangyujun.datashadow.config;
 
+import com.tangyujun.datashadow.ai.Models;
+
 /**
  * 配置数据结构类
  * 用于序列化和反序列化配置数据
@@ -23,7 +25,7 @@ public class Configuration {
      * 用于指定AI模型
      * 可通过配置文件修改
      */
-    private String aiModel;
+    private Models aiModel = Models.Qwen25_7B_Instruct; // 设置默认模型
 
     /**
      * AI API Key
@@ -76,20 +78,20 @@ public class Configuration {
     }
 
     /**
-     * 获取AI模型名称
+     * 获取AI模型
      * 
-     * @return AI模型名称
+     * @return AI模型枚举值
      */
-    public String getAiModel() {
+    public Models getAiModel() {
         return aiModel;
     }
 
     /**
-     * 设置AI模型名称
+     * 设置AI模型
      * 
-     * @param aiModel AI模型名称
+     * @param aiModel AI模型枚举值
      */
-    public void setAiModel(String aiModel) {
+    public void setAiModel(Models aiModel) {
         this.aiModel = aiModel;
     }
 

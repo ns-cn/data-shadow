@@ -22,6 +22,12 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
   - HTTP: 从网络接口读取数据
   - 支持数据源字段映射配置
 
+- 🤖 AI智能辅助
+  - 基于硅基流动免费模型
+  - 智能字段映射推荐
+  - 自动数据类型识别
+  - 数据格式转换建议
+
 - 🔧 灵活的配置
   - 字段映射: 支持不同数据源字段映射
   - 数据转换: 内置类型转换和格式化
@@ -48,6 +54,7 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 - 对比结果展示与导出
 - 对比方案导入导出
 - 文件数据源基础支持(CSV/XML)
+- AI辅助功能集成
 
 ⏳ 开发中:
 - 数据库数据源完善(MySQL/Oracle)
@@ -62,6 +69,8 @@ DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结
 ![主界面](screenshots/homepage.png)
 ![数据项比较器](screenshots/data_comparator.png)
 ![插件配置](screenshots/plugins_demo.png)
+![数据项映射](screenshots/dataitem_mapping.png)
+![系统设置](screenshots/system_setting.png)
 
 ## 自行构建 (Windows)
 

@@ -42,7 +42,12 @@
                 <!-- 验证按钮 -->
                 <div style="margin-top: 10px; margin-left: 130px;">
                     <button style="padding: 8px 15px; margin-right: 10px; border: 1px solid #ddd; border-radius: 4px;">验证</button>
-                    <button style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 4px;">测试对话</button>
+                    <button style="padding: 8px 15px; margin-right: 10px; border: 1px solid #ddd; border-radius: 4px;">测试对话</button>
+                    <button style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 4px;" title="需要注册并申请APIkey，不必担心，使用的ai模型均为免费模型，不会产生费用">获取APIKEY</button>
+                </div>
+                <!-- AI说明文字 -->
+                <div style="margin-top: 15px; margin-left: 130px; font-size: 12px; color: #666;">
+                    注：本程序基于硅基流动的免费模型，主要用于数据项自动映射等场景，不会产生任何费用。
                 </div>
             </div>
         </fieldset>
@@ -76,6 +81,9 @@
    - 输入框采用密码形式显示API Key
    - 【验证】按钮：测试API Key的有效性
    - 【测试对话】按钮：打开对话测试窗口，可进行简单的问答测试
+   - 【获取APIKEY】按钮：
+     * 使用默认浏览器打开硅基流动官网
+     * 悬浮提示：需要注册并申请APIkey，不必担心，使用的ai模型均为免费模型，不会产生费用
 
 ### 2.3 通用功能
 

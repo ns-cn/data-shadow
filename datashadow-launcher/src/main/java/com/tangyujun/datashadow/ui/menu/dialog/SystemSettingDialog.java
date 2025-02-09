@@ -1,7 +1,6 @@
 package com.tangyujun.datashadow.ui.menu.dialog;
 
 import com.tangyujun.datashadow.ai.Models;
-import com.tangyujun.datashadow.configuration.ConfigurationLoader;
 import com.tangyujun.datashadow.config.ConfigFactory;
 import com.tangyujun.datashadow.ai.AIService;
 
@@ -20,14 +19,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import javafx.application.Platform;
-
-import java.util.concurrent.TimeUnit;
 
 import com.tangyujun.datashadow.config.Configuration;
 
@@ -194,7 +186,6 @@ public class SystemSettingDialog extends Dialog<Boolean> {
 
         aiModelComboBox.setPrefWidth(400);
         aiModelComboBox.getItems().clear();
-        // 直接添加所有Models枚举值
         aiModelComboBox.getItems().addAll(Models.values());
         content.add(aiModelComboBox, 1, 0);
 
@@ -205,16 +196,27 @@ public class SystemSettingDialog extends Dialog<Boolean> {
         apiKeyField.setPrefWidth(400);
         content.add(apiKeyField, 1, 1);
 
-        // 验证和测试按钮放在API Key下方
+        // 验证、测试和获取APIKEY按钮放在API Key下方
         HBox buttonBox = new HBox(10);
         validateButton.setOnAction(e -> validateApiKey());
+
         Button testButton = new Button("测试对话");
         testButton.setOnAction(e -> showTestDialog());
-        buttonBox.getChildren().addAll(validateButton, testButton);
-        // 按钮占据第三行，跨两列
-        content.add(buttonBox, 0, 2, 2, 1);
 
-        TitledPane form = new TitledPane("AI配置", content);
+        Button getApiKeyButton = new Button("获取APIKEY");
+        Tooltip tooltip = new Tooltip("前往硅基流动官网注册并申请APIkey");
+        getApiKeyButton.setTooltip(tooltip);
+        getApiKeyButton.setOnAction(e -> openSiliconFlowWebsite());
+
+        buttonBox.getChildren().addAll(validateButton, testButton, getApiKeyButton);
+        content.add(buttonBox, 1, 2);
+
+        // 添加说明文字
+        Label noteLabel = new Label("注：AI基于硅基流动的免费模型，主要用于数据项自动映射等场景，不会产生任何费用。");
+        noteLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666666;");
+        content.add(noteLabel, 1, 3);
+
+        TitledPane form = new TitledPane("AI配置（可选）", content);
         form.setCollapsible(false);
         return form;
     }
@@ -235,16 +237,12 @@ public class SystemSettingDialog extends Dialog<Boolean> {
         }
 
         // 设置当前选中的AI模型
-        String savedModel = config.getAiModel();
-        if (savedModel != null && !savedModel.trim().isEmpty()) {
-            for (Models model : Models.values()) {
-                if (model.getModelName().equals(savedModel)) {
-                    aiModelComboBox.setValue(model);
-                    break;
-                }
-            }
+        Models savedModel = config.getAiModel();
+        if (savedModel != null) {
+            aiModelComboBox.setValue(savedModel);
         }
         // 如果没有保存的模型或找不到对应的模型，设置默认值
+
         if (aiModelComboBox.getValue() == null && !aiModelComboBox.getItems().isEmpty()) {
             aiModelComboBox.setValue(aiModelComboBox.getItems().get(0));
         }
@@ -392,6 +390,18 @@ public class SystemSettingDialog extends Dialog<Boolean> {
     }
 
     /**
+     * 打开硅基流动官网
+     */
+    private void openSiliconFlowWebsite() {
+        try {
+            Desktop.getDesktop().browse(new java.net.URI("https://siliconflow.cn/zh-cn/"));
+        } catch (Exception e) {
+            log.error("Failed to open SiliconFlow website", e);
+            showError("打开失败", "无法打开网站：" + e.getMessage());
+        }
+    }
+
+    /**
      * 显示对话框并保存设置
      * 如果用户点击保存按钮，会将设置保存到配置文件
      */
@@ -406,7 +416,7 @@ public class SystemSettingDialog extends Dialog<Boolean> {
                     Models selectedModel = aiModelComboBox.getValue();
 
                     if (selectedModel != null) {
-                        config.setAiModel(selectedModel.getModelName());
+                        config.setAiModel(selectedModel);
                     }
                     config.setAiApiKey(apiKeyField.getText());
                     ConfigFactory.getInstance().updateConfiguration(config, true);

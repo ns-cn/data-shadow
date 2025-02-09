@@ -1,5 +1,6 @@
 package com.tangyujun.datashadow.ui.datasource;
 
+import com.tangyujun.datashadow.ai.AIService;
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.dataitem.DataItem;
 import com.tangyujun.datashadow.datasource.DataSource;
@@ -10,12 +11,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.application.Platform;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.tangyujun.datashadow.config.ConfigFactory;
+import com.tangyujun.datashadow.config.Configuration;
 
 /**
  * 数据源映射对话框
@@ -35,6 +44,8 @@ import java.util.stream.Collectors;
  * 4. 返回配置好的映射关系
  */
 public class DataSourceMappingDialog extends Stage {
+
+    private static final Logger log = LoggerFactory.getLogger(DataSourceMappingDialog.class);
 
     /**
      * 存储数据项与数据源字段的映射关系
@@ -240,40 +251,110 @@ public class DataSourceMappingDialog extends Stage {
 
     /**
      * 处理自动映射按钮点击事件
-     * 根据字段名称相似度自动建立映射关系
+     * 优先使用AI进行智能映射，如果AI映射失败则使用传统方式
      */
     private void handleAutoMap() {
+        // 获取配置
+        Configuration config = ConfigFactory.getInstance().getConfiguration();
+
+        // 检查AI配置是否完整
+        if (config.getAiModel() == null || config.getAiApiKey() == null || config.getAiApiKey().trim().isEmpty()) {
+            log.info("AI configuration not found, using traditional mapping");
+            performTraditionalMapping();
+            return;
+        }
+
+        // 显示等待对话框
+        Alert waitingDialog = new Alert(Alert.AlertType.INFORMATION);
+        waitingDialog.setTitle("请稍候");
+        waitingDialog.setHeaderText(null);
+        waitingDialog.setContentText("正在使用AI分析字段映射关系...");
+        waitingDialog.show();
+
+        // 准备数据项信息
+        List<Map<String, String>> itemInfos = DataFactory.getInstance().getDataItems().stream()
+                .map(item -> {
+                    Map<String, String> info = new HashMap<>();
+                    info.put("code", item.getCode());
+                    if (item.getNick() != null) {
+                        info.put("nick", item.getNick());
+                    }
+                    return info;
+                })
+                .collect(Collectors.toList());
+
+        // 尝试使用AI进行映射
+        AIService.suggestMappings(
+                config.getAiModel(),
+                config.getAiApiKey(),
+                itemInfos,
+                sourceColumns,
+                // AI映射成功回调
+                aiMappings -> {
+                    Platform.runLater(() -> {
+                        waitingDialog.close();
+                        boolean aiMappingUsed = false;
+
+                        // 应用AI建议的映射
+                        for (DataItem dataItem : DataFactory.getInstance().getDataItems()) {
+                            String suggestedField = aiMappings.get(dataItem.getCode());
+                            if (suggestedField != null && sourceColumns.contains(suggestedField)) {
+                                mappings.put(dataItem, suggestedField);
+                                aiMappingUsed = true;
+                            }
+                        }
+
+                        // 如果AI没有提供有效映射，使用传统方式
+                        if (!aiMappingUsed) {
+                            performTraditionalMapping();
+                            return;
+                        }
+
+                        // 刷新表格显示
+                        @SuppressWarnings("unchecked")
+                        TableView<DataItem> table = (TableView<DataItem>) getScene().lookup(".table-view");
+                        if (table != null) {
+                            table.refresh();
+                        }
+
+                        // 显示完成提示
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("提示");
+                        alert.setHeaderText(null);
+                        alert.setContentText("自动映射完成 (使用AI辅助分析)");
+                        alert.showAndWait();
+                    });
+                },
+                // AI映射失败回调，使用传统方式
+                error -> {
+                    Platform.runLater(() -> {
+                        waitingDialog.close();
+                        log.warn("AI mapping failed, falling back to traditional mapping: {}", error);
+                        performTraditionalMapping();
+                    });
+                });
+    }
+
+    /**
+     * 使用传统方式进行字段映射
+     */
+    private void performTraditionalMapping() {
         // 遍历所有数据项
         for (DataItem dataItem : DataFactory.getInstance().getDataItems()) {
-            // 如果该数据项已经有映射,则跳过
+            // 如果已经有映射关系，则跳过
             if (mappings.containsKey(dataItem)) {
                 continue;
             }
 
-            // 获取数据项的代码和昵称
-            String itemCode = dataItem.getCode().toLowerCase();
-            String itemNick = dataItem.getNick() != null ? dataItem.getNick().toLowerCase() : "";
-
-            // 遍历数据源字段,寻找最匹配的字段
             String bestMatch = null;
+            double bestSimilarity = 0;
+
+            // 遍历数据源字段，寻找最佳匹配
             for (String sourceField : sourceColumns) {
-                String fieldLower = sourceField.toLowerCase();
-                // 完全匹配代码
-                if (fieldLower.equals(itemCode)) {
-                    bestMatch = sourceField;
-                    break;
-                }
-                // 完全匹配昵称
-                if (!itemNick.isEmpty() && fieldLower.equals(itemNick)) {
-                    bestMatch = sourceField;
-                    break;
-                }
-                // 包含代码
-                if (fieldLower.contains(itemCode) || itemCode.contains(fieldLower)) {
-                    bestMatch = sourceField;
-                }
-                // 包含昵称
-                if (!itemNick.isEmpty() && (fieldLower.contains(itemNick) || itemNick.contains(fieldLower))) {
+                // 计算相似度
+                double similarity = calculateSimilarity(dataItem.getCode().toLowerCase(), sourceField.toLowerCase());
+                if (similarity > bestSimilarity && similarity > 0.5) { // 设置相似度阈值
+                    bestSimilarity = similarity;
                     bestMatch = sourceField;
                 }
             }
@@ -291,12 +372,49 @@ public class DataSourceMappingDialog extends Stage {
             table.refresh();
         }
 
-        // 显示提示信息
+        // 显示完成提示
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("提示");
         alert.setHeaderText(null);
-        alert.setContentText("自动映射完成");
+        alert.setContentText("自动映射完成 (使用传统匹配方式)");
         alert.showAndWait();
+    }
+
+    /**
+     * 计算两个字符串的相似度
+     */
+    private double calculateSimilarity(String str1, String str2) {
+        // 使用Levenshtein距离计算相似度
+        int distance = levenshteinDistance(str1, str2);
+        int maxLength = Math.max(str1.length(), str2.length());
+        return maxLength == 0 ? 1.0 : (1.0 - (double) distance / maxLength);
+    }
+
+    /**
+     * 计算Levenshtein距离
+     */
+    private int levenshteinDistance(String str1, String str2) {
+        int[][] dp = new int[str1.length() + 1][str2.length() + 1];
+
+        for (int i = 0; i <= str1.length(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= str2.length(); j++) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= str1.length(); i++) {
+            for (int j = 1; j <= str2.length(); j++) {
+                if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.min(dp[i - 1][j - 1] + 1,
+                            Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1));
+                }
+            }
+        }
+
+        return dp[str1.length()][str2.length()];
     }
 
     /**

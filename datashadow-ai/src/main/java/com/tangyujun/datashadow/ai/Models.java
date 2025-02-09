@@ -10,15 +10,27 @@ public enum Models {
      * DeepSeek R1 Distill Llama 8B模型
      * 基于Llama架构的蒸馏模型，适用于通用自然语言处理任务
      */
-    DeepSeek_R1_Distill_Llama_8B("deepseek-ai/DeepSeek-R1-Distill-Llama-8B", "DeepSeek-R1-Distill-Llama-8B"),
+    // DeepSeek_R1_Distill_Llama_8B("deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+    // "DeepSeek-R1-Distill-Llama-8B"),
 
     /**
      * 通义千问2.5-7B指令模型
      * 用于处理自然语言指令和对话
      */
-
     Qwen25_7B_Instruct("Qwen/Qwen2.5-7B-Instruct", "Qwen2.5-7B-Instruct"),
 
+    /**
+     * 易1.5-6B对话模型
+     * 用于处理对话
+     */
+    Yi_1_5_6B_Chat("01-ai/Yi-1.5-6B-Chat", "Yi-1.5-6B-Chat"),
+
+    /**
+     * DeepSeek R1 Distill Qwen 1.5B模型
+     * 基于Qwen架构的蒸馏模型，适用于通用自然语言处理任务
+     */
+    // DeepSeek_R1_Distill_Qwen_1_5B("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    // "DeepSeek-R1-Distill-Qwen-1.5B"),
     ;
 
     /** 模型名称 */

@@ -20,6 +20,12 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
   - Files: Excel, CSV, JSON, XML
   - Support data source field mapping configuration
 
+- 🤖 AI Assistant
+  - Based on SiliconFlow's free models
+  - Intelligent field mapping recommendations
+  - Automatic data type recognition
+  - Data format conversion suggestions
+
 - 🔧 Flexible Configuration
   - Field Mapping: Support mapping between different data sources
   - Data Conversion: Built-in type conversion and formatting
@@ -46,6 +52,7 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 - Comparison result display and export
 - Comparison scheme import/export
 - Basic file data source support (CSV/XML)
+- AI assistant integration
 
 ⏳ In Development:
 - Database data source enhancement (MySQL/Oracle)
@@ -60,6 +67,8 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
 ![Homepage](screenshots/homepage.png)
 ![Data Comparator](screenshots/data_comparator.png)
 ![Plugin Management](screenshots/plugins_demo.png)
+![Data Item Mapping](screenshots/dataitem_mapping.png)
+![System Settings](screenshots/system_setting.png)
 
 ## Build Instructions (Windows)
 

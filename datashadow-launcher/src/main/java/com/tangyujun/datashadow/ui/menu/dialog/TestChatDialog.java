@@ -1,6 +1,5 @@
 package com.tangyujun.datashadow.ui.menu.dialog;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +12,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Window;
-import okhttp3.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
 /**
