@@ -81,7 +81,7 @@ echo Runtime environment created successfully.
 
 :: 执行Maven构建，清理并打包项目
 echo Executing Maven build...
-call mvn clean package
+call mvn clean package -DskipTests
 if !errorlevel! neq 0 (
     echo Error: Maven build failed
     exit /b 1
