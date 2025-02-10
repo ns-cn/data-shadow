@@ -17,6 +17,7 @@ import com.tangyujun.datashadow.ui.compare.helper.CompareResultExporter;
 import com.tangyujun.datashadow.ui.compare.helper.CompareTableHelper;
 import com.tangyujun.datashadow.ui.compare.helper.DialogHelper;
 import com.tangyujun.datashadow.ui.compare.model.CompareResult;
+import com.tangyujun.datashadow.ui.compare.model.FilterModel;
 import com.tangyujun.datashadow.ui.compare.model.ResultExportCallback;
 
 import javafx.collections.FXCollections;
@@ -57,22 +58,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private static final Logger log = Logger.getLogger(CompareSection.class.getName());
 
     /**
-     * 过滤模式常量定义
-     * FILTER_MODE_ALL - 显示所有数据项,不进行过滤
-     * FILTER_MODE_ALL_DIFF - 显示所有存在差异的数据项
-     * FILTER_MODE_PRIMARY - 仅显示主数据源中存在的数据项
-     * FILTER_MODE_PRIMARY_DIFF - 仅显示主数据源中存在差异的数据项
-     * FILTER_MODE_SHADOW - 仅显示影子数据源中存在的数据项
-     * FILTER_MODE_SHADOW_DIFF - 仅显示影子数据源中存在差异的数据项
-     */
-    private static final String FILTER_MODE_ALL = "全部数据";
-    private static final String FILTER_MODE_ALL_DIFF = "所有差异项";
-    private static final String FILTER_MODE_PRIMARY = "仅主数据源";
-    private static final String FILTER_MODE_PRIMARY_DIFF = "仅主数据源差异项";
-    private static final String FILTER_MODE_SHADOW = "仅影子数据源";
-    private static final String FILTER_MODE_SHADOW_DIFF = "仅影子数据源差异项";
-
-    /**
      * 表头显示模式常量定义
      * HEADER_MODE_CODE - 使用数据项的原始代码作为列标题
      * HEADER_MODE_NICK - 优先使用数据项的别名作为列标题,如无别名则使用代码
@@ -85,7 +70,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /** 执行对比按钮 - 触发数据对比操作 */
     private final Button compareButton;
     /** 过滤模式选择下拉框 - 用于选择不同的数据过滤方式 */
-    private final ComboBox<String> filterMode;
+    private final ComboBox<FilterModel> filterMode;
     /** 表头显示模式选择下拉框 - 用于切换列标题的显示方式 */
     private final ComboBox<String> headerDisplayMode;
     /** CSV格式导出按钮 - 将对比结果导出为CSV文件 */
@@ -148,14 +133,22 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         compareButton.setPrefWidth(100);
 
         filterMode = new ComboBox<>();
-        filterMode.setItems(FXCollections.observableArrayList(
-                FILTER_MODE_ALL,
-                FILTER_MODE_ALL_DIFF,
-                FILTER_MODE_PRIMARY,
-                FILTER_MODE_PRIMARY_DIFF,
-                FILTER_MODE_SHADOW,
-                FILTER_MODE_SHADOW_DIFF));
-        filterMode.setValue(FILTER_MODE_ALL_DIFF);
+        filterMode.setItems(FXCollections.observableArrayList(FilterModel.values()));
+        filterMode.setValue(FilterModel.ALL_DIFF);
+        filterMode.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(FilterModel item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : item.getDisplayName());
+            }
+        });
+        filterMode.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(FilterModel item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : item.getDisplayName());
+            }
+        });
 
         headerDisplayMode = new ComboBox<>();
         headerDisplayMode.setItems(FXCollections.observableArrayList(HEADER_MODE_CODE, HEADER_MODE_NICK));
@@ -322,15 +315,15 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         FilteredList<CompareResult> filteredData = new FilteredList<>(baseItems);
 
         switch (filterMode.getValue()) {
-            case FILTER_MODE_ALL -> filteredData.setPredicate(result -> true);
-            case FILTER_MODE_ALL_DIFF -> filteredData.setPredicate(CompareResult::hasDifferences);
-            case FILTER_MODE_PRIMARY -> filteredData.setPredicate(result -> result.getCellResults().values().stream()
+            case ALL -> filteredData.setPredicate(result -> true);
+            case ALL_DIFF -> filteredData.setPredicate(CompareResult::hasDifferences);
+            case PRIMARY -> filteredData.setPredicate(result -> result.getCellResults().values().stream()
                     .anyMatch(cell -> cell.getPrimaryValue() != null));
-            case FILTER_MODE_PRIMARY_DIFF -> filteredData.setPredicate(result -> result.getCellResults().values()
+            case PRIMARY_DIFF -> filteredData.setPredicate(result -> result.getCellResults().values()
                     .stream().anyMatch(cell -> cell.getPrimaryValue() != null && cell.isDifferent()));
-            case FILTER_MODE_SHADOW -> filteredData.setPredicate(result -> result.getCellResults().values().stream()
+            case SHADOW -> filteredData.setPredicate(result -> result.getCellResults().values().stream()
                     .anyMatch(cell -> cell.getShadowValue() != null));
-            case FILTER_MODE_SHADOW_DIFF -> filteredData.setPredicate(result -> result.getCellResults().values()
+            case SHADOW_DIFF -> filteredData.setPredicate(result -> result.getCellResults().values()
                     .stream().anyMatch(cell -> cell.getShadowValue() != null && cell.isDifferent()));
         }
 
