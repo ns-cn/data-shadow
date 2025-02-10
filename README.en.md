@@ -27,19 +27,37 @@ DataShadow is a JavaFX-based data comparison tool that supports structured data 
   - Data format conversion suggestions
 
 - 🔧 Flexible Configuration
-  - Field Mapping: Support mapping between different data sources
-  - Data Conversion: Built-in type conversion and formatting
-  - Custom Comparators: Customizable comparison rules
-    - Built-in Comparators: Support numeric, string, date and other basic type comparisons
-    - Custom Implementation: Custom comparison logic through DataComparator interface
-    - Fault Tolerance: Support setting error ranges, case insensitive options, etc.
+  - Data Item Management
+    * CRUD operations for data items
+    * Support item name and alias
+    * Adjustable item order
+    * Mark unique fields
+  - Comparator Configuration
+    * Built-in multiple comparator types
+    * Support custom comparison rules
+    * Configurable error tolerance
+  - Data Source Configuration
+    * Support multiple source types
+    * Field mapping functionality
+    * Auto connection validation
 
 - 📈 Intuitive Result Display
   - Difference highlighting
-  - Support multiple filter modes (All/Differences/Primary/Shadow)
-  - Support switching between field names and aliases
-  - Support CSV/Excel/JSON format export
-  - Detailed comparison result reports
+  - Multiple Filter Modes
+    * All data
+    * All differences
+    * Primary source only
+    * Primary source differences
+    * Shadow source only
+    * Shadow source differences
+  - Header Display Modes
+    * Data item name
+    * Data item alias priority
+  - Export Features
+    * Excel format support
+    * CSV format support
+    * JSON format support
+    * Extensible custom export
 
 ## Project Progress
 

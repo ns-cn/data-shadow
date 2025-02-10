@@ -29,6 +29,7 @@ import com.alibaba.fastjson2.JSONObject;
  */
 public class TestChatDialog extends Dialog<Void> {
     /** 日志记录器 */
+    @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(TestChatDialog.class);
 
     /** 消息输入框 */

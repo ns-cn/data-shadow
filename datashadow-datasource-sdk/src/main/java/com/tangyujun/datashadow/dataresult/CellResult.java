@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui.compare.model;
+package com.tangyujun.datashadow.dataresult;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
 

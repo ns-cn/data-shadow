@@ -14,6 +14,7 @@ import com.tangyujun.datashadow.configuration.ConfigurationLoader;
 import com.tangyujun.datashadow.module.ModuleLoader;
 import com.tangyujun.datashadow.module.listener.DataComparatorListener;
 import com.tangyujun.datashadow.module.listener.DataSourceListener;
+import com.tangyujun.datashadow.module.listener.ResultExporterListener;
 import com.tangyujun.datashadow.ui.MainLayout;
 
 import java.io.IOException;
@@ -109,11 +110,13 @@ public class DataShadowLauncher extends Application {
             // 初始化数据源和比较器监听器
             DataSourceListener loader = new DataSourceListener();
             DataComparatorListener comparatorLoader = new DataComparatorListener();
+            ResultExporterListener resultExporterLoader = new ResultExporterListener();
 
             // 创建模块加载器并注册监听器
             ModuleLoader moduleLoader = new ModuleLoader();
             moduleLoader.registerListener(loader);
             moduleLoader.registerListener(comparatorLoader);
+            moduleLoader.registerListener(resultExporterLoader);
 
             // 加载官方模块
             moduleLoader.loadOfficial("com.tangyujun.datashadow");

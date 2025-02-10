@@ -5,27 +5,29 @@ import javafx.scene.layout.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import com.tangyujun.datashadow.core.DataItemChangeListener;
 import com.tangyujun.datashadow.dataitem.DataItem;
+import com.tangyujun.datashadow.dataresult.CompareResult;
+import com.tangyujun.datashadow.dataresult.FilterModel;
+import com.tangyujun.datashadow.dataresult.HeaderModel;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.exception.DataAccessException;
 import com.tangyujun.datashadow.ui.compare.helper.CompareEngine;
-import com.tangyujun.datashadow.ui.compare.helper.CompareResultExporter;
 import com.tangyujun.datashadow.ui.compare.helper.CompareTableHelper;
-import com.tangyujun.datashadow.ui.compare.helper.DialogHelper;
-import com.tangyujun.datashadow.ui.compare.model.CompareResult;
-import com.tangyujun.datashadow.ui.compare.model.FilterModel;
-import com.tangyujun.datashadow.ui.compare.model.HeaderModel;
-import com.tangyujun.datashadow.ui.compare.model.ResultExportCallback;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import java.io.File;
 import java.util.logging.Level;
+import com.tangyujun.datashadow.core.Environment;
+import com.tangyujun.datashadow.exporter.ResultExporter;
+import com.tangyujun.datashadow.ui.components.GroupComboBox;
+import com.tangyujun.datashadow.ui.components.dialogs.DialogHelper;
 
 /**
  * 对比功能与结果展示区
@@ -59,22 +61,17 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     private static final Logger log = Logger.getLogger(CompareSection.class.getName());
 
     /** 对比结果展示表格 - 用于展示数据对比的详细结果 */
-    private final TableView<CompareResult> resultTable;
+    private final TableView<CompareResult> resultTable = new TableView<>();
     /** 执行对比按钮 - 触发数据对比操作 */
     private final Button compareButton;
     /** 过滤模式选择下拉框 - 用于选择不同的数据过滤方式 */
     private final ComboBox<FilterModel> filterMode;
     /** 表头显示模式选择下拉框 - 用于切换列标题的显示方式 */
     private final ComboBox<HeaderModel> headerDisplayMode;
-    /** CSV格式导出按钮 - 将对比结果导出为CSV文件 */
-    private final Button exportCsvButton;
-    /** Excel格式导出按钮 - 将对比结果导出为Excel文件 */
-    private final Button exportExcelButton;
-    /** JSON格式导出按钮 - 将对比结果导出为JSON文件 */
-    private final Button exportJsonButton;
-
-    /** 结果导出工具 - 处理不同格式的结果导出功能 */
-    private CompareResultExporter exporter;
+    /** 导出格式选择下拉框 */
+    private final GroupComboBox<ResultExporter> exporterComboBox;
+    /** 导出按钮 */
+    private final Button exportButton;
 
     /**
      * 构造函数
@@ -163,20 +160,54 @@ public class CompareSection extends VBox implements DataItemChangeListener {
 
         leftBox.getChildren().addAll(compareButton, filterMode, headerDisplayMode);
 
-        // 创建右侧导出按钮区
-        HBox rightBox = new HBox(5);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
+        // 创建右侧导出区域
+        HBox exportBox = new HBox(5);
+        exportBox.setAlignment(Pos.CENTER_RIGHT);
 
-        exportCsvButton = new Button("导出CSV");
-        exportExcelButton = new Button("导出Excel");
-        exportJsonButton = new Button("导出JSON");
+        Label exportLabel = new Label("导出：");
 
-        rightBox.getChildren().addAll(exportCsvButton, exportExcelButton, exportJsonButton);
+        // 初始化导出格式选择下拉框
+        exporterComboBox = new GroupComboBox<>("选择导出方式");
+        exporterComboBox.setGroupListWidth(120);
+        exporterComboBox.setItemListWidth(120);
+
+        // 从Environment获取所有导出器并设置到下拉框
+        Map<String, Map<String, ResultExporter>> exporters = Environment.getExporters();
+        exporterComboBox.setDataMap(exporters);
+
+        // 创建导出按钮
+        exportButton = new Button("导出");
+        exportButton.setDisable(true); // 初始状态下禁用导出按钮
+
+        // 设置导出格式选择下拉框的值变化监听器
+        exporterComboBox.setOnSelectListener(listener -> {
+            exportButton.setDisable(listener.value() == null); // 当选择了导出方式时启用导出按钮
+        });
+
+        // 设置导出按钮点击事件
+        exportButton.setOnAction(e -> {
+            var exporter = exporterComboBox.getValue();
+            if (exporter != null) {
+                try {
+                    exporter.export(
+                            new ArrayList<>(resultTable.getItems()),
+                            getScene().getWindow(),
+                            filterMode.getValue(),
+                            headerDisplayMode.getValue());
+                } catch (Exception ex) {
+                    log.log(Level.SEVERE, "导出失败", ex);
+                    DialogHelper.showAlert("导出失败", ex.getMessage());
+                }
+            }
+        });
+
+        exportBox.getChildren().addAll(exportLabel, exporterComboBox, exportButton);
 
         // 使用HBox.setHgrow使左侧区域占据剩余空间
         HBox.setHgrow(leftBox, Priority.ALWAYS);
 
-        toolBox.getChildren().addAll(leftBox, rightBox);
+        // 只添加一次组件到toolBox
+        toolBox.getChildren().addAll(leftBox, exportBox);
 
         // 创建表格容器
         VBox tableContainer = new VBox();
@@ -185,7 +216,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         VBox.setVgrow(tableContainer, Priority.ALWAYS);
 
         // 结果表格设置
-        resultTable = new TableView<>();
         resultTable.setStyle("-fx-border-width: 0;");
         resultTable.setMinHeight(100); // 设置最小高度
         VBox.setVgrow(resultTable, Priority.ALWAYS);
@@ -203,31 +233,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
             List<DataItem> dataItems = DataFactory.getInstance().getDataItems();
             updateColumns(dataItems);
         });
-
-        // 延迟初始化导出工具，直到组件被添加到Scene中
-        sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                // 初始化导出工具
-                exporter = new CompareResultExporter(resultTable, newScene.getWindow(),
-                        new ResultExportCallback() {
-                            @Override
-                            public void onExportSuccess(String message, File file) {
-                                DialogHelper.showSuccessDialog("导出成功", message, file);
-                            }
-
-                            @Override
-                            public void onExportError(String message) {
-                                DialogHelper.showAlert("导出失败", message);
-                            }
-                        });
-
-                // 设置导出按钮事件处理
-                exportCsvButton.setOnAction(event -> exporter.exportToCsv());
-                exportExcelButton.setOnAction(event -> exporter.exportToExcel());
-                exportJsonButton.setOnAction(event -> exporter.exportToJson());
-            }
-        });
-
         // 注册为数据项变化监听器
         DataFactory.getInstance().addDataItemChangeListener(this);
     }

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javafx.application.Platform;
 
@@ -52,6 +53,7 @@ public class SystemSettingDialog extends Dialog<Boolean> {
     private final Button validateButton;
 
     /** API Key输入区域容器 */
+    @SuppressWarnings("unused")
     private final HBox apiKeyBox;
 
     /** 默认插件目录路径 */
@@ -395,7 +397,7 @@ public class SystemSettingDialog extends Dialog<Boolean> {
     private void openSiliconFlowWebsite() {
         try {
             Desktop.getDesktop().browse(new java.net.URI("https://siliconflow.cn/zh-cn/"));
-        } catch (Exception e) {
+        } catch (IOException | URISyntaxException e) {
             log.error("Failed to open SiliconFlow website", e);
             showError("打开失败", "无法打开网站：" + e.getMessage());
         }

@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui.compare.model;
+package com.tangyujun.datashadow.exporter;
 
 import java.io.File;
 

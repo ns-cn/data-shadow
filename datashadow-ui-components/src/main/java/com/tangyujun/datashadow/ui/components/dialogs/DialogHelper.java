@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui.compare.helper;
+package com.tangyujun.datashadow.ui.components.dialogs;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;

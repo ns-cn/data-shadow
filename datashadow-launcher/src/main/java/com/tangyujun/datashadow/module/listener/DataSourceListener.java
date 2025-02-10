@@ -3,6 +3,7 @@ package com.tangyujun.datashadow.module.listener;
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.datasource.DataSourceGenerator;
 import com.tangyujun.datashadow.datasource.DataSourceRegistry;
+import com.tangyujun.datashadow.module.JarDiscoveryListener;
 
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -75,7 +76,9 @@ public class DataSourceListener implements JarDiscoveryListener {
                 }
             }
         }
-        log.info("Data source loading completed, {} data sources loaded", loadedCount);
+        if (loadedCount > 0) {
+            log.info("Data source loading completed, {} data sources loaded", loadedCount);
+        }
     }
 
     /**
@@ -107,7 +110,9 @@ public class DataSourceListener implements JarDiscoveryListener {
                 }
             }
         }
-        log.info("Data source loading completed, {} sources loaded", loadedCount);
+        if (loadedCount > 0) {
+            log.info("Data source loading completed, {} sources loaded", loadedCount);
+        }
     }
 
     /**

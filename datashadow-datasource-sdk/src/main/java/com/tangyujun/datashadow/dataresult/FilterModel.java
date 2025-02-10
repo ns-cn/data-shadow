@@ -1,4 +1,4 @@
-package com.tangyujun.datashadow.ui.compare.model;
+package com.tangyujun.datashadow.dataresult;
 
 /**
  * 过滤模式枚举类

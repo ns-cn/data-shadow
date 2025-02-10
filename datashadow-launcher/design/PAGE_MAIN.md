@@ -110,13 +110,32 @@
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px; justify-content: space-between;">
             <div style="display: flex; gap: 10px; align-items: center;">
                 <button style="padding: 5px 20px;">执行对比</button>
-                <label><input type="checkbox"> 仅显示差异项</label>
-                <label><input type="checkbox"> 优先显示数据项别名</label>
+                <select style="padding: 2px 10px;">
+                    <option>全部数据</option>
+                    <option>所有差异项</option>
+                    <option>仅主数据源</option>
+                    <option>仅主数据源差异项</option>
+                    <option>仅影子数据源</option>
+                    <option>仅影子数据源差异项</option>
+                </select>
+                <select style="padding: 2px 10px;">
+                    <option>数据项名称</option>
+                    <option>数据项别名优先</option>
+                </select>
             </div>
             <div style="display: flex; gap: 5px;">
-                <button>导出CSV</button>
-                <button>导出Excel</button>
-                <button>导出JSON</button>
+                <span>导出：</span>
+                <select style="padding: 2px 10px;">
+                    <optgroup label="导出到文件">
+                        <option>Excel</option>
+                        <option>CSV</option>
+                        <option>JSON</option>
+                    </optgroup>
+                    <optgroup label="自定义导出">
+                        <!-- 这里会动态加载用户自定义的导出选项 -->
+                    </optgroup>
+                </select>
+                <button>导出</button>
             </div>
         </div>
         <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; text-align: center;">
@@ -198,9 +217,14 @@
          + 数据项名称：使用数据项代码作为列标题
          + 数据项别名优先：优先使用数据项别名作为列标题
      * 右侧导出功能区：
-       - 导出CSV按钮
-       - 导出Excel按钮
-       - 导出JSON按钮
+       - 导出格式选择下拉框：
+         + 内置导出格式组：
+           - Excel：导出为Excel文件
+           - CSV：导出为CSV文件
+           - JSON：导出为JSON文件
+         + 自定义导出组：
+           - 通过插件机制动态加载的自定义导出选项
+       - 导出按钮：执行选中格式的导出操作
    - 下方表格实时展示对比结果：
      * 每列对应一个数据项
      * 列标题显示规则：
@@ -315,7 +339,11 @@
      * 差异项筛选
      * 差异值红色标记
      * 导出功能：
-       - 点击对应的导出按钮，弹出文件保存对话框
-       - 选择保存位置后导出对应格式的文件
+       - 从导出格式下拉框选择要导出的格式
+       - 点击导出按钮执行导出操作
+       - 弹出文件保存对话框，选择保存位置
+       - 导出完成后显示成功提示，并提供打开文件目录的链接
+       - 导出失败时显示错误提示，包含具体的错误信息
+       - 支持通过插件机制扩展自定义导出格式
        - 导出时保持当前显示状态（包括筛选和排序）
-     * 可切换显示数据项名称或别名（通过"优先显示数据项别名"选项控制）
+     * 可切换显示数据项名称或别名

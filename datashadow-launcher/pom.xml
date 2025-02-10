@@ -131,13 +131,6 @@
             <artifactId>fastjson2</artifactId>
         </dependency>
 
-        <!-- OpenCSV依赖 -->
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>5.9</version>
-        </dependency>
-
         <!-- OkHttp依赖 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

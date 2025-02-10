@@ -1,8 +1,8 @@
 package com.tangyujun.datashadow.ui.compare.helper;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
-import com.tangyujun.datashadow.ui.compare.model.CellResult;
-import com.tangyujun.datashadow.ui.compare.model.CompareResult;
+import com.tangyujun.datashadow.dataresult.CellResult;
+import com.tangyujun.datashadow.dataresult.CompareResult;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableCell;

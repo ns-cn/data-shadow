@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.tangyujun.datashadow.core.DataFactory;
 import com.tangyujun.datashadow.datacomparator.DataComparatorGenerator;
 import com.tangyujun.datashadow.datacomparator.DataComparatorRegistry;
+import com.tangyujun.datashadow.module.JarDiscoveryListener;
 
 /**
  * 数据比较器加载器
@@ -54,7 +55,9 @@ public class DataComparatorListener implements JarDiscoveryListener {
                 }
             }
         }
-        log.info("Data comparator loading completed, {} comparators loaded", loadedCount);
+        if (loadedCount > 0) {
+            log.info("Data comparator loading completed, {} comparators loaded", loadedCount);
+        }
     }
 
     /**

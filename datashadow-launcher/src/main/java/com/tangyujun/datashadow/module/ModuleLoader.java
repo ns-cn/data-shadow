@@ -7,8 +7,6 @@ import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tangyujun.datashadow.module.listener.JarDiscoveryListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -122,16 +120,13 @@ public class ModuleLoader {
         for (File jarFile : jarFiles) {
             validateJarFile(jarFile);
             urls.add(jarFile.toURI().toURL());
-            log.info("Found jar file: {}", jarFile.getAbsolutePath());
         }
-
         try (URLClassLoader classLoader = new URLClassLoader(urls.toArray(URL[]::new), getClass().getClassLoader())) {
             Thread.currentThread().setContextClassLoader(classLoader);
-
             Set<Class<?>> discoveredClasses = new HashSet<>();
-
             // 遍历每个jar文件
             for (File jarFile : jarFiles) {
+                log.info("[module] Found jar file: {}", jarFile.getAbsolutePath());
                 try (JarFile jar = new JarFile(jarFile)) {
                     Enumeration<JarEntry> entries = jar.entries();
                     while (entries.hasMoreElements()) {
@@ -143,7 +138,7 @@ public class ModuleLoader {
                             try {
                                 Class<?> clazz = classLoader.loadClass(className);
                                 discoveredClasses.add(clazz);
-                                log.debug("Loaded class: {}", className);
+                                // log.debug("Loaded class: {}", className);
                             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                                 log.error("Failed to load class: {}", className, e);
                             }
@@ -168,7 +163,7 @@ public class ModuleLoader {
         try (JarFile jar = new JarFile(jarFile)) {
             jar.entries().asIterator().forEachRemaining(entry -> {
                 if (entry.getName().endsWith(".class")) {
-                    log.debug("Found class file in jar: {}", entry.getName());
+                    // log.debug("Found class file in jar: {}", entry.getName());
                 }
             });
         }

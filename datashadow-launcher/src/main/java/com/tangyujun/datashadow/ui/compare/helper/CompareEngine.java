@@ -1,10 +1,10 @@
 package com.tangyujun.datashadow.ui.compare.helper;
 
 import com.tangyujun.datashadow.dataitem.DataItem;
+import com.tangyujun.datashadow.dataresult.CellResult;
+import com.tangyujun.datashadow.dataresult.CompareResult;
 import com.tangyujun.datashadow.datasource.DataSource;
 import com.tangyujun.datashadow.exception.DataAccessException;
-import com.tangyujun.datashadow.ui.compare.model.CellResult;
-import com.tangyujun.datashadow.ui.compare.model.CompareResult;
 
 import javafx.collections.ObservableList;
 
