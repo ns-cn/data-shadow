@@ -18,6 +18,7 @@ import com.tangyujun.datashadow.ui.compare.helper.CompareTableHelper;
 import com.tangyujun.datashadow.ui.compare.helper.DialogHelper;
 import com.tangyujun.datashadow.ui.compare.model.CompareResult;
 import com.tangyujun.datashadow.ui.compare.model.FilterModel;
+import com.tangyujun.datashadow.ui.compare.model.HeaderModel;
 import com.tangyujun.datashadow.ui.compare.model.ResultExportCallback;
 
 import javafx.collections.FXCollections;
@@ -57,14 +58,6 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /** 日志记录器 - 用于记录组件运行时的日志信息 */
     private static final Logger log = Logger.getLogger(CompareSection.class.getName());
 
-    /**
-     * 表头显示模式常量定义
-     * HEADER_MODE_CODE - 使用数据项的原始代码作为列标题
-     * HEADER_MODE_NICK - 优先使用数据项的别名作为列标题,如无别名则使用代码
-     */
-    private static final String HEADER_MODE_CODE = "数据项名称";
-    private static final String HEADER_MODE_NICK = "数据项别名优先";
-
     /** 对比结果展示表格 - 用于展示数据对比的详细结果 */
     private final TableView<CompareResult> resultTable;
     /** 执行对比按钮 - 触发数据对比操作 */
@@ -72,7 +65,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
     /** 过滤模式选择下拉框 - 用于选择不同的数据过滤方式 */
     private final ComboBox<FilterModel> filterMode;
     /** 表头显示模式选择下拉框 - 用于切换列标题的显示方式 */
-    private final ComboBox<String> headerDisplayMode;
+    private final ComboBox<HeaderModel> headerDisplayMode;
     /** CSV格式导出按钮 - 将对比结果导出为CSV文件 */
     private final Button exportCsvButton;
     /** Excel格式导出按钮 - 将对比结果导出为Excel文件 */
@@ -151,8 +144,22 @@ public class CompareSection extends VBox implements DataItemChangeListener {
         });
 
         headerDisplayMode = new ComboBox<>();
-        headerDisplayMode.setItems(FXCollections.observableArrayList(HEADER_MODE_CODE, HEADER_MODE_NICK));
-        headerDisplayMode.setValue(HEADER_MODE_CODE);
+        headerDisplayMode.setItems(FXCollections.observableArrayList(HeaderModel.values()));
+        headerDisplayMode.setValue(HeaderModel.NICK);
+        headerDisplayMode.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(HeaderModel item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : item.getDisplayName());
+            }
+        });
+        headerDisplayMode.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(HeaderModel item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? null : item.getDisplayName());
+            }
+        });
 
         leftBox.getChildren().addAll(compareButton, filterMode, headerDisplayMode);
 
@@ -232,7 +239,7 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      * @param dataItems 数据项列表,用于创建对应的表格列
      */
     public void updateColumns(List<DataItem> dataItems) {
-        CompareTableHelper.updateColumns(resultTable, dataItems, headerDisplayMode.getValue());
+        CompareTableHelper.updateColumns(resultTable, dataItems, headerDisplayMode.getValue().getDisplayName());
     }
 
     /**
