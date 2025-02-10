@@ -298,7 +298,7 @@ public class CompareResultExporter {
 
     /**
      * 创建Excel表头样式
-     * 配置表头的背景色为浅灰色
+     * 配置表头的背景色为浅灰色，并设置居中对齐
      * 
      * @param workbook Excel工作簿对象
      * @return 配置好的单元格样式
@@ -307,12 +307,15 @@ public class CompareResultExporter {
         CellStyle style = workbook.createCellStyle();
         style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        // 设置水平和垂直居中
+        style.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
         return style;
     }
 
     /**
      * 创建Excel差异数据样式
-     * 配置差异数据的背景色为浅黄色
+     * 配置差异数据的背景色为浅黄色，并设置居中对齐
      * 
      * @param workbook Excel工作簿对象
      * @return 配置好的单元格样式
@@ -321,6 +324,24 @@ public class CompareResultExporter {
         CellStyle style = workbook.createCellStyle();
         style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        // 设置水平和垂直居中
+        style.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
+        return style;
+    }
+
+    /**
+     * 创建普通单元格样式
+     * 配置普通单元格的居中对齐
+     * 
+     * @param workbook Excel工作簿对象
+     * @return 配置好的单元格样式
+     */
+    private CellStyle createNormalStyle(XSSFWorkbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        // 设置水平和垂直居中
+        style.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(org.apache.poi.ss.usermodel.VerticalAlignment.CENTER);
         return style;
     }
 
@@ -350,6 +371,7 @@ public class CompareResultExporter {
      */
     private void writeExcelData(XSSFSheet sheet, CellStyle diffStyle) {
         List<TableColumn<CompareResult, ?>> columns = resultTable.getColumns();
+        CellStyle normalStyle = createNormalStyle(sheet.getWorkbook());
         int rowNum = 1;
         for (CompareResult row : resultTable.getItems()) {
             XSSFRow excelRow = sheet.createRow(rowNum++);
@@ -362,6 +384,8 @@ public class CompareResultExporter {
 
                 if (cellResult != null && cellResult.isDifferent()) {
                     cell.setCellStyle(diffStyle);
+                } else {
+                    cell.setCellStyle(normalStyle);
                 }
             }
         }
