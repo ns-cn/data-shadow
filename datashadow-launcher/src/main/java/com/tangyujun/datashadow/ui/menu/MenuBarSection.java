@@ -112,7 +112,12 @@ public class MenuBarSection extends VBox {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("关于");
         alert.setHeaderText("DataShadow");
-        alert.setContentText("版本: 1.0.0\n开发者: tangyujun\n\n一个基于JavaFX的数据比对工具");
+        alert.setContentText("""
+                版本: 1.0.0
+                开发者: tangyujun
+
+                DataShadow是一个基于JavaFX的数据比对工具,支持多种数据源的结构化数据读取、比对和结果展示。
+                主要用于数据迁移、数据校验、数据一致性检查等场景。""");
         alert.showAndWait();
     }
 

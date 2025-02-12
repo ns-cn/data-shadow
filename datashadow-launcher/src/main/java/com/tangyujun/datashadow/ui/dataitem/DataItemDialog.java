@@ -211,9 +211,7 @@ public class DataItemDialog extends Dialog<DataItem> {
      * 验证输入数据的有效性
      * 验证规则:
      * 1. 名称不能为空 - 确保必填字段已填写
-     * 2. 名称必须以字母开头 - 符合标准命名规范
-     * 3. 名称只能包含字母、数字和下划线 - 确保命名合法性
-     * 4. 比较器类型和比较器必须选择 - 确保数据比较逻辑完整
+     * 2. 名称不能与已有数据项重名 - 确保唯一性
      * 
      * @return 验证通过返回true,否则返回false并显示相应错误提示
      */
@@ -221,10 +219,6 @@ public class DataItemDialog extends Dialog<DataItem> {
         String code = codeField.getText().trim();
         if (code.isEmpty()) {
             showError("名称不能为空");
-            return false;
-        }
-        if (!code.matches("^[a-zA-Z][a-zA-Z0-9_]*$")) {
-            showError("名称必须以字母开头，只能包含字母、数字和下划线");
             return false;
         }
 
