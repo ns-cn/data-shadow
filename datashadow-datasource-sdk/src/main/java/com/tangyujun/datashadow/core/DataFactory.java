@@ -463,17 +463,17 @@ public class DataFactory {
         // 检查主键数据项的比较器配置
         for (DataItem item : uniqueItems) {
             if (item.getComparatorGroup() == null || item.getComparatorName() == null) {
-                return String.format("主键数据项 '%s' 未设置比较器", item.getNickName());
+                return String.format("主键数据项 '%s' 未设置比较器", item.getDisplayName());
             }
         }
 
         // 检查主键数据项的映射配置
         for (DataItem item : uniqueItems) {
             if (!primaryDataSource.getMappings().containsKey(item.getCode())) {
-                return String.format("主数据源中主键数据项 '%s' 未设置映射", item.getCode());
+                return String.format("主数据源中主键数据项 '%s' 未设置映射", item.getDisplayName());
             }
             if (!shadowDataSource.getMappings().containsKey(item.getCode())) {
-                return String.format("影子数据源中主键数据项 '%s' 未设置映射", item.getCode());
+                return String.format("影子数据源中主键数据项 '%s' 未设置映射", item.getDisplayName());
             }
         }
         return null;
