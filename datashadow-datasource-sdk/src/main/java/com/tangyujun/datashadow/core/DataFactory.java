@@ -391,22 +391,52 @@ public class DataFactory {
 
     /**
      * 验证数据对比前置条件
+     * 验证项目:
+     * 1. 主数据源和影子数据源是否已配置
+     * 2. 是否已添加数据项
+     * 3. 是否已配置主键数据项
+     * 4. 主键数据项是否都设置了比较器
+     * 5. 主键数据项是否都在两个数据源中完成映射
      * 
      * @return 如果验证通过返回true，否则返回false
      */
     public boolean validateComparePrerequisites() {
+        // 验证数据源是否存在
         if (primaryDataSource == null || shadowDataSource == null) {
             return false;
         }
 
+        // 验证是否有数据项
         if (dataItems.isEmpty()) {
             return false;
         }
 
+        // 获取主键数据项
         List<DataItem> uniqueItems = dataItems.stream()
                 .filter(DataItem::isUnique)
                 .toList();
-        return !uniqueItems.isEmpty();
+
+        // 验证是否存在主键数据项
+        if (uniqueItems.isEmpty()) {
+            return false;
+        }
+
+        // 验证主键数据项是否都设置了比较器
+        for (DataItem item : uniqueItems) {
+            if (item.getComparatorGroup() == null || item.getComparatorName() == null) {
+                return false;
+            }
+        }
+
+        // 验证主键数据项是否都在两个数据源中完成映射
+        for (DataItem item : uniqueItems) {
+            if (!primaryDataSource.getMappings().containsKey(item.getCode())
+                    || !shadowDataSource.getMappings().containsKey(item.getCode())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -430,6 +460,22 @@ public class DataFactory {
             return "请先配置主键数据项";
         }
 
+        // 检查主键数据项的比较器配置
+        for (DataItem item : uniqueItems) {
+            if (item.getComparatorGroup() == null || item.getComparatorName() == null) {
+                return String.format("主键数据项 '%s' 未设置比较器", item.getNickName());
+            }
+        }
+
+        // 检查主键数据项的映射配置
+        for (DataItem item : uniqueItems) {
+            if (!primaryDataSource.getMappings().containsKey(item.getCode())) {
+                return String.format("主数据源中主键数据项 '%s' 未设置映射", item.getCode());
+            }
+            if (!shadowDataSource.getMappings().containsKey(item.getCode())) {
+                return String.format("影子数据源中主键数据项 '%s' 未设置映射", item.getCode());
+            }
+        }
         return null;
     }
 }

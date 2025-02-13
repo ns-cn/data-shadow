@@ -292,8 +292,10 @@ public class CompareSection extends VBox implements DataItemChangeListener {
      * 1. 主数据源和影子数据源是否已配置
      * 2. 是否已添加数据项
      * 3. 是否已配置主键数据项
+     * 4. 主键数据项是否都设置了比较器
+     * 5. 主键数据项是否都在两个数据源中完成映射
      * 
-     * @return 如果满足所有条件返回true,否则返回false
+     * @return 如果满足所有条件返回true，否则返回false
      */
     private boolean validateComparePrerequisites() {
         DataFactory factory = DataFactory.getInstance();

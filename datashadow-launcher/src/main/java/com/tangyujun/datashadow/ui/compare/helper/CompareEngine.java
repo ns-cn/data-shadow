@@ -61,21 +61,20 @@ public class CompareEngine {
         List<DataItem> uniqueItems = getUniqueItems(dataItems);
         CompareData compareData = getCompareData(primary, shadow);
 
-        Map<Object, Map<String, Object>> shadowMap = buildShadowMap(
+        List<Map<String, Object>> shadowList = buildShadowList(
                 compareData.shadowData(),
                 compareData.shadowMapping(),
-                dataItems,
-                uniqueItems);
+                dataItems);
 
         processPrimaryData(
                 compareData.primaryData(),
                 compareData.primaryMapping(),
-                shadowMap,
+                shadowList,
                 dataItems,
                 uniqueItems,
                 results);
 
-        processShadowOnlyData(shadowMap, dataItems, results);
+        processShadowOnlyData(shadowList, dataItems, results);
     }
 
     /**
@@ -127,52 +126,73 @@ public class CompareEngine {
     /**
      * 构建影子数据Map
      * 将影子数据源数据构建成以主键为索引的Map结构
-     *
-     * @param shadowData    影子数据源数据
-     * @param shadowMapping 影子数据源字段映射
-     * @param dataItems     数据项定义列表
-     * @param uniqueItems   主键数据项列表
-     * @return 以主键为key的影子数据Map
      */
-    private static Map<Object, Map<String, Object>> buildShadowMap(
+    private static List<Map<String, Object>> buildShadowList(
             List<Map<String, Object>> shadowData,
             Map<String, String> shadowMapping,
-            List<DataItem> dataItems,
+            List<DataItem> dataItems) {
+        return shadowData.stream()
+                .map(shadowRow -> mapDataSourceRow(shadowRow, shadowMapping, dataItems))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 在影子数据中查找匹配的数据行
+     * 
+     * @param primaryObject 主数据行
+     * @param shadowList    影子数据列表
+     * @param uniqueItems   主键数据项列表
+     * @return 匹配的影子数据行，如果未找到返回null
+     */
+    private static Map<String, Object> findMatchingShadowRow(
+            Map<String, Object> primaryObject,
+            List<Map<String, Object>> shadowList,
             List<DataItem> uniqueItems) {
-        Map<Object, Map<String, Object>> shadowMap = new HashMap<>();
+        return shadowList.stream()
+                .filter(shadowRow -> isUniqueKeysMatch(primaryObject, shadowRow, uniqueItems))
+                .findFirst()
+                .orElse(null);
+    }
 
-        for (Map<String, Object> shadowRow : shadowData) {
-            Map<String, Object> mappedRow = mapDataSourceRow(shadowRow, shadowMapping, dataItems);
-            String key = buildUniqueKey(mappedRow, uniqueItems);
-            shadowMap.put(key, mappedRow);
-        }
-
-        return shadowMap;
+    /**
+     * 判断两行数据的主键是否匹配
+     * 
+     * @param primaryRow  主数据行
+     * @param shadowRow   影子数据行
+     * @param uniqueItems 主键数据项列表
+     * @return 如果所有主键值都匹配返回true，否则返回false
+     */
+    private static boolean isUniqueKeysMatch(
+            Map<String, Object> primaryRow,
+            Map<String, Object> shadowRow,
+            List<DataItem> uniqueItems) {
+        return uniqueItems.stream().allMatch(item -> {
+            Object primaryValue = primaryRow.get(item.getCode());
+            Object shadowValue = shadowRow.get(item.getCode());
+            // 如果比较器为空,则使用Objects.equals进行比较
+            return item.getComparator() == null ? false
+                    : item.getComparator().equals(primaryValue, shadowValue);
+        });
     }
 
     /**
      * 处理主数据源数据
-     * 遍历主数据源数据并与影子数据进行对比
-     *
-     * @param primaryData    主数据源数据
-     * @param primaryMapping 主数据源字段映射
-     * @param shadowMap      影子数据Map
-     * @param dataItems      数据项定义列表
-     * @param uniqueItems    主键数据项列表
-     * @param results        存储对比结果的列表
      */
     private static void processPrimaryData(
             List<Map<String, Object>> primaryData,
             Map<String, String> primaryMapping,
-            Map<Object, Map<String, Object>> shadowMap,
+            List<Map<String, Object>> shadowList,
             List<DataItem> dataItems,
             List<DataItem> uniqueItems,
             ObservableList<CompareResult> results) {
 
         for (Map<String, Object> primaryRow : primaryData) {
             Map<String, Object> primaryObject = mapDataSourceRow(primaryRow, primaryMapping, dataItems);
-            String key = buildUniqueKey(primaryObject, uniqueItems);
-            Map<String, Object> shadowObject = shadowMap.remove(key);
+            Map<String, Object> shadowObject = findMatchingShadowRow(primaryObject, shadowList, uniqueItems);
+
+            if (shadowObject != null) {
+                shadowList.remove(shadowObject);
+            }
 
             CompareResult result = compareDataRows(primaryObject, shadowObject, dataItems);
             results.add(result);
@@ -232,17 +252,12 @@ public class CompareEngine {
 
     /**
      * 处理仅在影子数据源中存在的数据
-     * 将剩余的影子数据生成对比结果
-     *
-     * @param shadowMap 剩余的影子数据Map
-     * @param dataItems 数据项定义列表
-     * @param results   存储对比结果的列表
      */
     private static void processShadowOnlyData(
-            Map<Object, Map<String, Object>> shadowMap,
+            List<Map<String, Object>> shadowList,
             List<DataItem> dataItems,
             ObservableList<CompareResult> results) {
-        for (Map<String, Object> shadowRow : shadowMap.values()) {
+        for (Map<String, Object> shadowRow : shadowList) {
             CompareResult result = new CompareResult();
             for (DataItem item : dataItems) {
                 Object shadowValue = shadowRow.get(item.getCode());
@@ -251,19 +266,5 @@ public class CompareEngine {
             }
             results.add(result);
         }
-    }
-
-    /**
-     * 构建唯一键
-     * 将多个主键字段的值拼接成唯一标识
-     *
-     * @param row         数据行
-     * @param uniqueItems 主键数据项列表
-     * @return 唯一键字符串
-     */
-    private static String buildUniqueKey(Map<String, Object> row, List<DataItem> uniqueItems) {
-        return uniqueItems.stream()
-                .map(item -> String.valueOf(row.get(item.getCode())))
-                .collect(Collectors.joining("_"));
     }
 }
