@@ -5,6 +5,7 @@ import javafx.scene.layout.VBox;
 
 import com.tangyujun.datashadow.scheme.ComparisonSchemeManager;
 import com.tangyujun.datashadow.ui.menu.dialog.SystemSettingDialog;
+import com.tangyujun.datashadow.ui.menu.dialog.QADialog;
 
 import javafx.application.Platform;
 
@@ -124,14 +125,10 @@ public class MenuBarSection extends VBox {
     /**
      * 显示Q&A对话框
      * 显示常见问题解答内容
-     * TODO: 实现Q&A内容展示,需要添加实际的Q&A内容
      */
     private void showQADialog() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Q&A");
-        alert.setHeaderText("常见问题解答");
-        alert.setContentText("暂未实现Q&A内容");
-        alert.showAndWait();
+        QADialog dialog = new QADialog(menuBar.getScene().getWindow());
+        dialog.show();
     }
 
     /**

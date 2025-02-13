@@ -93,11 +93,12 @@ public class CellResult {
             Object primaryValue,
             Object shadowValue,
             DataItem item,
+            boolean primaryObjectNull,
             boolean shadowObjectNull) {
         CellResult cellResult = new CellResult();
         cellResult.setPrimaryValue(primaryValue);
         cellResult.setShadowValue(shadowValue);
-        if (shadowObjectNull) {
+        if (primaryObjectNull || shadowObjectNull) {
             cellResult.setDifferent(item.isUnique() &&
                     item.getComparator() != null &&
                     !item.getComparator().equals(primaryValue, shadowValue));

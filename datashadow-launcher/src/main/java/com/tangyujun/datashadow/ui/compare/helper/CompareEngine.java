@@ -222,6 +222,7 @@ public class CompareEngine {
                     primaryObject.get(item.getCode()),
                     shadowObject != null ? shadowObject.get(item.getCode()) : null,
                     item,
+                    false, // primaryObject 不可能为 null
                     shadowObject == null);
             result.putCellResult(item.getCode(), cellResult);
         }
@@ -245,7 +246,7 @@ public class CompareEngine {
             CompareResult result = new CompareResult();
             for (DataItem item : dataItems) {
                 Object shadowValue = shadowRow.get(item.getCode());
-                CellResult cellResult = CellResult.create(null, shadowValue, item, false);
+                CellResult cellResult = CellResult.create(null, shadowValue, item, true, false);
                 result.putCellResult(item.getCode(), cellResult);
             }
             results.add(result);
