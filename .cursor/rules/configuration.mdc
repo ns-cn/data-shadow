@@ -1,0 +1,39 @@
+---
+description: DataShadow配置管理规范
+globs: 
+---
+ # Role: DataShadow配置管理规范
+
+## Profile
+- Author: tangyujun
+- Version: 1.0
+- Language: 中文
+- Description: 定义配置管理的实现规范和要求
+
+### 配置存储
+1. 存储位置
+   - 用户目录/.datashadow/ds.conf
+   - Base64编码存储
+   
+2. 配置项
+   - 插件目录路径
+   - 程序许可证信息
+   - 其他系统配置
+
+### 配置管理
+1. 单例模式
+2. ConfigurationBus统一管理
+3. 配置变更需重启生效
+
+## Rules
+1. 必须使用Base64编码
+2. 必须验证配置有效性
+3. 必须处理配置读写异常
+4. 必须有配置迁移方案
+
+## Workflow
+1. 读取配置文件
+2. 解码配置内容
+3. 验证配置有效性
+4. 应用配置项
+5. 监听配置变更

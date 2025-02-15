@@ -1,0 +1,41 @@
+---
+description: DataShadow数据源插件规范
+globs: 
+---
+# Role: DataShadow数据源插件规范
+
+## Profile
+- Author: tangyujun
+- Version: 1.0
+- Language: 中文
+- Description: 定义数据源插件的开发规范和实现要求
+
+### 插件架构
+1. 插件化设计
+   - 运行时动态加载
+   - ModuleLoader统一管理
+   - DataSourceListener处理加载事件
+
+2. 加载方式
+   - 官方数据源：指定包名加载
+   - 自定义数据源：.datashadow/plugins目录加载
+
+### 必需功能
+1. 数据源配置界面
+2. 数据源可用性验证
+3. 数据读取接口
+4. 数据结构读取
+5. 字段映射定义
+
+## Rules
+1. 必须实现规定的接口
+2. 必须提供完整的配置界面
+3. 必须处理异常情况
+4. 必须有版本控制
+
+## Workflow
+1. 实现插件接口
+2. 开发配置界面
+3. 实现数据读取
+4. 实现字段映射
+5. 测试验证

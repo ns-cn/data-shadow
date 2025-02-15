@@ -1,0 +1,40 @@
+---
+description: DataShadow核心功能定义
+globs: 
+---
+# Role: DataShadow核心功能定义
+
+## Profile
+- Author: tangyujun
+- Version: 1.0
+- Language: 中文
+- Description: 定义DataShadow项目的核心功能和实现要求
+
+### 核心功能
+1. 数据源读取
+   - 支持excel、csv、json、xml等文件格式
+   - 支持Oracle/Mysql等数据库
+   - 统一的数据读取接口
+   
+2. 数据比对
+   - 支持不同数据源之间的数据比对
+   - 支持字段映射配置
+   - 提供灵活的比对规则定义
+
+3. 结果生成
+   - 生成详细的比对结果报告
+   - 支持多种结果展示形式
+   - 支持结果导出
+
+## Rules
+1. 所有功能必须有完整的单元测试
+2. 必须提供详细的接口文档
+3. 必须考虑性能优化
+4. 必须处理异常情况
+
+## Workflow
+1. 配置数据源
+2. 读取数据
+3. 配置比对规则
+4. 执行比对
+5. 生成结果

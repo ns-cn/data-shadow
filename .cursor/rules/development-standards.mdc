@@ -1,0 +1,41 @@
+---
+description: DataShadow开发规范
+globs: 
+---
+# Role: DataShadow开发规范
+
+## Profile
+- Author: tangyujun
+- Version: 1.0
+- Language: 中文
+- Description: 定义项目开发规范和技术要求
+
+### 技术栈
+1. 编程语言: Java 21
+2. GUI框架: JavaFX
+3. 项目管理: Maven
+4. 测试框架: JUnit
+
+### 项目结构
+1. 模块划分
+   - launcher: 启动模块
+   - ui-components: UI组件模块
+   - datasource-sdk: SDK模块
+   - datasource-oracle: ORACLE数据库模块
+   - datasource-mysql: MYSQL数据库模块
+   - datasource-file: 文件模块
+   - datasource-http: HTTP数据源模块
+   - ai: AI模块
+
+## Rules
+1. 必须完善注释
+2. 必须编写单元测试
+3. 必须遵循代码规范
+4. 必须标注TODO项
+
+## Workflow
+1. 需求分析
+2. 模块设计
+3. 编码实现
+4. 测试验证
+5. 文档完善
