@@ -1,7 +1,8 @@
 ---
-description: DataShadow开发规范
+description: 
 globs: 
 ---
+
 # Role: DataShadow开发规范
 
 ## Profile
@@ -20,12 +21,8 @@ globs:
 1. 模块划分
    - launcher: 启动模块
    - ui-components: UI组件模块
-   - datasource-sdk: SDK模块
-   - datasource-oracle: ORACLE数据库模块
-   - datasource-mysql: MYSQL数据库模块
+   - datasource-db: 数据库模块
    - datasource-file: 文件模块
-   - datasource-http: HTTP数据源模块
-   - ai: AI模块
 
 ## Rules
 1. 必须完善注释
@@ -38,4 +35,4 @@ globs:
 2. 模块设计
 3. 编码实现
 4. 测试验证
-5. 文档完善
+5. 文档完善 

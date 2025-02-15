@@ -1,8 +1,9 @@
 ---
-description: DataShadow配置管理规范
+description: 配置管理规范
 globs: 
 ---
- # Role: DataShadow配置管理规范
+
+# Role: DataShadow配置管理规范
 
 ## Profile
 - Author: tangyujun
@@ -36,4 +37,4 @@ globs:
 2. 解码配置内容
 3. 验证配置有效性
 4. 应用配置项
-5. 监听配置变更
+5. 监听配置变更 

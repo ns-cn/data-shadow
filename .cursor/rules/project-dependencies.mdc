@@ -2,6 +2,7 @@
 description: DataShadow项目依赖管理
 globs: 
 ---
+
 # Role: DataShadow项目依赖管理
 
 ## Profile
@@ -11,36 +12,26 @@ globs:
 - Description: 定义项目依赖管理规范
 
 ### 核心依赖
-1. JavaFX技术栈 (${javafx.version})
-   - javafx-controls：基础控件支持
-   - javafx-fxml：FXML布局支持
-   - javafx-graphics：图形渲染支持（含跨平台支持）
+1. JavaFX
+   - javafx-controls
+   - javafx-fxml
+   - javafx-graphics
    
 2. 数据库支持
-   - mysql-connector-j (${mysql.version})：MySQL数据库连接
-   - ojdbc8 (${oracle.version})：Oracle数据库连接
-   - HikariCP (${hikari.version})：高性能数据库连接池
+   - mysql-connector-java
+   - oracle-jdbc
    
 3. 文件处理
-   - poi (${poi.version})：Excel文件处理
-   - commons-csv (${commons.csv.version})：CSV文件处理
-   - fastjson2 (${fastjson2.version})：JSON数据处理
-   - jaxb-api (${jaxb.version})：XML数据处理
+   - poi-ooxml
+   - jackson-databind
    
-4. 网络支持
-   - okhttp (4.12.0)：HTTP请求处理
-   
-5. 日志支持
-   - slf4j-api (${slf4j.version})：日志门面
-   - logback-classic (${logback.version})：日志实现
-
-6. 测试框架
-   - junit-jupiter (${junit.version})：单元测试支持
-
+4. 测试框架
+   - junit-jupiter
+   - mockito-core
 
 ## Rules
 1. 统一使用Maven管理
-2. 版本号必须明确(统一在 [pom.xml](mdc:pom.xml)中管理依赖版本 )
+2. 版本号必须明确
 3. 避免依赖冲突
 4. 控制依赖大小
 
@@ -49,3 +40,8 @@ globs:
 2. 检查版本兼容性
 3. 验证依赖可用性
 4. 更新文档说明
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
