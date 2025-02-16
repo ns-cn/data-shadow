@@ -1,8 +1,7 @@
 ---
-description: 
+description: DataShadow开发规范
 globs: 
 ---
-
 # Role: DataShadow开发规范
 
 ## Profile
@@ -19,10 +18,15 @@ globs:
 
 ### 项目结构
 1. 模块划分
-   - launcher: 启动模块
-   - ui-components: UI组件模块
-   - datasource-db: 数据库模块
-   - datasource-file: 文件模块
+   - /( [pom.xml](mdc:pom.xml) ):项目根pom
+   - launcher（ [pom.xml](mdc:datashadow-launcher/pom.xml) ）: 启动模块
+   - ui-components( [pom.xml](mdc:datashadow-ui-components/pom.xml) ): UI组件模块
+   - datasource-sdk( [pom.xml](mdc:datashadow-datasource-sdk/pom.xml) ): SDK模块
+   - datasource-oracle( [pom.xml](mdc:datashadow-datasource-oracle/pom.xml) ): ORACLE数据库模块
+   - datasource-mysql( [pom.xml](mdc:datashadow-datasource-mysql/pom.xml) ): MYSQL数据库模块
+   - datasource-file( [pom.xml](mdc:datashadow-datasource-file/pom.xml) ): 文件模块
+   - datasource-http( [pom.xml](mdc:datashadow-datasource-http/pom.xml) ) : HTTP数据源模块
+   - ai( [pom.xml](mdc:datashadow-ai/pom.xml) ): AI模块
 
 ## Rules
 1. 必须完善注释
@@ -35,4 +39,4 @@ globs:
 2. 模块设计
 3. 编码实现
 4. 测试验证
-5. 文档完善 
+5. 文档完善

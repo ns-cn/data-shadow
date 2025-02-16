@@ -40,8 +40,3 @@ globs:
 2. 检查版本兼容性
 3. 验证依赖可用性
 4. 更新文档说明
-
-# Your rule content
-
-- You can @ files here
-- You can use markdown but dont have to
