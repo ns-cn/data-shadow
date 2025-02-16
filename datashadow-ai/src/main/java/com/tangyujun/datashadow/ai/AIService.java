@@ -203,36 +203,81 @@ public class AIService {
                             item.getOrDefault("nick", "")));
                 }
 
-                String prompt = String.format("""
-                        请分析以下数据项和数据源字段，并给出最合适的映射关系。
+                // 构建系统提示词
+                String systemPrompt = """
+                        # Role: 数据字段映射专家
+
+                        ## Profile
+                        - Language: 中文
+                        - Description: 专门分析数据字段名称，提供最优的字段映射方案
+
+                        ## Skills
+                        - 精通数据字段语义分析
+                        - 擅长识别字段名称相似度
+                        - 熟练掌握中英文字段命名规范
+                        - 具备数据建模经验
+
+                        ## Goals
+                        - 分析源字段和目标字段的语义关联
+                        - 提供最合理的字段映射建议
+                        - 确保映射结果的准确性
+
+                        ## Rules
+                        1. 只返回完全匹配或高度相似的映射关系
+                        2. 映射字段名必须完全匹配数据源字段列表中的某一项
+                        3. 不添加不存在的字段映射
+                        4. 相似度匹配规则：
+                           - 完全匹配优先（如：姓名=姓名）
+                           - 同义词匹配（如：姓名=名称=名字）
+                           - 英文字段需匹配中文语义（如：name=姓名）
+                        5. 返回格式必须是JSON对象
+                        6. 如果找不到合适的映射，该字段应该被忽略
+
+                        ## Output Format
+                        必须返回JSON格式：{"数据项code": "数据源字段名"}
+
+                        ## Example
+                        Input:
+                        数据项:
+                        code: name, name: 姓名, nick: 名字
+                        code: age, name: 年龄, nick: 年龄
+                        code: address, name: 地址, nick: 住址
+                        code: confirm, name: 确认, nick: 确认
+
+                        数据源字段:
+                        名称, 年纪, 联系地址，是否确认
+
+                        Output:
+                        {"name": "名称", "age": "年纪", "address": "联系地址", "confirm": "是否确认"}
+
+                        ## 相似度匹配示例
+                        1. 完全匹配：
+                           - 姓名 = 姓名
+                           - 年龄 = 年龄
+                        2. 同义词匹配：
+                           - 姓名 = 名称 = 名字
+                           - 年龄 = 年纪 = 岁数
+                           - 地址 = 住址 = 联系地址
+                           - 确认 = 是否确认
+                        3. 英文匹配：
+                           - name = 姓名 = 名称
+                           - age = 年龄 = 年纪
+                           - address = 地址 = 联系地址
+                           - confirm = 确认 = 是否确认
+                        """;
+
+                // 构建用户提示词
+                String userPrompt = String.format("""
+                        请分析以下数据并返回最优的字段映射方案：
+
                         数据项:
                         %s
 
-
                         数据源字段:
                         %s
-
-                        例如：
-                        数据项:
-                        [
-                            {"code": "name", "nick": "名字"},
-                            {"code": "age", "nick": "年龄"}
-                        ]
-                        数据源字段:
-                        姓名, 年纪
-                        返回：
-                        {"name": "姓名", "age": "年纪"}
-
-                        请以JSON格式返回映射关系，格式为：{"数据项code": "数据源字段名"}。
-                        注意：
-                        1. 只返回有映射关系的项，如果找不到合适的映射则不要包含该项
-                        2. 映射的字段名必须完全匹配数据源字段列表中的某一项
-                        3. 不要添加任何不在数据源字段列表中的字段名
-
-
                         """,
                         itemsStr.toString(),
-                        String.join("\n", sourceColumns));
+                        String.join(", ", sourceColumns));
 
                 String jsonBody = String.format("""
                         {
@@ -240,7 +285,7 @@ public class AIService {
                             "messages": [
                                 {
                                     "role": "system",
-                                    "content": "你是一个数据分析专家，专门负责分析字段映射关系。请仔细分析字段名称的相似度和语义关联，给出最合适的映射建议。"
+                                    "content": "%s"
                                 },
                                 {
                                     "role": "user",
@@ -253,7 +298,8 @@ public class AIService {
                             "max_tokens": 2048
                         }""",
                         model.getModelName(),
-                        prompt.replace("\"", "\\\"").replace("\n", "\\n")); // 转义JSON字符串中的引号和换行符
+                        systemPrompt.replace("\"", "\\\"").replace("\n", "\\n"),
+                        userPrompt.replace("\"", "\\\"").replace("\n", "\\n"));
 
                 Request request = new Request.Builder()
                         .url(API_URL)
